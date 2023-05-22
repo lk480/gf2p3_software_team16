@@ -67,3 +67,14 @@ class Names:
 
         If the name_id is not an index in the names list, return None.
         """
+        if type(name_id) is str:
+            raise TypeError
+        elif type(name_id) is float:
+            raise TypeError
+        elif name_id < 0:
+            raise ValueError
+        else:
+            try:
+                return self.names_list[name_id]
+            except IndexError:
+                return None

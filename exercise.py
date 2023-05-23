@@ -1,6 +1,7 @@
 import sys
 import os
 from names import Names
+from scanner import Scanner
 
 
 def open_file(path):
@@ -62,64 +63,15 @@ def main():
         # Print the path provided and try to open the file for reading
         path = os.path.abspath(sys.argv[1])
         print(path)
-        try:
-            file = open_file(path)
-        except IOError:
-            print("Cannot find file or read data")
-            sys.exit()
-        else:
-            print("Contents read successfully")
-
         print("\nNow reading file...")
-
-        while True:
-            char = get_next_character(file)
-            if not char:
-                char = ""
-                break
-            print(char, end="")
-
-        print("\nNow skipping spaces...")
-        # Print out all the characters in the file, without spaces
-        file.seek(0)
-        while True:
-            char = get_next_non_whitespace_character(file)
-            if char == '':
-                break
-            elif char is None:
-                char = ""
-            print(char, end="")
-
-        print("\nNow reading numbers...")
-        # Print out all the numbers in the file
-        file.seek(0)
-        while True:
-            char_list = get_next_number(file)
-            next_num = char_list[0]
-            if next_num is None:
-                pass
-            else:
-                print(next_num)
-            if char_list[1] == '':
-                break
-
-        print("\nNow reading names...")
-        file.seek(0)
-        while True:
-            char_list = get_next_name(file)
-            next_name = char_list[0]
-            if next_name is None:
-                pass
-            else:
-                print(next_name)
-            if char_list[1] == '':
-                break
-
-        print("\n testing names class")
-        # Print out only the good names in the file
         names = Names()
-        names_ids = names.lookup(['happy', 'sad'])
-        print(names_ids)
+        scanner = Scanner(path, names)
+        scanner.get_symbol()
+
+        # print("\n testing names class")
+        # Print out only the good names in the file
+        # names_ids = names.lookup(['happy', 'sad'])
+        # print(names_ids)
 
 
 if __name__ == "__main__":

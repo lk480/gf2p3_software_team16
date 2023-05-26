@@ -64,10 +64,16 @@ class Scanner:
         self.current_character = ' '
         self.keywords_list = ['NEW_DEVICES', 'CONNECT',
                               'MONITOR', 'TYPE', 'STATE', 'INPUTS']
-        self.symbol_type_list = [self.COMMA, self.SEMICOLON, self.EQUALS, self.DOT, self.OPENBRACKET,
-                                 self.CLOSEBRACKET, self.KEYWORD, self.NUMBER, self.NAME, self.EOF] = range(10)
-        [self.NEW_DEVICES_ID, self.CONNECT_ID, self.MONITOR_ID, self.TYPE_ID,
-            self.STATE_ID, self.INPUTS_ID] = self.names.lookup(self.keywords_list)
+        self.symbol_type_list = [self.COMMA, self.SEMICOLON, self.EQUALS,
+                                 self.DOT, self.OPENBRACKET,
+                                 self.CLOSEBRACKET, self.KEYWORD, self.NUMBER,
+                                 self.NAME, self.EOF] = range(10)
+        [self.NEW_DEVICES_ID,
+         self.CONNECT_ID,
+         self.MONITOR_ID,
+         self.TYPE_ID,
+         self.STATE_ID,
+         self.INPUTS_ID] = self.names.lookup(self.keywords_list)
 
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""

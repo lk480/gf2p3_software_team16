@@ -66,10 +66,6 @@ def main():
         print("\nNow reading file...")
         names = Names()
         scanner = Scanner(path, names)
-        while True:
-            next_char = scanner.advance()
-            if not next_char.isalnum():
-                break
 
 
 if __name__ == "__main__":

@@ -12,12 +12,14 @@ import wx
 import wx.glcanvas as wxcanvas
 from OpenGL import GL, GLUT
 
+"""
 from names import Names
 from devices import Devices
 from network import Network
 from monitors import Monitors
 from scanner import Scanner
 from parse import Parser
+"""
 
 
 class MyGLCanvas(wxcanvas.GLCanvas):
@@ -274,20 +276,35 @@ class Gui(wx.Frame):
         menuBar.Append(fileMenu, "&File")
         self.SetMenuBar(menuBar)
 
+        self.devices = [["G1", "0", "1"], ["G2", "1", "0"], ["G3", "2", "3"]]
+        self.current_device = len(self.devices) + 2
+
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
 
         # Configure the widgets
-        self.text = wx.StaticText(self, wx.ID_ANY, "Cycles")
-        self.spin = wx.SpinCtrl(self, wx.ID_ANY, "10")
+        self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
+        self.cycles_spin = wx.SpinCtrl(self, wx.ID_ANY, "10")
         self.run_button = wx.Button(self, wx.ID_ANY, "Run")
+        self.stop_button = wx.Button(self, wx.ID_ANY, "Stop")
+        self.speed_text = wx.StaticText(self, wx.ID_ANY, "Cycles /s")
+        self.speed_spin = wx.SpinCtrl(self, wx.ID_ANY, "1")
         self.text_box = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
+        self.devices_spin_button = wx.SpinButton(
+            self, wx.ID_ANY, style=wx.SP_HORIZONTAL, name="Current device"
+        )
+        self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected")
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
-        self.spin.Bind(wx.EVT_SPINCTRL, self.on_spin)
+        self.cycles_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_cycles)
+        self.speed_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_speed)
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
+        self.stop_button.Bind(wx.EVT_BUTTON, self.on_stop_button)
         self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
+        self.devices_spin_button.Bind(wx.EVT_SPIN, self.on_spin_devices)
+
+        self.devices_spin_button.SetRange(-2, len(self.devices) + 2)
 
         # Configure sizers for layout
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -296,13 +313,19 @@ class Gui(wx.Frame):
         main_sizer.Add(self.canvas, 5, wx.EXPAND | wx.ALL, 5)
         main_sizer.Add(side_sizer, 1, wx.ALL, 5)
 
-        side_sizer.Add(self.text, 1, wx.TOP, 10)
-        side_sizer.Add(self.spin, 1, wx.ALL, 5)
+        side_sizer.Add(self.cycles_text, 1, wx.TOP, 10)
+        side_sizer.Add(self.cycles_spin, 1, wx.ALL, 5)
         side_sizer.Add(self.run_button, 1, wx.ALL, 5)
+        side_sizer.Add(self.stop_button, 1, wx.ALL, 5)
+        side_sizer.Add(self.speed_text, 1, wx.ALL, 10)
+        side_sizer.Add(self.speed_spin, 1, wx.ALL, 5)
         side_sizer.Add(self.text_box, 1, wx.ALL, 5)
+        side_sizer.Add(self.devices_spin_button, 1, wx.ALL, 5)
+        side_sizer.Add(self.devices_text, 1, wx.ALL, 5)
 
         self.SetSizeHints(600, 600)
         self.SetSizer(main_sizer)
+        # self.update_current_device(self.devices[0])
 
     def on_menu(self, event):
         """Handle the event when the user selects a menu item."""
@@ -316,10 +339,16 @@ class Gui(wx.Frame):
                 wx.ICON_INFORMATION | wx.OK,
             )
 
-    def on_spin(self, event):
+    def on_spin_cycles(self, event):
         """Handle the event when the user changes the spin control value."""
-        spin_value = self.spin.GetValue()
-        text = "".join(["New spin control value: ", str(spin_value)])
+        spin_value = self.cycles_spin.GetValue()
+        text = "".join(["New cycles control value: ", str(spin_value)])
+        self.canvas.render(text)
+
+    def on_spin_speed(self, event):
+        """Handle the event when the user changes the spin control value."""
+        spin_value = self.speed_spin.GetValue()
+        text = "".join(["New rate control value: ", str(spin_value)])
         self.canvas.render(text)
 
     def on_run_button(self, event):
@@ -327,8 +356,32 @@ class Gui(wx.Frame):
         text = "Run button pressed."
         self.canvas.render(text)
 
+    def on_stop_button(self, event):
+        """Handle the event when the user clicks the run button."""
+        text = "Stop button pressed."
+        self.canvas.render(text)
+
     def on_text_box(self, event):
         """Handle the event when the user enters text."""
         text_box_value = self.text_box.GetValue()
         text = "".join(["New text box value: ", text_box_value])
         self.canvas.render(text)
+
+    def on_spin_devices(self, event):
+        """Handle the event when the user changes the spin control value."""
+        spin_value = self.devices_spin_button.GetValue()
+
+        if spin_value <= -1:
+            self.devices_spin_button.SetValue(len(self.devices) - 1)
+            spin_value = len(self.devices) - 1
+        elif spin_value >= len(self.devices):
+            self.devices_spin_button.SetValue(0)
+            spin_value = 0
+
+        self.current_device = spin_value
+        self.update_current_device(self.devices[spin_value])
+
+    def update_current_device(self, devices):
+        self.devices_text.SetLabel(
+            f" Device: {devices[0]} \n ID: {devices[1]} \n Property: {devices[2]}"
+        )

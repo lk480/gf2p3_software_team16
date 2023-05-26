@@ -54,26 +54,44 @@ class Scanner:
 
     def __init__(self, path, names):
         """Open specified file and initialise reserved words and IDs."""
+        # if isinstance(names, Names)
+
         self.names = names
         self.path = path
 
         try:
             self.input_file = open(path, 'r')
         except IOError:
-            raise print("Cannot find file or read data")
+            raise FileNotFoundError("Cannot find file or read data")
+
         self.current_character = ' '
         self.keywords_list = ['NEW_DEVICES', 'CONNECT',
                               'MONITOR', 'TYPE', 'STATE', 'INPUTS']
+        self.gate_list = ['CLOCK', 'SWITCH', 'NAND', 'DTYPE', 'XOR',
+                          'AND', 'OR', 'NOR', 'NOT']
         self.symbol_type_list = [self.COMMA, self.SEMICOLON, self.EQUALS,
                                  self.DOT, self.OPENBRACKET,
-                                 self.CLOSEBRACKET, self.KEYWORD, self.NUMBER,
-                                 self.NAME, self.EOF] = range(10)
+                                 self.CLOSEDBRACKET, self.KEYWORD,
+                                 self.GATE, self.NUMBER,
+                                 self.NAME, self.EOF] = range(11)
         [self.NEW_DEVICES_ID,
          self.CONNECT_ID,
          self.MONITOR_ID,
          self.TYPE_ID,
          self.STATE_ID,
-         self.INPUTS_ID] = self.names.lookup(self.keywords_list)
+         self.INPUTS_ID,
+         ] = self.names.lookup(self.keywords_list)
+        
+        [self.CLOCK_ID,
+         self.CLOCK_ID,
+         self.NAND_ID,
+         self.DTYPE_ID,
+         self.XOR_ID,
+         self.AND_ID,
+         self.OR_ID,
+         self.NOR_ID,
+         self.NOT_ID,
+         ] = self.names.lookup(self.gate_list)
 
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""
@@ -84,8 +102,11 @@ class Scanner:
             name_string = self.get_name()
             if name_string in self.keywords_list:
                 symbol.type = self.KEYWORD
+            elif name_string in self.gate_list:
+                symbol.type = self.GATE
             else:
                 symbol.type = self.NAME
+            
             [symbol.id] = self.names.lookup([name_string])
 
         elif self.current_character.isdigit():
@@ -96,7 +117,7 @@ class Scanner:
             symbol.type = self.OPENBRACKET
             self.advance()
         elif self.current_character == ')':
-            symbol.type = self.CLOSEBRACKET
+            symbol.type = self.CLOSEDBRACKET
             self.advance()
         elif self.current_character == ',':
             symbol.type = self.COMMA

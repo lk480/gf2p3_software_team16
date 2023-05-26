@@ -5,7 +5,7 @@ from names import Names
 
 @pytest.fixture
 def new_names():
-    """Return a new names instance."""
+    """Return a names instance."""
     return Names()
 
 
@@ -24,7 +24,7 @@ def used_names(name_string_list):
 
 
 def test_query_raises_exception(used_names):
-    """Test if quary raises expected exceptions."""
+    """Test if query raises expected exceptions."""
     with pytest.raises(TypeError):
         used_names.query(2.5)
     with pytest.raises(TypeError):
@@ -65,7 +65,7 @@ def test_query(used_names, new_names, expected_name_id, name_string):
     # Name is present
     assert used_names.query(name_string) == expected_name_id
     # Name is not present
-    assert new_names.query(name_string) == None
+    assert new_names.query(name_string) is None
 
 
 @pytest.mark.parametrize("expected_name_id, name_string_list", [

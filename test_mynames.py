@@ -1,4 +1,4 @@
-"""Test the mynames module."""
+"""PRELIMINARY EXERCISE. Test the mynames module."""
 import pytest
 
 from mynames import MyNames
@@ -35,6 +35,16 @@ def test_get_string_raises_exceptions(used_names):
         used_names.get_string(-1)
 
 
+def test_lookup_raises_exception(used_names):
+    """Test if lookup raises expected exceptions."""
+    with pytest.raises(TypeError):
+        used_names.lookup(2.5)
+    with pytest.raises(TypeError):
+        used_names.lookup(2)
+    with pytest.raises(TypeError):
+        used_names.lookup(True)
+
+
 @pytest.mark.parametrize("name_id, expected_string", [
     (0, "Alice"),
     (1, "Bob"),
@@ -47,3 +57,17 @@ def test_get_string(used_names, new_names, name_id, expected_string):
     assert used_names.get_string(name_id) == expected_string
     # Name is absent
     assert new_names.get_string(name_id) is None
+
+
+@pytest.mark.parametrize("expected_name_id, string", [
+    (0, "Alice"),
+    (1, "Bob"),
+    (2, "Eve"),
+    (3, "Darren")
+])
+def test_lookup(used_names, new_names, expected_name_id, string):
+    """Test if lookup returns the expected string."""
+    # Name is present
+    assert used_names.lookup(string) == expected_name_id
+    # Name is not present
+    assert new_names.lookup(string) == 0

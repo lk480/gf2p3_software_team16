@@ -1,7 +1,8 @@
 overall_circuit = new_devices, connections, [monitors];
 
 
-#Here we define what is new_devices
+# Here we define what is new_devices
+
 new_devices = "TYPE(", device_type, "),", "NEW_DEVICES(", {device_name ","},
               device_name, ")", 
               [define_inputs | define_switch_state | define_clock_period];
@@ -18,17 +19,17 @@ define_clock_period = "PERIOD(", {positive_non_zero_integer, ","},
                       positive_non_zero_integer, ")";
 
 
-#Here we define connections
+# Here we define connections
 connections = "CONNECT(", {"(", output, ",", input, ")", ","},
               "(", output, ",", input, ")", ")";
 output = device_name, [".Q" | ".QBAR"];
 input = device_name, ".I", positive_non_zero_integer;                
 
-#Definition of monitors
+# Definition of monitors
 monitors = "MONITOR(", {output, ","}, output,")";
 
 
-#Additional definitions
+# Additional definitions
 non_zero_digit = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 digit = "0" | digit_excluding_zero;
 

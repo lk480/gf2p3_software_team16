@@ -20,8 +20,9 @@ define_clock_period = "PERIOD(", {positive_non_zero_integer, ","},
 
 
 # Here we define connections
-connections = "CONNECT(", {"(", output, ",", input, ")", ","},
-              "(", output, ",", input, ")", ")";
+connectionlist = "CONNECT", connection, {",",connection},";";
+              
+connection = signame, '=', signame
 output = device_name, [".Q" | ".QBAR"];
 input = device_name, ".I", positive_non_zero_integer;                
 

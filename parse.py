@@ -61,12 +61,14 @@ class Parser:
         if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id ==
                 self.scanner.CONNECT_ID):
             self.symbol = self.scanner.get_symbol()
-            self.connection()
-            while self.symbol.type == self.scanner.COMMA:
-                self.symbol = self.scanner.get_symbol()
+            if self.symbol.type == self.scanner.COLON:
+                self.symbol.type == self.get_symbol()
                 self.connection()
-            if self.symbol.type == self.scanner.SEMICOLON:
-                self.symbol = self.scanner.get_symbol()
+                while self.symbol.type == self.scanner.COMMA:
+                    self.symbol = self.scanner.get_symbol()
+                    self.connection()
+                if self.symbol.type == self.scanner.SEMICOLON:
+                    self.symbol = self.scanner.get_symbol()
         else:
             # TODO
             self.error()
@@ -108,6 +110,104 @@ class Parser:
             raise NameError("Cannot use KEYWORD as device name")
         else:
             raise NameError("Device Name must be an alphanumeric string")
+
+    def device_list(self):
+        # check device type has been declared
+        if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id
+                == self.scanner.NEW_DEVICE_ID):
+            # Advance to next symbol
+            self.symbol = self.scanner.get_symbol()
+            if self.symbol.type == self.scanner.COLON:
+                self.symbol = self.scanner.get_symbol()
+                self.device()
+
+        else:
+            raise SyntaxError('Must specify device type beforehand')
+
+    def device(self):
+        # Intialise three properties of device (id, kind and property)
+        # Get device_id from device_name specified in syntax
+        device_id = self.get_device_id()
+        device_kind = None
+        device_property = None
+        # Advance to next symbol
+        self.symbol = self.scanner.get_symbol()
+        if self.symbol.type == self.scanner.COMMA:
+            self.symbol.type = self.scanner.get_symbol()
+            if (self.symbol.type is None and self.symbol.id == 0):
+                # Set device kind as AND
+                device_kind = self.devices.AND
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 1):
+                # Set device kind as
+                device_kind = self.devices.OR
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 2):
+                # Set device kind as NAND
+                device_kind = self.devices.NAND
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 3):
+                # Set device kind as AND
+                device_kind = self.devices.NOR
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 4):
+                # Set device kind as AND
+                device_kind = self.devices.XOR
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 5):
+                # Set device kind as AND
+                device_kind = self.devices.CLOCK
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 6):
+                # Set device kind as AND
+                device_kind = self.devices.DTYPE
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+        # Call make_device
+        error_type = self.devices.make_device(
+            device_id, device_kind, device_property)
+        return error_type
 
     def error():
         pass

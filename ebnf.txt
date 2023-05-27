@@ -47,3 +47,9 @@ comment = "#", {alphanumeric | space_tab};
 sign = "+” | ”-”;
 integer = ([sign], non_zero_digit, {digit}) | "0";
 positive_non_zero_integer = non_zero_digit, {digit};
+
+# Examples of EBNF Grammar
+NEW_DEVICE: G1, NAND, 2;
+NEW_DEVICE: G2, NAND, 2;
+CONNECT: G2.I1 = SW1, G1.I2 = G2, G2.I1 = G1, G2.I2 = SW2;
+MONITOR: G1,G2;

@@ -2,14 +2,14 @@ overall_circuit = new_devices, connections, [monitors];
 
 
 # Here we define what is new_devices
+           
+new_devices = "NEW_DEVICE", ":", device_name, ",", device_type, ",", device_property;
 
-new_devices = "TYPE(", device_type, "),", "NEW_DEVICES(", {device_name ","},
-              device_name, ")", 
-              [define_inputs | define_switch_state | define_clock_period];
-
+device_name = letter, {letter | positive_non_zero_integer};
 device_type = "CLOCK" | "SWITCH" | "NAND" | "DTYPE" | "XOR" | "AND" |
               "OR" | "NOR" | "NOT";
-device_name = letter, {letter | positive_non_zero_integer};
+device_property = [define_inputs | define_switch_state | define_clock_period];
+
 
 define_inputs = "INPUTS(",{positive_non_zero_integer, ","},
                 positive_non_zero_integer, ")";

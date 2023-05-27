@@ -41,30 +41,42 @@ class Parser:
     """
 
     def __init__(self, names: Names, devices: Devices, network: Network,
-                 monitors: Monitors, scanner: Scanner, symbol: Symbol):
+                 monitors: Monitors, scanner: Scanner):
         """Initialise constants."""
         self.names = names
         self.devices = devices
         self.network = network
         self.monitors = monitors
         self.scanner = scanner
-        self.symbol = symbol
+        self.symbol = None
 
     def parse_network(self):
         """Parse the circuit definition file."""
         # For now just return True, so that userint and gui can run in the
         # skeleton code. When complete, should return False when there are
         # errors in the circuit definition file.
+        self.symbol = self.scanner.get_symbol()
+        print(f"Symbol id: {self.symbol.id}, symbol type: {self.symbol.type}")
+        self.connection_list()
         return True
+    
+    def get_next_symbol(self):
+        """Function returns next symbol via the scanner."""
+        self.symbol = self.scanner.get_symbol()
+        return self.symbol
 
     def connection_list(self):
-        if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id ==
-                self.scanner.CONNECT_ID):
+        # print('Im inside parser connection_list')
+        if (self.symbol.type == self.scanner.KEYWORD and
+           self.symbol.id == self.scanner.CONNECT_ID):
+
             self.symbol = self.scanner.get_symbol()
-            self.connection()
+            # self.connection()
+            print('Making a connection.\n')
             while self.symbol.type == self.scanner.COMMA:
                 self.symbol = self.scanner.get_symbol()
-                self.connection()
+                # self.connection()
+                print('Making a connection.\n')
             if self.symbol.type == self.scanner.SEMICOLON:
                 self.symbol = self.scanner.get_symbol()
         else:
@@ -72,12 +84,13 @@ class Parser:
             self.error()
 
     def connection(self):
+        """Function makes a connection between two devices."""
         ip_device_id, ip_port_id = self.input_device()
         if self.symbol.type == self.scanner.EQUALS:
             self.symbol = self.scanner.get_symbol()
             op_device_id, op_port_id = self.output_device()
-            self.network.make_connection(
-                ip_device_id, ip_port_id, op_device_id, op_port_id)
+            self.network.make_connection(ip_device_id, ip_port_id,
+                                         op_device_id, op_port_id)
         else:
             self.error()
 
@@ -86,6 +99,7 @@ class Parser:
         ip_device_id = self.get_device_id()
         # Advance to next symbol
         self.symbol = self.scanner.get_symbol()
+
         # Check symbol type is DOT which denotes definition of input port
         if self.symbol.type == self.scanner.DOT:
             self.symbol = self.scanner.get_symbol()
@@ -94,6 +108,9 @@ class Parser:
             if input_str[0] == 'I' and input_str[1:].isdigit():
                 ip_port_id = self.symbol.id
                 return ip_device_id, ip_port_id
+        else:
+            pass
+            # TODO Add syntax error
 
     def output_device(self):
         op_device_id = self.get_device_id()
@@ -107,7 +124,7 @@ class Parser:
         elif self.symbol.type == self.scanner.KEYWORD:
             raise NameError("Cannot use KEYWORD as device name")
         else:
-            raise NameError("Device Name must be an alphanumeric string")
+            raise NameError("Device Name must be an alphanumeric string.")
 
-    def error():
-        pass
+    def error(self):
+        raise Exception("You have an error!")

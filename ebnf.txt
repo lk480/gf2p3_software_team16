@@ -3,7 +3,7 @@ overall_circuit = new_devices, connections, [monitors];
 
 # Here we define what is new_devices
            
-new_devices = "NEW_DEVICE", ":", device_name, ",", device_type, ",", device_property, ";",;
+new_device = "NEW_DEVICE", ":", device_name, ",", device_type, ",", device_property, ";",;
 
 device_name = letter, {letter | positive_non_zero_integer};
 device_type = "CLOCK" | "SWITCH" | "NAND" | "DTYPE" | "XOR" | "AND" |

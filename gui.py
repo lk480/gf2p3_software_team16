@@ -269,11 +269,19 @@ class Gui(wx.Frame):
         super().__init__(parent=None, title=title, size=(800, 600))
 
         # Configure the file menu
-        fileMenu = wx.Menu()
+        # Initialise menus and bar
         menuBar = wx.MenuBar()
+        fileMenu = wx.Menu()
+        helpMenu = wx.Menu()
+
+        # Add items to the  and help menus
         fileMenu.Append(wx.ID_ABOUT, "&About")
         fileMenu.Append(wx.ID_EXIT, "&Exit")
+        helpMenu.Append(wx.ID_HELP, "&Tutorial")
+
+        # Add the file and help menus to the menu bar and set bar
         menuBar.Append(fileMenu, "&File")
+        menuBar.Append(helpMenu, "&Help")
         self.SetMenuBar(menuBar)
 
         self.devices = [["G1", "0", "1"], ["G2", "1", "0"], ["G3", "2", "3"]]
@@ -281,6 +289,9 @@ class Gui(wx.Frame):
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
+
+        # Set up help menu text
+        self.HELP_TEXT = "HELP ME"
 
         # Configure the widgets
         self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
@@ -339,6 +350,12 @@ class Gui(wx.Frame):
                 "About Logsim",
                 wx.ICON_INFORMATION | wx.OK,
             )
+        if Id == wx.ID_HELP:
+            wx.MessageBox(
+                self.HELP_TEXT,
+                "HELP BOX",
+                wx.ICON_INFORMATION | wx.OK,
+            )
 
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the spin control value."""
@@ -373,6 +390,7 @@ class Gui(wx.Frame):
 
         if self.no_devices:
             self.no_devices = False
+            self.devices_spin_button.SetValue(0)
             self.update_current_device(self.devices[0])
             return
 

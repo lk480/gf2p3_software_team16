@@ -284,6 +284,7 @@ class Gui(wx.Frame):
         menuBar.Append(helpMenu, "&Help")
         self.SetMenuBar(menuBar)
 
+        # TEMP list of devices to test
         self.devices = [["G1", "0", "1"], ["G2", "1", "0"], ["G3", "2", "3"]]
         self.current_device = len(self.devices) + 2
 

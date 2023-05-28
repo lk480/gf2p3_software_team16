@@ -27,7 +27,7 @@ output = device_name, "." ["Q" | "QBAR"];
 input = device_name, "." ("I", positive_non_zero_integer);                
 
 # Definition of monitors #
-monitors = "MONITOR(", {output, ","}, output,")";
+monitors = "MONITOR", ":" , {output, ","}, output;
 
 
 # Additional definitions #

@@ -26,20 +26,69 @@ class MyException(Exception):
         pass
 
 
-# Syntax errors
+# Syntax Errors
 
 
 class MissingPunctuationError(MyException):
     """Error is raised when a punctuation is missing."""
 
-# TODO
+class KeywordError(MyException):
+    """Error is raised when a KEYWORD e.g. DEVICE is missing."""
 
-# Semantic errors:
+class DefinitionError(MyException):
+    """Error is raised when a device is incorrectly defined."""
 
-# TODO
+class DeviceNameError(MyException):
+    """Error is raised when a device name is defined incorrectly."""
+
+class DeviceTypeError(MyException):
+    """Error is raised when an unknown device type is specified."""
 
 
-class Error:
+
+# Semantic Errors
+
+class ConnectError(MyException):
+    """Error is raised when in a CONNECT the first param is a device input
+    and the second is a device output. It should be the other way round.
+    """
+
+class ReferenceError(MyException):
+    """Error is raised when component is referenced before asignment."""
+
+class InputPinNumberError(MyException):
+    """Error is raised when the number of input pins exceeds maximum number of
+    defined device inputs, or when input pin refernced is negative.
+    """
+
+class PortReferenceError(MyException):
+    """Error is raised when referenced port does not exist."""
+
+class DevicePropertyError(MyException):
+    """Error is raised when device property is incorrectly defined."""
+
+class MonitorError(MyException):
+    """Error raised when system input cannot be monitored."""
+
+class DeviceExistsError(MyException):
+    """Error raised when device already exists."""
+
+class MissingParameterError(MyException):
+    """Error raised when insufficient parameters are defined when creating a DEVICE."""
+
+class KeywordNameError(MyException):
+    """Error raised when a keyword is used for device name."""
+
+class MultipleInputError(MyException):
+    """Error raised when multiple outputs connect to a single input port."""
+
+
+
+
+
+
+
+class ErrorHandler:
     """Used to store all errors that ocur when parsing.
     Each error is an instance of MyException.
     """
@@ -59,5 +108,5 @@ class Error:
     def print_all_errors(self):
         """Print all errors found by parser."""
 
-        for error in self.error_list:
-            print(error.get_error_name, '\n')
+        for i, error in enumerate(self.error_list):
+            print(f'Error number {i} in ErrorHandler().error_list is: {error.get_error_name}\n')

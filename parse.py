@@ -2,7 +2,7 @@ from devices import Devices
 from monitors import Monitors
 from names import Names
 from network import Network
-from scanner import Scanner, Symbol
+from scanner import Scanner
 import error
 
 
@@ -50,22 +50,28 @@ class Parser:
         self.network = network
         self.monitors = monitors
         self.scanner = scanner
-        self.symbol = symbol
-        self.error = error.Error()
+        self.error_handler = error.ErrorHandler()
 
 
     def log_error(self, err: error.MyException):
         """Log an error and continue parsing."""
 
         # TODO: Set the positions of an error
-        self.error(err) # calls the __call__ funciton in class Error in error.py
+        self.error_handler(err) # calls the __call__ funciton in class ErrorHandler in error.py
 
+        # Delete the following in the final code
+        # print all errors 
+        self.error_handler.print_all_errors()
 
-        # Current symbol is skipped but do keep reading until we reach a "stopping symbol"
+        # Edit the below comment
+        # Current symbol is skipped but do keep reading until
+        # we reach a "stopping symbol"
         self.get_next_symbol()
-        while self.symbol.type not in [self.scanner.EOF, self.scanner.COMMA, self.scanner.SEMICOLON):
+        while self.symbol.type not in [self.scanner.SEMICOLON, self.scanner.EOF]: #self.scanner.COMMA is not needed
             self.get_next_symbol()
-
+        
+        self.parse_network()
+        print('Done with log_error.')
 
     def get_next_symbol(self):
         """Get next symbol and assign it to self.symbol"""
@@ -76,13 +82,15 @@ class Parser:
         """Parse the circuit definition file.
         Return True if there are no errors in the defintion file,
         false otherwise."""
+        print("I'm in parse network.")
         self.get_next_symbol()
         self.device_list()
-        self.connection_list()
-        self.monitors_list()
+        # self.connection_list()
+        # self.monitor_list()
         #TODO Should return true if all symbols are correctly parsed, if not return false                               
         pass
     
+
     def get_next_symbol(self):
         """Function returns next symbol via the scanner."""
         self.symbol = self.scanner.get_symbol()
@@ -120,7 +128,7 @@ class Parser:
             self.network.make_connection(
                 op_device_id, op_port_id, ip_device_id, ip_port_id)
         else:
-            self.error()
+            self.error_handler()
 
 
     def input_device(self):
@@ -159,21 +167,27 @@ class Parser:
 
 
 
-    def deviceList(self):
-        try:
-            # check device type has been declared
+
+    def device_list(self):
+        print('Im inside of device_list in parse_network()')
+        try:# check device type has been declared
             if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id
-                    == self.scanner.NEW_DEVICE_ID):
-                # Advance to next symbol
+                    == self.scanner.DEVICE_ID):
+                # Advance to next symbol, which should be a ":"
+                print('The current symbol is DEVICE')
                 self.symbol = self.scanner.get_symbol()
                 if self.symbol.type == self.scanner.COLON:
+                    print('The current symbol is :')
                     self.symbol = self.scanner.get_symbol()
                     self.device()
 
                 else:
-                    raise error.MissingPunctuationError('Missing ":" in device definiton.')
+                    raise error.MissingPunctuationError('Missing ":" in device definition.')
+            #else:
+            #    raise error.DeviceNameError("Device name is missing.")
         except error.MyException as err:
             # Logs an error and continue parsing
+            print(err.get_error_name)
             self.log_error(err)
 
 
@@ -181,21 +195,26 @@ class Parser:
         # Initialise three properties of device (id, kind and property)
         # Get device_id from device_name specified in syntax
         device_id = self.get_device_id()
+        print(f"Current symbol is {self.symbol.type} and current device_id is: {device_id}")
         device_kind = None
         device_property = None
 
         # Advance to next symbol
         self.symbol = self.scanner.get_symbol()
         if self.symbol.type == self.scanner.COMMA:
-            self.symbol.type = self.scanner.get_symbol()
+            print('Current symbol is a COMMA')
+            self.symbol = self.scanner.get_symbol()
+
             if (self.symbol.type is None and self.symbol.id == 0):
                 # Set device kind as AND
                 device_kind = self.devices.AND
+                print('Device is AND')
                 # Advance to next symbol which is expected to be be a comma
                 self.symbol = self.scanner.get_symbol()
                 if self.symbol.type == self.scanner.COMMA:
                     """following comma, device property is specified -
                     any errors will be raised by devices"""
+                    print('second COMMA')
                     device_property = self.scanner.get_symbol()
 
             elif (self.symbol.type is None and self.symbol.id == 1):
@@ -259,12 +278,55 @@ class Parser:
                     device_property = self.scanner.get_symbol()
 
         # Call make_device
-        error_type = self.devices.make_device(
-            device_id, device_kind, device_property)
-        return error_type
+        # error_type = self.devices.make_device(
+        #    device_id, device_kind, device_property)
+        #return error_type
+        print('Now calling make_device')
+        return None
 
-    def monitorList(self):
-        pass
+    def monitor_list(self):
+        try:
+            if (self.symbol == self.scanner.KEYWORD
+                and self.symbol.id == self.scanner.MONITOR_ID):
+
+                self.get_next_symbol()
+                if (self.symbol.type == self.scanner.COLON):
+                    self.get_next_symbol()
+                    #self.monitor()
+                    while self.symbol.type == self.scanner.COMMA:
+                        self.get_next_symbol()
+                        #self.monitor()
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        self.get_next_symbol()
+                    else:
+                        raise error.MissingPunctuationError('SEMICOLON missing from end of line.')
+                else:
+                    raise error.MissingPunctuationError('Missing ":" in MONITOR definition.')
+            else:
+                raise error.KeywordError('MONITOR keyword is missing')
+
+        except error.MyException as err:
+            # Logs an error and continue parsing
+            print(err.get_error_name)
+            self.log_error(err)
+        
+
+            
+    def monitor(self):
+        op_device_id, op_port_id = self.output_device()
+        # Call make_monitor from monitors.py
+        # self.monitors.make_monitor(op_device_id, op_port_id)
+
+    def comment(self):
+        """Do not parse symbols between two hash symbols"""
+        if self.symbol.type == self.scanner.HASH:
+            self.get_next_symbol()
+            while self.symbol.type != self.scanner.HASH:
+                # Continue getting symbols but not parsing
+                self.get_next_symbol()
+                # move to next symbol
+            self.get_next_symbol()
+            
 
   
 

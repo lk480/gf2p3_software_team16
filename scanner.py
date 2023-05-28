@@ -67,7 +67,7 @@ class Scanner:
             raise FileNotFoundError("Cannot find file or read data")
 
         self.current_character = ' '
-        self.keywords_list = ['NEW_DEVICE', 'CONNECT',
+        self.keywords_list = ['DEVICE', 'CONNECT',
                               'MONITOR', 'TYPE', 'STATE', 'INPUTS']
         
         
@@ -76,9 +76,9 @@ class Scanner:
                                  self.DOT, self.OPENBRACKET,
                                  self.CLOSEDBRACKET, self.KEYWORD,
                                  self.NUMBER,
-                                 self.NAME, self.EOF, self.COLON] = range(11)
+                                 self.NAME, self.EOF, self.COLON, self.HASH] = range(12)
         
-        [self.NEW_DEVICES_ID,
+        [self.DEVICE_ID,
          self.CONNECT_ID,
          self.MONITOR_ID,
          self.TYPE_ID,
@@ -119,6 +119,9 @@ class Scanner:
         elif self.current_character == ',':
             symbol.type = self.COMMA
             self.advance()
+        elif self.current_character == ':':
+            symbol.type = self.COLON
+            self.advance()
         elif self.current_character == ';':
             symbol.type = self.SEMICOLON
             self.advance()
@@ -127,6 +130,9 @@ class Scanner:
             self.advance()
         elif self.current_character == ".":
             symbol.type = self.DOT
+            self.advance()
+        elif self.current_character == '#':
+            symbol.type = self.HASH
             self.advance()
         else:  # not a valid character
             self.advance()

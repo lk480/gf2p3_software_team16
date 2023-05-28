@@ -73,7 +73,9 @@ class Scanner:
                                  self.DOT, self.OPENBRACKET,
                                  self.CLOSEDBRACKET, self.KEYWORD,
                                  self.GATE, self.NUMBER,
-                                 self.NAME, self.EOF, self.COLON] = range(12)
+                                 self.NAME, self.EOF,
+                                 self.COLON, self.HASH] = range(13)
+
         [self.NEW_DEVICE_ID,
          self.CONNECT_ID,
          self.MONITOR_ID,
@@ -127,6 +129,9 @@ class Scanner:
             self.advance()
         elif self.current_character == " ":
             symbol.type = self.EOF
+            self.advance()
+        elif self.current_character == '#':
+            symbol.type = self.HASH
             self.advance()
         else:  # not a valid character
             self.advance()

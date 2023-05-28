@@ -54,6 +54,9 @@ class Parser:
         """Get next symbol and assign it to self.symbol"""
         self.symbol = self.scanner.get_symbol()
 
+    def skip_error(self):
+        pass
+
     def parse_network(self):
         """Parse the circuit definition file.
         Return True if there are no errors in the defintion file,
@@ -223,7 +226,34 @@ class Parser:
         return error_type
 
     def monitorList(self):
-        pass
+        if (self.symbol.type == self.scanner.KEYWORD and
+                self.symbol.id == self.scanner.MONITOR_ID):
+            self.get_next_symbol()
+            if (self.symbol.type == self.scanner.COLON):
+                self.get_next_symbol()
+                self.monitor()
+                while self.symbol.type == self.scanner.COMMA:
+                    self.get_next_symbol()
+                    self.monitor()
+                if self.symbol.type == self.scanner.SEMICOLON:
+                    self.get_next_symbol()
+                else:
+                    raise Exception('Missing ; at end of line')
+        else:
+            pass
+
+    def monitor(self):
+        op_device_id, op_port_id = self.output_device()
+        self.monitors.make_monitor(op_device_id, op_port_id)
+
+    def comment(self):
+        """Ignore all symbols between two hash symbols"""
+        if self.symbol.type == self.scanner.HASH:
+            self.get_next_symbol()
+        while self.symbol.type != self.scanner.HASH:
+            self.get_next_symbol
+        # At end of comment move to next symbol
+        self.get_next_symbol()
 
     def error(self):
         pass

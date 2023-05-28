@@ -62,16 +62,21 @@ class Parser:
         # Delete the following in the final code
         # print all errors 
         self.error_handler.print_all_errors()
+        print('Done with printing log_error.')
 
         # Edit the below comment
         # Current symbol is skipped but do keep reading until
         # we reach a "stopping symbol"
         self.get_next_symbol()
-        while self.symbol.type not in [self.scanner.SEMICOLON, self.scanner.EOF]: #self.scanner.COMMA is not needed
+        
+        # TODO: add self.scanner.COMMA in the following list
+        # after implementing the cursor position
+        while self.symbol.type not in [self.scanner.SEMICOLON, self.scanner.EOF]: 
             self.get_next_symbol()
         
+        print('I am about to enter self.parse_network() in log_error() in parse.py')
         self.parse_network()
-        print('Done with log_error.')
+        
 
     def get_next_symbol(self):
         """Get next symbol and assign it to self.symbol"""

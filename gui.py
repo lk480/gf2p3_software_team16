@@ -302,10 +302,10 @@ class Gui(wx.Frame):
         self.speed_text = wx.StaticText(self, wx.ID_ANY, "Cycles /s")
         self.speed_spin = wx.SpinCtrl(self, wx.ID_ANY, "1")
         self.text_box = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
+        self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected")
         self.devices_spin_button = wx.SpinButton(
             self, wx.ID_ANY, style=wx.SP_HORIZONTAL, name="Current device"
         )
-        self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected")
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
@@ -316,6 +316,7 @@ class Gui(wx.Frame):
         self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
         self.devices_spin_button.Bind(wx.EVT_SPIN, self.on_spin_devices)
 
+        # Set spin range and initialise flag for first run
         self.devices_spin_button.SetRange(0, len(self.devices))
         self.no_devices = True
 
@@ -323,9 +324,9 @@ class Gui(wx.Frame):
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         side_sizer = wx.BoxSizer(wx.VERTICAL)
 
+        # Add widgets to sizers
         main_sizer.Add(self.canvas, 5, wx.EXPAND | wx.ALL, 5)
         main_sizer.Add(side_sizer, 1, wx.ALL, 5)
-
         side_sizer.Add(self.cycles_text, 1, wx.TOP, 10)
         side_sizer.Add(self.cycles_spin, 1, wx.ALL, 5)
         side_sizer.Add(self.run_button, 1, wx.ALL, 5)
@@ -336,10 +337,11 @@ class Gui(wx.Frame):
         side_sizer.Add(self.devices_spin_button, 1, wx.ALL, 5)
         side_sizer.Add(self.devices_text, 1, wx.ALL, 5)
 
+        # Set the sizer and configure the window
         self.SetSizeHints(600, 600)
         self.SetSizer(main_sizer)
-        # self.update_current_device(self.devices[0])
 
+    # Event handlers
     def on_menu(self, event):
         """Handle the event when the user selects a menu item."""
         Id = event.GetId()
@@ -387,7 +389,7 @@ class Gui(wx.Frame):
         self.canvas.render(text)
 
     def on_spin_devices(self, event):
-        """Handle the event when the user changes the spin control value."""
+        """Handle the event when the user selects a new device"""
 
         if self.no_devices:
             self.no_devices = False
@@ -408,6 +410,7 @@ class Gui(wx.Frame):
         self.update_current_device(self.devices[spin_value])
 
     def update_current_device(self, devices):
+        """Update the current device text label"""
         self.devices_text.SetLabel(
             f" Device: {devices[0]} \n ID: {devices[1]} \n Property: {devices[2]}"
         )

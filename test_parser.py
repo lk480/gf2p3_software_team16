@@ -73,6 +73,8 @@ def test_parse_network_raises_exceptions(new_names, new_device,
     
     #assert parser.parse_network() == False
 
+    # The with pytest.raises below might not work
+    # with try and except clauses
     with pytest.raises(Exception):
         parser.parse_network()
 

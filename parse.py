@@ -3,6 +3,7 @@ from monitors import Monitors
 from names import Names
 from network import Network
 from scanner import Scanner, Symbol
+import error
 
 
 """Parse the definition file and build the logic network.
@@ -40,6 +41,7 @@ class Parser:
     parse_network(self): Parses the circuit definition file.
     """
 
+
     def __init__(self, names: Names, devices: Devices, network: Network,
                  monitors: Monitors, scanner: Scanner):
         """Initialise constants."""
@@ -48,23 +50,45 @@ class Parser:
         self.network = network
         self.monitors = monitors
         self.scanner = scanner
-        self.symbol = None
+        self.symbol = symbol
+        self.error = error.Error()
+
+
+    def log_error(self, err: error.MyException):
+        """Log an error and continue parsing."""
+
+        # TODO: Set the positions of an error
+        self.error(err) # calls the __call__ funciton in class Error in error.py
+
+
+        # Current symbol is skipped but do keep reading until we reach a "stopping symbol"
+        self.get_next_symbol()
+        while self.symbol.type not in [self.scanner.EOF, self.scanner.COMMA, self.scanner.SEMICOLON):
+            self.get_next_symbol()
+
+
+    def get_next_symbol(self):
+        """Get next symbol and assign it to self.symbol"""
+        self.symbol = self.scanner.get_symbol()
+
 
     def parse_network(self):
-        """Parse the circuit definition file."""
-        # For now just return True, so that userint and gui can run in the
-        # skeleton code. When complete, should return False when there are
-        # errors in the circuit definition file.
-        self.symbol = self.scanner.get_symbol()
-        print(f"Symbol id: {self.symbol.id}, symbol type: {self.symbol.type}")
+        """Parse the circuit definition file.
+        Return True if there are no errors in the defintion file,
+        false otherwise."""
+        self.get_next_symbol()
+        self.device_list()
         self.connection_list()
-        return True
+        self.monitors_list()
+        #TODO Should return true if all symbols are correctly parsed, if not return false                               
+        pass
     
     def get_next_symbol(self):
         """Function returns next symbol via the scanner."""
         self.symbol = self.scanner.get_symbol()
         return self.symbol
 
+                                       
     def connection_list(self):
         # print('Im inside parser connection_list')
         if (self.symbol.type == self.scanner.KEYWORD and
@@ -80,19 +104,24 @@ class Parser:
             if self.symbol.type == self.scanner.SEMICOLON:
                 self.symbol = self.scanner.get_symbol()
         else:
-            # TODO
-            self.error()
+            print(self.symbol)
+            raise Exception(
+                'List of connections must begin with CONNECT keyword')
+
 
     def connection(self):
-        """Function makes a connection between two devices."""
-        ip_device_id, ip_port_id = self.input_device()
+        op_device_id, op_port_id = self.output_device()
         if self.symbol.type == self.scanner.EQUALS:
-            self.symbol = self.scanner.get_symbol()
-            op_device_id, op_port_id = self.output_device()
-            self.network.make_connection(ip_device_id, ip_port_id,
-                                         op_device_id, op_port_id)
+            self.get_next_symbol()
+            ip_device_id, ip_port_id = self.input_device()
+            input_device = self.devices.get_device(ip_device_id)
+            if input_device.inputs[ip_port_id] is not None:
+                raise Exception('Port in use')
+            self.network.make_connection(
+                op_device_id, op_port_id, ip_device_id, ip_port_id)
         else:
             self.error()
+
 
     def input_device(self):
         # Retrieve device id
@@ -112,11 +141,13 @@ class Parser:
             pass
             # TODO Add syntax error
 
+
     def output_device(self):
         op_device_id = self.get_device_id()
         self.symbol = self.scanner.get_symbol()
         # TODO implement parsing of D-TYPE latch output
         return op_device_id, None
+
 
     def get_device_id(self):
         if self.symbol.type == self.scanner.NAME:
@@ -125,6 +156,117 @@ class Parser:
             raise NameError("Cannot use KEYWORD as device name")
         else:
             raise NameError("Device Name must be an alphanumeric string.")
+
+
+
+    def deviceList(self):
+        try:
+            # check device type has been declared
+            if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id
+                    == self.scanner.NEW_DEVICE_ID):
+                # Advance to next symbol
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COLON:
+                    self.symbol = self.scanner.get_symbol()
+                    self.device()
+
+                else:
+                    raise error.MissingPunctuationError('Missing ":" in device definiton.')
+        except error.MyException as err:
+            # Logs an error and continue parsing
+            self.log_error(err)
+
+
+    def device(self):
+        # Initialise three properties of device (id, kind and property)
+        # Get device_id from device_name specified in syntax
+        device_id = self.get_device_id()
+        device_kind = None
+        device_property = None
+
+        # Advance to next symbol
+        self.symbol = self.scanner.get_symbol()
+        if self.symbol.type == self.scanner.COMMA:
+            self.symbol.type = self.scanner.get_symbol()
+            if (self.symbol.type is None and self.symbol.id == 0):
+                # Set device kind as AND
+                device_kind = self.devices.AND
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 1):
+                # Set device kind as
+                device_kind = self.devices.OR
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 2):
+                # Set device kind as NAND
+                device_kind = self.devices.NAND
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 3):
+                # Set device kind as AND
+                device_kind = self.devices.NOR
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 4):
+                # Set device kind as AND
+                device_kind = self.devices.XOR
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 5):
+                # Set device kind as AND
+                device_kind = self.devices.CLOCK
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+            elif (self.symbol.type is None and self.symbol.id == 6):
+                # Set device kind as AND
+                device_kind = self.devices.DTYPE
+                # Advance to next symbol which is expected to be be a comma
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COMMA:
+                    """following comma, device property is specified -
+                    any errors will be raised by devices"""
+                    device_property = self.scanner.get_symbol()
+
+        # Call make_device
+        error_type = self.devices.make_device(
+            device_id, device_kind, device_property)
+        return error_type
+
+    def monitorList(self):
+        pass
+
+  
 
     def error(self):
         raise Exception("You have an error!")

@@ -67,7 +67,7 @@ class Scanner:
             raise FileNotFoundError("Cannot find file or read data")
 
         self.current_character = ' '
-        self.keywords_list = ['NEW_DEVICES', 'CONNECT',
+        self.keywords_list = ['NEW_DEVICE', 'CONNECT',
                               'MONITOR', 'TYPE', 'STATE', 'INPUTS']
         
         
@@ -76,7 +76,7 @@ class Scanner:
                                  self.DOT, self.OPENBRACKET,
                                  self.CLOSEDBRACKET, self.KEYWORD,
                                  self.NUMBER,
-                                 self.NAME, self.EOF] = range(10)
+                                 self.NAME, self.EOF, self.COLON] = range(11)
         
         [self.NEW_DEVICES_ID,
          self.CONNECT_ID,
@@ -85,6 +85,7 @@ class Scanner:
          self.STATE_ID,
          self.INPUTS_ID,
          ] = self.names.lookup(self.keywords_list)
+
 
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""
@@ -102,7 +103,7 @@ class Scanner:
                 pass
             else:
                 symbol.type = self.NAME
-           
+            
             [symbol.id] = self.names.lookup([name_string])
 
         elif self.current_character.isdigit():

@@ -45,10 +45,10 @@ class Names:
 
     def unique_error_codes(self, num_error_codes):
         """Return a list of unique integer error codes."""
-      
+
         if not isinstance(num_error_codes, int):
             raise TypeError("Expected num_error_codes to be an integer.")
-        
+
         self.error_code_count += num_error_codes
         return range(self.error_code_count - num_error_codes,
                      self.error_code_count)
@@ -69,7 +69,7 @@ class Names:
     def lookup(self, name_string_list):
         if not isinstance(name_string_list, list):
             raise TypeError
-        
+
         ids_list = []
         for name_string in name_string_list:
             if name_string not in self.names_list:

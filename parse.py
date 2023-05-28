@@ -61,10 +61,10 @@ class Parser:
         self.error(err) # calls the __call__ funciton in class Error in error.py
 
 
-        # skip current symbol, keep reading until a stopping symbol is reached
+        # Current symbol is skipped but do keep reading until we reach a "stopping symbol"
         self.get_next_symbol()
-        while self.symbol.type not in [Scanner.EOF, Scanner.COMMA, Scanner.SEMICOLON):
-            self._next_symbol()
+        while self.symbol.type not in [self.scanner.EOF, self.scanner.COMMA, self.scanner.SEMICOLON):
+            self.get_next_symbol()
 
 
     def get_next_symbol(self):

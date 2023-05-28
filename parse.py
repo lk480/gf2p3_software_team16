@@ -3,6 +3,7 @@ from monitors import Monitors
 from names import Names
 from network import Network
 from scanner import Scanner, Symbol
+import error
 
 
 """Parse the definition file and build the logic network.
@@ -40,6 +41,7 @@ class Parser:
     parse_network(self): Parses the circuit definition file.
     """
 
+
     def __init__(self, names: Names, devices: Devices, network: Network,
                  monitors: Monitors, scanner: Scanner, symbol: Symbol):
         """Initialise constants."""
@@ -49,10 +51,26 @@ class Parser:
         self.monitors = monitors
         self.scanner = scanner
         self.symbol = symbol
+        self.error = error.Error()
+
+
+    def log_error(self, err: error.MyException):
+        """Log an error and continue parsing."""
+
+        # TODO: Set the positions of an error
+        self.error(err) # calls the __call__ funciton in class Error in error.py
+
+
+        # skip current symbol, keep reading until a stopping symbol is reached
+        self.get_next_symbol()
+        while self.symbol.type not in [Scanner.EOF, Scanner.COMMA, Scanner.SEMICOLON):
+            self._next_symbol()
+
 
     def get_next_symbol(self):
         """Get next symbol and assign it to self.symbol"""
         self.symbol = self.scanner.get_symbol()
+
 
     def parse_network(self):
         """Parse the circuit definition file.
@@ -63,6 +81,7 @@ class Parser:
         self.connection_list()
         self.monitors_list()
         return True
+
 
     def connectionList(self):
         if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id ==
@@ -83,6 +102,7 @@ class Parser:
             raise Exception(
                 'List of connections must begin with CONNECT keyword')
 
+
     def connection(self):
         op_device_id, op_port_id = self.output_device()
         if self.symbol.type == self.scanner.EQUALS:
@@ -95,6 +115,7 @@ class Parser:
                 op_device_id, op_port_id, ip_device_id, ip_port_id)
         else:
             self.error()
+
 
     def input_device(self):
         # Retrieve device id
@@ -110,11 +131,13 @@ class Parser:
                 ip_port_id = self.symbol.id
                 return ip_device_id, ip_port_id
 
+
     def output_device(self):
         op_device_id = self.get_device_id()
         self.symbol = self.scanner.get_symbol()
         # TODO implement parsing of D-TYPE latch output
         return op_device_id, None
+
 
     def get_device_id(self):
         if self.symbol.type == self.scanner.NAME:
@@ -124,25 +147,32 @@ class Parser:
         else:
             raise NameError("Device Name must be an alphanumeric string")
 
-    def deviceList(self):
-        # check device type has been declared
-        if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id
-                == self.scanner.NEW_DEVICE_ID):
-            # Advance to next symbol
-            self.symbol = self.scanner.get_symbol()
-            if self.symbol.type == self.scanner.COLON:
-                self.symbol = self.scanner.get_symbol()
-                self.device()
 
-        else:
-            raise SyntaxError('Must specify device type beforehand')
+    def deviceList(self):
+        try:
+            # check device type has been declared
+            if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id
+                    == self.scanner.NEW_DEVICE_ID):
+                # Advance to next symbol
+                self.symbol = self.scanner.get_symbol()
+                if self.symbol.type == self.scanner.COLON:
+                    self.symbol = self.scanner.get_symbol()
+                    self.device()
+
+                else:
+                    raise error.MissingPunctuationError('Missing ":" in device definiton.')
+        except error.MyException as err:
+            # Logs an error and continue parsing
+            self.log_error(err)
+
 
     def device(self):
-        # Intialise three properties of device (id, kind and property)
+        # Initialise three properties of device (id, kind and property)
         # Get device_id from device_name specified in syntax
         device_id = self.get_device_id()
         device_kind = None
         device_property = None
+
         # Advance to next symbol
         self.symbol = self.scanner.get_symbol()
         if self.symbol.type == self.scanner.COMMA:

@@ -304,7 +304,8 @@ class Gui(wx.Frame):
         self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
         self.devices_spin_button.Bind(wx.EVT_SPIN, self.on_spin_devices)
 
-        self.devices_spin_button.SetRange(-2, len(self.devices) + 2)
+        self.devices_spin_button.SetRange(0, len(self.devices))
+        self.no_devices = True
 
         # Configure sizers for layout
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -369,6 +370,12 @@ class Gui(wx.Frame):
 
     def on_spin_devices(self, event):
         """Handle the event when the user changes the spin control value."""
+
+        if self.no_devices:
+            self.no_devices = False
+            self.update_current_device(self.devices[0])
+            return
+
         spin_value = self.devices_spin_button.GetValue()
 
         if spin_value <= -1:

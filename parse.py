@@ -50,36 +50,49 @@ class Parser:
         self.scanner = scanner
         self.symbol = symbol
 
+    def get_next_symbol(self):
+        """Get next symbol and assign it to self.symbol"""
+        self.symbol = self.scanner.get_symbol()
+
     def parse_network(self):
-        """Parse the circuit definition file."""
-        # For now just return True, so that userint and gui can run in the
-        # skeleton code. When complete, should return False when there are
-        # errors in the circuit definition file.
+        """Parse the circuit definition file.
+        Return True if there are no errors in the defintion file,
+        false otherwise."""
+        self.get_next_symbol()
+        self.device_list()
+        self.connection_list()
+        self.monitors_list()
         return True
 
-    def connection_list(self):
+    def connectionList(self):
         if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id ==
                 self.scanner.CONNECT_ID):
-            self.symbol = self.scanner.get_symbol()
+            self.get_next_symbol()
             if self.symbol.type == self.scanner.COLON:
                 self.symbol.type == self.get_symbol()
                 self.connection()
                 while self.symbol.type == self.scanner.COMMA:
-                    self.symbol = self.scanner.get_symbol()
+                    self.get_next_symbol()
                     self.connection()
                 if self.symbol.type == self.scanner.SEMICOLON:
-                    self.symbol = self.scanner.get_symbol()
+                    self.get_next_symbol()
+                else:
+                    raise Exception('Missing ; at end of line')
         else:
-            # TODO
-            self.error()
+            print(self.symbol)
+            raise Exception(
+                'List of connections must begin with CONNECT keyword')
 
     def connection(self):
-        ip_device_id, ip_port_id = self.input_device()
+        op_device_id, op_port_id = self.output_device()
         if self.symbol.type == self.scanner.EQUALS:
-            self.symbol = self.scanner.get_symbol()
-            op_device_id, op_port_id = self.output_device()
+            self.get_next_symbol()
+            ip_device_id, ip_port_id = self.input_device()
+            input_device = self.devices.get_device(ip_device_id)
+            if input_device.inputs[ip_port_id] is not None:
+                raise Exception('Port in use')
             self.network.make_connection(
-                ip_device_id, ip_port_id, op_device_id, op_port_id)
+                op_device_id, op_port_id, ip_device_id, ip_port_id)
         else:
             self.error()
 
@@ -111,7 +124,7 @@ class Parser:
         else:
             raise NameError("Device Name must be an alphanumeric string")
 
-    def device_list(self):
+    def deviceList(self):
         # check device type has been declared
         if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id
                 == self.scanner.NEW_DEVICE_ID):
@@ -209,5 +222,8 @@ class Parser:
             device_id, device_kind, device_property)
         return error_type
 
-    def error():
+    def monitorList(self):
+        pass
+
+    def error(self):
         pass

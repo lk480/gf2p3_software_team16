@@ -204,6 +204,7 @@ class Parser:
         if self.symbol.type == self.scanner.COMMA:
             print('Current symbol is a COMMA')
             self.symbol = self.scanner.get_symbol()
+            
 
             if (self.symbol.type is None and self.symbol.id == 0):
                 # Set device kind as AND
@@ -216,9 +217,16 @@ class Parser:
                     any errors will be raised by devices"""
                     print('second COMMA')
                     device_property = self.scanner.get_symbol()
+                    self.get_next_symbol()
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        print('I found a SEMICOLON at end of line, as I should.')
+                        pass
+                    #else:
+                    #    raise error.MissingPunctuationError("Missing SEMICOLON at end of line.")
+
 
             elif (self.symbol.type is None and self.symbol.id == 1):
-                # Set device kind as
+                # Set device kind as OR
                 device_kind = self.devices.OR
                 # Advance to next symbol which is expected to be be a comma
                 self.symbol = self.scanner.get_symbol()
@@ -226,6 +234,9 @@ class Parser:
                     """following comma, device property is specified -
                     any errors will be raised by devices"""
                     device_property = self.scanner.get_symbol()
+                    self.get_next_symbol()
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        pass
 
             elif (self.symbol.type is None and self.symbol.id == 2):
                 # Set device kind as NAND
@@ -236,9 +247,12 @@ class Parser:
                     """following comma, device property is specified -
                     any errors will be raised by devices"""
                     device_property = self.scanner.get_symbol()
+                    self.get_next_symbol()
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        pass
 
             elif (self.symbol.type is None and self.symbol.id == 3):
-                # Set device kind as AND
+                # Set device kind as NOR
                 device_kind = self.devices.NOR
                 # Advance to next symbol which is expected to be be a comma
                 self.symbol = self.scanner.get_symbol()
@@ -246,9 +260,12 @@ class Parser:
                     """following comma, device property is specified -
                     any errors will be raised by devices"""
                     device_property = self.scanner.get_symbol()
+                    self.get_next_symbol()
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        pass
 
             elif (self.symbol.type is None and self.symbol.id == 4):
-                # Set device kind as AND
+                # Set device kind as XOR
                 device_kind = self.devices.XOR
                 # Advance to next symbol which is expected to be be a comma
                 self.symbol = self.scanner.get_symbol()
@@ -256,9 +273,12 @@ class Parser:
                     """following comma, device property is specified -
                     any errors will be raised by devices"""
                     device_property = self.scanner.get_symbol()
+                    self.get_next_symbol()
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        pass
 
             elif (self.symbol.type is None and self.symbol.id == 5):
-                # Set device kind as AND
+                # Set device kind as CLOCK
                 device_kind = self.devices.CLOCK
                 # Advance to next symbol which is expected to be be a comma
                 self.symbol = self.scanner.get_symbol()
@@ -266,22 +286,36 @@ class Parser:
                     """following comma, device property is specified -
                     any errors will be raised by devices"""
                     device_property = self.scanner.get_symbol()
+                    self.get_next_symbol()
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        pass
 
             elif (self.symbol.type is None and self.symbol.id == 6):
-                # Set device kind as AND
-                device_kind = self.devices.DTYPE
+                # Set device kind as SWITCH
+                device_kind = self.devices.SWITCH
                 # Advance to next symbol which is expected to be be a comma
                 self.symbol = self.scanner.get_symbol()
                 if self.symbol.type == self.scanner.COMMA:
                     """following comma, device property is specified -
                     any errors will be raised by devices"""
                     device_property = self.scanner.get_symbol()
+                    self.get_next_symbol()
+                    if self.symbol.type == self.scanner.SEMICOLON:
+                        pass
+            
+            # TODO: Add an elif for a DTYPE, once DTYPE is functional 
 
         # Call make_device
-        # error_type = self.devices.make_device(
+        #error_type = self.devices.make_device(
         #    device_id, device_kind, device_property)
-        #return error_type
-        print('Now calling make_device')
+
+        # TODO: Comment the thing above in final code
+        error_type = self.devices.NO_ERROR
+        print('Now "fake" calling make_device.')
+        
+        if error_type is self.devices.NO_ERROR:
+            self.parse_network()
+
         return None
 
     def monitor_list(self):

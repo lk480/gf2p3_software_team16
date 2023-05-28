@@ -1,6 +1,13 @@
 import pytest
 
 from names import Names
+from devices import Device
+
+
+@pytest.fixture
+def new_device():
+    """Returns a device instace."""
+    return Device()
 
 
 @pytest.fixture
@@ -71,7 +78,8 @@ def test_query(used_names, new_names, expected_name_id, name_string):
 @pytest.mark.parametrize("expected_name_id, name_string_list", [
     ([0, 1, 2, 3], ["Alice", "Bob", "Charlie", "Dave"]),
     ([0, 1, 2, 3, 4], ["Oggie", "Juan", "Lolith", "Daniel", "Ankit"]),
-    ([0, 1, 2], ["Zero", "Juan", "Two"])
+    ([0, 1, 2], ["Zero", "Juan", "Two"]), 
+    ([0, 1, 2, 3, 4, 5], ['NEW_DEVICES', 'CONNECT', 'MONITOR', 'TYPE', 'STATE', 'INPUTS'])
 ])
 def test_lookup(used_names, new_names, expected_name_id, name_string_list):
     """Test if lookup returns the expected id."""

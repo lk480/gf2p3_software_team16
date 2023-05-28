@@ -55,8 +55,10 @@ class Scanner:
     def __init__(self, path, names):
         """Open specified file and initialise reserved words and IDs."""
         # if isinstance(names, Names)
-
+        
         self.names = names
+        # print(f'Elements of the passed names.names_list is: {names.names_list}')
+        # print(f'In begining, result of looking up the same _IDs again: {self.names.lookup(self.keywords_list)}')
         self.path = path
 
         try:
@@ -67,14 +69,16 @@ class Scanner:
         self.current_character = ' '
         self.keywords_list = ['NEW_DEVICE', 'CONNECT',
                               'MONITOR', 'TYPE', 'STATE', 'INPUTS']
-        self.gate_list = ['CLOCK', 'SWITCH', 'NAND', 'DTYPE', 'XOR',
-                          'AND', 'OR', 'NOR', 'NOT']
+        
+        
+        # self.NAME refers to name of a gate
         self.symbol_type_list = [self.COMMA, self.SEMICOLON, self.EQUALS,
                                  self.DOT, self.OPENBRACKET,
                                  self.CLOSEDBRACKET, self.KEYWORD,
-                                 self.GATE, self.NUMBER,
-                                 self.NAME, self.EOF, self.COLON] = range(12)
-        [self.NEW_DEVICE_ID,
+                                 self.NUMBER,
+                                 self.NAME, self.EOF, self.COLON] = range(11)
+        
+        [self.NEW_DEVICES_ID,
          self.CONNECT_ID,
          self.MONITOR_ID,
          self.TYPE_ID,
@@ -82,31 +86,24 @@ class Scanner:
          self.INPUTS_ID,
          ] = self.names.lookup(self.keywords_list)
 
-        [self.CLOCK_ID,
-         self.SWITCH_ID,
-         self.NAND_ID,
-         self.DTYPE_ID,
-         self.XOR_ID,
-         self.AND_ID,
-         self.OR_ID,
-         self.NOR_ID,
-         self.NOT_ID,
-         ] = self.names.lookup(self.gate_list)
 
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""
         symbol = Symbol()
         self.skip_space()  # current character now not a whitespace
-        # print('in get symbol ' + self.current_character)
         if self.current_character.isalpha():
             name_string = self.get_name()
+            # print(f'string: {name_string}')
+            # print(f'Self.names is: {self.names.names_list}')
+            # print(f'Result of querying is: {self.names.query(name_string)}')
             if name_string in self.keywords_list:
                 symbol.type = self.KEYWORD
-            elif name_string in self.gate_list:
-                symbol.type = self.GATE
+            elif name_string in self.names.names_list:
+                # TODO
+                pass
             else:
                 symbol.type = self.NAME
-
+            
             [symbol.id] = self.names.lookup([name_string])
 
         elif self.current_character.isdigit():
@@ -125,12 +122,16 @@ class Scanner:
         elif self.current_character == ';':
             symbol.type = self.SEMICOLON
             self.advance()
-        elif self.current_character == " ":
+        elif self.current_character == "":
             symbol.type = self.EOF
+            self.advance()
+        elif self.current_character == ".":
+            symbol.type = self.DOT
             self.advance()
         else:  # not a valid character
             self.advance()
-        print(f"Symbol id: {symbol.id}, symbol type: {symbol.type}.")
+
+        print(f"Symbol id: {symbol.id}, symbol type: {symbol.type}")
         return symbol
 
     def skip_space(self):
@@ -141,6 +142,7 @@ class Scanner:
     def advance(self):
         self.current_character = self.input_file.read(1)
         print(self.current_character)
+
         return self.current_character
 
     def get_number(self):

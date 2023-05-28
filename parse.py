@@ -43,7 +43,7 @@ class Parser:
 
 
     def __init__(self, names: Names, devices: Devices, network: Network,
-                 monitors: Monitors, scanner: Scanner, symbol: Symbol):
+                 monitors: Monitors, scanner: Scanner):
         """Initialise constants."""
         self.names = names
         self.devices = devices
@@ -80,23 +80,29 @@ class Parser:
         self.device_list()
         self.connection_list()
         self.monitors_list()
-        return True
+        #TODO Should return true if all symbols are correctly parsed, if not return false                               
+        pass
+    
+    def get_next_symbol(self):
+        """Function returns next symbol via the scanner."""
+        self.symbol = self.scanner.get_symbol()
+        return self.symbol
 
+                                       
+    def connection_list(self):
+        # print('Im inside parser connection_list')
+        if (self.symbol.type == self.scanner.KEYWORD and
+           self.symbol.id == self.scanner.CONNECT_ID):
 
-    def connectionList(self):
-        if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id ==
-                self.scanner.CONNECT_ID):
-            self.get_next_symbol()
-            if self.symbol.type == self.scanner.COLON:
-                self.symbol.type == self.get_symbol()
-                self.connection()
-                while self.symbol.type == self.scanner.COMMA:
-                    self.get_next_symbol()
-                    self.connection()
-                if self.symbol.type == self.scanner.SEMICOLON:
-                    self.get_next_symbol()
-                else:
-                    raise Exception('Missing ; at end of line')
+            self.symbol = self.scanner.get_symbol()
+            # self.connection()
+            print('Making a connection.\n')
+            while self.symbol.type == self.scanner.COMMA:
+                self.symbol = self.scanner.get_symbol()
+                # self.connection()
+                print('Making a connection.\n')
+            if self.symbol.type == self.scanner.SEMICOLON:
+                self.symbol = self.scanner.get_symbol()
         else:
             print(self.symbol)
             raise Exception(
@@ -122,6 +128,7 @@ class Parser:
         ip_device_id = self.get_device_id()
         # Advance to next symbol
         self.symbol = self.scanner.get_symbol()
+
         # Check symbol type is DOT which denotes definition of input port
         if self.symbol.type == self.scanner.DOT:
             self.symbol = self.scanner.get_symbol()
@@ -130,6 +137,9 @@ class Parser:
             if input_str[0] == 'I' and input_str[1:].isdigit():
                 ip_port_id = self.symbol.id
                 return ip_device_id, ip_port_id
+        else:
+            pass
+            # TODO Add syntax error
 
 
     def output_device(self):
@@ -145,7 +155,8 @@ class Parser:
         elif self.symbol.type == self.scanner.KEYWORD:
             raise NameError("Cannot use KEYWORD as device name")
         else:
-            raise NameError("Device Name must be an alphanumeric string")
+            raise NameError("Device Name must be an alphanumeric string.")
+
 
 
     def deviceList(self):
@@ -255,5 +266,7 @@ class Parser:
     def monitorList(self):
         pass
 
+  
+
     def error(self):
-        pass
+        raise Exception("You have an error!")

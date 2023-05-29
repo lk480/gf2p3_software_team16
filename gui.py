@@ -103,12 +103,15 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         ]
         self.names = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
+        self.BG_WHITE = (1.0, 1.0, 1.0)
+        self.BG_BLACK = (0.0, 0.0, 0.0)
+
     def init_gl(self):
         """Configure and initialise the OpenGL context."""
         size = self.GetClientSize()
         self.SetCurrent(self.context)
         GL.glDrawBuffer(GL.GL_BACK)
-        GL.glClearColor(1.0, 1.0, 1.0, 0.0)
+        GL.glClearColor(self.BG_WHITE[0], self.BG_WHITE[1], self.BG_WHITE[2], 1.0)
         GL.glViewport(0, 0, size.width, size.height)
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()

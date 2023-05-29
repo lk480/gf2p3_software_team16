@@ -96,6 +96,20 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glTranslated(self.pan_x, self.pan_y, 0.0)
         GL.glScaled(self.zoom, self.zoom, self.zoom)
 
+    def draw_trace(self, signal, colour, name):
+        GL.glColor3f(colour[0], colour[1], colour[2])
+        GL.glBegin(GL.GL_LINE_STRIP)
+        for i in range(10):
+            x = (i * 20) + 10
+            x_next = (i * 20) + 30
+            if i % 2 == 0:
+                y = 75
+            else:
+                y = 100
+            GL.glVertex2f(x, y)
+            GL.glVertex2f(x_next, y)
+        GL.glEnd()
+
     def render(self, text):
         """Handle all drawing operations."""
         self.SetCurrent(self.context)
@@ -111,18 +125,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.render_text(text, 10, 10)
 
         # Draw a sample signal trace
-        GL.glColor3f(0.0, 0.0, 1.0)  # signal trace is blue
-        GL.glBegin(GL.GL_LINE_STRIP)
-        for i in range(10):
-            x = (i * 20) + 10
-            x_next = (i * 20) + 30
-            if i % 2 == 0:
-                y = 75
-            else:
-                y = 100
-            GL.glVertex2f(x, y)
-            GL.glVertex2f(x_next, y)
-        GL.glEnd()
+        self.draw_trace(1, (0.0, 0.0, 0.0), "A")
 
         # We have been drawing to the back buffer, flush the graphics pipeline
         # and swap the back buffer to the front
@@ -409,6 +412,7 @@ class Gui(wx.Frame):
         self.current_device = spin_value
         self.update_current_device(self.devices[spin_value])
 
+    # Helper functions
     def update_current_device(self, devices):
         """Update the current device text label"""
         self.devices_text.SetLabel(

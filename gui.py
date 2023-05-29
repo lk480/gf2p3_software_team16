@@ -81,6 +81,23 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.Bind(wx.EVT_SIZE, self.on_size)
         self.Bind(wx.EVT_MOUSE_EVENTS, self.on_mouse)
 
+        # Colours
+        self.BLACK = (0.0, 0.0, 0.0)
+        self.RED = (1.0, 0.0, 0.0)
+        self.GREEN = (0.0, 1.0, 0.0)
+        self.BLUE = (0.0, 0.0, 1.0)
+        self.COLOURS = [self.BLACK, self.RED, self.GREEN, self.BLUE]
+
+        # TEMP STUFF
+        self.signals = [
+            [0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0],
+            [0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1],
+            [0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1],
+            [0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0],
+        ]
+        self.names = ["A", "B", "C", "D", "E"]
+
     def init_gl(self):
         """Configure and initialise the OpenGL context."""
         size = self.GetClientSize()
@@ -96,19 +113,21 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glTranslated(self.pan_x, self.pan_y, 0.0)
         GL.glScaled(self.zoom, self.zoom, self.zoom)
 
-    def draw_trace(self, signal, colour, name):
+    def draw_trace(self, signal, colour, position):
         GL.glColor3f(colour[0], colour[1], colour[2])
         GL.glBegin(GL.GL_LINE_STRIP)
         for i in range(10):
-            x = (i * 20) + 10
-            x_next = (i * 20) + 30
-            if i % 2 == 0:
-                y = 75
-            else:
-                y = 100
+            x = (i * 50) + 30
+            x_next = (i * 50) + 80
+            y = 450 + 50 * signal[i] - 70 * position
             GL.glVertex2f(x, y)
             GL.glVertex2f(x_next, y)
         GL.glEnd()
+
+    def render_signals(self, signals, names):
+        """Render the signals."""
+        for i in range(len(self.signals)):
+            self.draw_trace(self.signals[i], self.COLOURS[i % 4], i)
 
     def render(self, text):
         """Handle all drawing operations."""
@@ -125,7 +144,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.render_text(text, 10, 10)
 
         # Draw a sample signal trace
-        self.draw_trace(1, (0.0, 0.0, 0.0), "A")
+        self.render_signals("a", "b")
 
         # We have been drawing to the back buffer, flush the graphics pipeline
         # and swap the back buffer to the front

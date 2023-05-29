@@ -234,7 +234,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
                 ]
             )
         if event.GetWheelRotation() < 0:
-            self.zoom *= 1.0 + (event.GetWheelRotation() / (20 * event.GetWheelDelta()))
+            self.zoom *= 1.0 + (event.GetWheelRotation() / (10 * event.GetWheelDelta()))
             # Adjust pan so as to zoom around the mouse position
             self.pan_x -= (self.zoom - old_zoom) * ox
             self.pan_y -= (self.zoom - old_zoom) * oy
@@ -243,7 +243,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
                 ["Negative mouse wheel rotation. Zoom is now: ", str(self.zoom)]
             )
         if event.GetWheelRotation() > 0:
-            self.zoom /= 1.0 - (event.GetWheelRotation() / (20 * event.GetWheelDelta()))
+            self.zoom /= 1.0 - (event.GetWheelRotation() / (10 * event.GetWheelDelta()))
             # Adjust pan so as to zoom around the mouse position
             self.pan_x -= (self.zoom - old_zoom) * ox
             self.pan_y -= (self.zoom - old_zoom) * oy

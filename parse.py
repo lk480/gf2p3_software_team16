@@ -67,7 +67,7 @@ class Parser:
         self.monitors_list()
         return True
 
-    def connectionList(self):
+    def connection_list(self):
         if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id ==
                 self.scanner.CONNECT_ID):
             self.get_next_symbol()
@@ -127,7 +127,7 @@ class Parser:
         else:
             raise NameError("Device Name must be an alphanumeric string")
 
-    def deviceList(self):
+    def device_list(self):
         # check device type has been declared
         if (self.symbol.type == self.scanner.KEYWORD and self.symbol.id
                 == self.scanner.NEW_DEVICE_ID):
@@ -136,7 +136,6 @@ class Parser:
             if self.symbol.type == self.scanner.COLON:
                 self.symbol = self.scanner.get_symbol()
                 self.device()
-
         else:
             raise SyntaxError('Must specify device type beforehand')
 
@@ -225,7 +224,7 @@ class Parser:
             device_id, device_kind, device_property)
         return error_type
 
-    def monitorList(self):
+    def monitor_list(self):
         if (self.symbol.type == self.scanner.KEYWORD and
                 self.symbol.id == self.scanner.MONITOR_ID):
             self.get_next_symbol()

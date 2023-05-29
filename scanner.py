@@ -65,35 +65,24 @@ class Scanner:
             raise FileNotFoundError("Cannot find file or read data")
 
         self.current_character = ' '
-        self.keywords_list = ['NEW_DEVICE', 'CONNECT',
+        self.keywords_list = ['DEVICE', 'CONNECT',
                               'MONITOR', 'TYPE', 'STATE', 'INPUTS']
         self.gate_list = ['CLOCK', 'SWITCH', 'NAND', 'DTYPE', 'XOR',
                           'AND', 'OR', 'NOR', 'NOT']
         self.symbol_type_list = [self.COMMA, self.SEMICOLON, self.EQUALS,
                                  self.DOT, self.OPENBRACKET,
                                  self.CLOSEDBRACKET, self.KEYWORD,
-                                 self.GATE, self.NUMBER,
+                                 self.NUMBER,
                                  self.NAME, self.EOF,
-                                 self.COLON, self.HASH] = range(13)
+                                 self.COLON, self.HASH] = range(12)
 
-        [self.NEW_DEVICE_ID,
+        [self.DEVICE_ID,
          self.CONNECT_ID,
          self.MONITOR_ID,
          self.TYPE_ID,
          self.STATE_ID,
          self.INPUTS_ID,
          ] = self.names.lookup(self.keywords_list)
-
-        [self.CLOCK_ID,
-         self.SWITCH_ID,
-         self.NAND_ID,
-         self.DTYPE_ID,
-         self.XOR_ID,
-         self.AND_ID,
-         self.OR_ID,
-         self.NOR_ID,
-         self.NOT_ID,
-         ] = self.names.lookup(self.gate_list)
 
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""

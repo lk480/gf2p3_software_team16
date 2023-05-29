@@ -90,13 +90,18 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
         # TEMP STUFF
         self.signals = [
-            [0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0],
-            [0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
-            [1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1],
-            [0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1],
-            [0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0],
+            [1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1],
+            [0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0],
+            [0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0],
+            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+            [1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+            [0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0],
+            [1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+            [1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1],
         ]
-        self.names = ["A", "B", "C", "D", "E"]
+        self.names = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
     def init_gl(self):
         """Configure and initialise the OpenGL context."""
@@ -114,20 +119,22 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glScaled(self.zoom, self.zoom, self.zoom)
 
     def draw_trace(self, signal, colour, position):
+        """Draw a trace for a given signal."""
         GL.glColor3f(colour[0], colour[1], colour[2])
         GL.glBegin(GL.GL_LINE_STRIP)
         for i in range(10):
             x = (i * 50) + 30
             x_next = (i * 50) + 80
-            y = 450 + 50 * signal[i] - 70 * position
+            y = 450 + 50 * signal[i] - 90 * position
             GL.glVertex2f(x, y)
             GL.glVertex2f(x_next, y)
         GL.glEnd()
 
     def render_signals(self, signals, names):
-        """Render the signals."""
+        """Render all the signals and labels."""
         for i in range(len(self.signals)):
             self.draw_trace(self.signals[i], self.COLOURS[i % 4], i)
+            self.render_text(self.names[i], 10, 470 - 90 * i)
 
     def render(self, text):
         """Handle all drawing operations."""
@@ -296,10 +303,12 @@ class Gui(wx.Frame):
         fileMenu = wx.Menu()
         helpMenu = wx.Menu()
 
-        # Add items to the  and help menus
+        # Add items to the file and help menus
         fileMenu.Append(wx.ID_ABOUT, "&About")
-        fileMenu.Append(wx.ID_EXIT, "&Exit")
+        fileMenu.Append(wx.ID_FILE1, "&Import")
+        fileMenu.Append(wx.ID_FILE2, "&Export")
         helpMenu.Append(wx.ID_HELP, "&Tutorial")
+        fileMenu.Append(wx.ID_EXIT, "&Exit")
 
         # Add the file and help menus to the menu bar and set bar
         menuBar.Append(fileMenu, "&File")
@@ -381,6 +390,18 @@ class Gui(wx.Frame):
                 "HELP BOX",
                 wx.ICON_INFORMATION | wx.OK,
             )
+
+        # Import and export files
+        if Id == wx.ID_FILE1:
+            dialog = wx.TextEntryDialog(self, "Enter file name", "Import", "")
+            if dialog.ShowModal() == wx.ID_OK:
+                file_name = dialog.GetValue()
+                print("File name:", file_name)
+        if Id == wx.ID_FILE2:
+            dialog = wx.TextEntryDialog(self, "Enter file name", "Export", "")
+            if dialog.ShowModal() == wx.ID_OK:
+                file_name = dialog.GetValue()
+                print("File name:", file_name)
 
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the spin control value."""

@@ -31,6 +31,9 @@ class Symbol:
         self.type = None
         self.id = None
 
+        self.row = None
+        self.col = None
+
 
 class Scanner:
 
@@ -70,13 +73,21 @@ class Scanner:
         self.keywords_list = ['DEVICE', 'CONNECT',
                               'MONITOR', 'TYPE', 'STATE', 'INPUTS']
         
+        # This will tell us where the marker is currently in the file
+        self.marker_row = 0
+        self.marker_col = -1
+
+        self.start_of_symbol_row = None
+        self.start_of_symbol_col = None
+        
         
         # self.NAME refers to name of a gate
         self.symbol_type_list = [self.COMMA, self.SEMICOLON, self.EQUALS,
                                  self.DOT, self.OPENBRACKET,
                                  self.CLOSEDBRACKET, self.KEYWORD,
                                  self.NUMBER,
-                                 self.NAME, self.EOF, self.COLON, self.HASH] = range(12)
+                                 self.NAME, self.EOF,
+                                 self.COLON, self.HASH] = range(12)
         
         [self.DEVICE_ID,
          self.CONNECT_ID,
@@ -90,7 +101,13 @@ class Scanner:
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""
         symbol = Symbol()
+
+        self.start_of_symbol_row = self.marker_row
+        self.start_of_symbol_col = self.marker_col
+
         self.skip_space()  # current character now not a whitespace
+        
+        
         if self.current_character.isalpha():
             name_string = self.get_name()
             # print(f'string: {name_string}')
@@ -146,8 +163,18 @@ class Scanner:
             self.current_character = self.advance()
 
     def advance(self):
+        # Move the marker by 1
+        self.marker_col += 1
+
+        if self.current_character == "\n":
+            # We are in a new line in the file
+            self.marker_col = 0
+            self.marker_row += 1
+
         self.current_character = self.input_file.read(1)
         print(self.current_character)
+
+        
 
         return self.current_character
 

@@ -60,7 +60,9 @@ class Parser:
 
         # Delete the following in the final code
         # print all errors
-        self.error_handler.print_all_errors()
+        err.set_error_position(self.scanner)
+        print(f"Error row: {err.error_row}, column: {err.error_col}.")
+        self.error_handler.print_all_errors(self.scanner)
         print('Done with printing log_error.')
 
         # Edit the below comment
@@ -123,6 +125,8 @@ class Parser:
                 op_device_id, op_port_id, ip_device_id, ip_port_id)
         else:
             self.error_handler()
+
+        # TODO for Lolith: call parse_network()
 
     def input_device(self):
         # Retrieve device id

@@ -1,3 +1,7 @@
+from scanner import Scanner
+
+
+
 class MyException(Exception):
     """My exception is class that inherits properties from the Exception class.
     All of our syntax and semantic error build upon MyException.
@@ -13,17 +17,19 @@ class MyException(Exception):
         *args: list of arguments passed to Exception."""
 
         super().__init__(*args)
-        self.row = None
-        self.col = None
+        self.error_row = None
+        self.error_col = None
 
     def get_error_name(self):
         """Returns the error name."""
         return type(self).__name__
 
-    def set_error_position(self):
+    def set_error_position(self, scanner: Scanner):
         """Set the row and column at which the error occured."""
         # TODO: Need to figure out how to do this
-        pass
+
+        self.error_row = scanner.start_of_symbol_row
+        self.error_col = scanner.start_of_symbol_col
 
 
 # Syntax Errors
@@ -112,9 +118,19 @@ class ErrorHandler:
         """True if parser didn't find any errors."""
         return not self.error_list
 
-    def print_all_errors(self):
+    def print_all_errors(self, scanner: Scanner):
         """Print all errors found by parser."""
+        path = scanner.path
+
+        try:
+            input_file = open(path, 'r')
+        except IOError:
+            raise FileNotFoundError("Cannot find file or read data in print_all_errors in error.py.")
+
+        lines = [line.replace("\n", " ") for line in input_file.readlines()] + [""]
+        print(lines)
 
         for i, error in enumerate(self.error_list):
-            print(
-                f'Error number {i} in ErrorHandler().error_list is: {error.get_error_name}\n')
+            print(f'Error number {i} in ErrorHandler().error_list is: {error.get_error_name}\n',
+                  f'{lines[error.error_row]}\n',
+                  f"{' ' * error.error_col}^\n")

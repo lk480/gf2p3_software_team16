@@ -63,8 +63,9 @@ def new_parser(new_names, new_device, new_network,
 @pytest.mark.parametrize("file_path", [
     # (Path.cwd() / "text files for pytests" / "test_openbracket.txt"),
     # (Path.cwd() / "text files for pytests" / "test_closedbracket.txt"),   
-    
     (Path.cwd() / "text files for pytests" / "test_incorrect_device_def.txt")
+    # (Path.cwd() / "example_circuit" / "example_circuit.txt")
+    # (Path.cwd() / "monitor_a_switch.txt")
 ])
 def test_parse_network_raises_exceptions(new_names, new_device,
                                          new_network, file_path):

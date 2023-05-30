@@ -101,6 +101,7 @@ class Parser:
         self.monitor_list()
 
         if self.error_handler.found_no_errors():
+            print("Defintion File Parsed")
             return True
         else:
             print("Errors found in defintion file")
@@ -115,14 +116,15 @@ class Parser:
             ):
                 self.symbol = self.scanner.get_symbol()
                 print("Making a connection.\n")
+                self.get_next_symbol()
                 self.connection()
-
+                self.get_next_symbol()  # SHOULD BE COMMA OR SEMICOLON
                 # Checking for mutiple connections
                 while self.symbol.type == self.scanner.COMMA:
                     self.symbol = self.scanner.get_symbol()
                     print("Making a connection.\n")
                     self.connection()
-
+                self.get_next_symbol()
                 if self.symbol.type == self.scanner.SEMICOLON:
                     self.symbol = self.scanner.get_symbol()
                 else:
@@ -146,7 +148,9 @@ class Parser:
         try:
             """first find output device id and port_id
             (note port_id will be None for all devices except DTYPE )"""
+
             op_device_id, op_port_id = self.output_device()
+
             if self.symbol.type == self.scanner.EQUALS:
                 self.get_next_symbol()
                 ip_device_id, ip_port_id = self.input_device()
@@ -202,7 +206,7 @@ class Parser:
             else:
                 # Device is not a DTYPE Latch
                 print("Device is NOT DTYPE")
-                input_str = self.names.get_name_string()
+                input_str = self.names.get_name_string(self.symbol.id)
                 if input_str[0] == "I" and input_str[1:].isdigit():
                     ip_port_id = self.symbol.id
                     return ip_device_id, ip_port_id
@@ -221,6 +225,7 @@ class Parser:
         the make_connection() method from the network module"""
         # Retrieve device id
         op_device_id = self.get_device_id()
+
         # Check if output device_id is obtained
         if op_device_id is None:
             raise error.DefinitionError(

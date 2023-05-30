@@ -148,6 +148,9 @@ class Scanner:
         elif self.current_character == ":":
             symbol.type = self.COLON
             self.advance()
+        elif self.current_character == "=":
+            symbol.type = self.EQUALS
+            self.advance()
         elif self.current_character == ";":
             symbol.type = self.SEMICOLON
             self.advance()

@@ -83,10 +83,11 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
         # Colours
         self.BLACK = (0.0, 0.0, 0.0)
+        self.WHITE = (1.0, 1.0, 1.0)
         self.RED = (1.0, 0.0, 0.0)
         self.GREEN = (0.0, 1.0, 0.0)
         self.BLUE = (0.0, 0.0, 1.0)
-        self.COLOURS = [self.BLACK, self.RED, self.GREEN, self.BLUE]
+        self.colours = [self.BLACK, self.RED, self.GREEN, self.BLUE]
 
         # TEMP STUFF
         self.signals = [
@@ -104,7 +105,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.names = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
         self.BG_WHITE = (1.0, 1.0, 1.0)
-        self.BG_BLACK = (0.0, 0.0, 0.0)
+        self.BG_BLACK = (0.27, 0.27, 0.27)
 
     def init_gl(self):
         """Configure and initialise the OpenGL context."""
@@ -121,6 +122,16 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glTranslated(self.pan_x, self.pan_y, 0.0)
         GL.glScaled(self.zoom, self.zoom, self.zoom)
 
+        self.set_dark_mode()
+
+    def set_dark_mode(self):
+        GL.glClearColor(self.BG_BLACK[0], self.BG_BLACK[1], self.BG_BLACK[2], 1.0)
+        self.colours[0] = self.WHITE
+
+    def set_light_mode(self):
+        GL.glClearColor(self.BG_WHITE[0], self.BG_WHITE[1], self.BG_WHITE[2], 1.0)
+        self.colours[0] = self.BLACK
+
     def draw_trace(self, signal, colour, position):
         """Draw a trace for a given signal."""
         GL.glColor3f(colour[0], colour[1], colour[2])
@@ -136,7 +147,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
     def render_signals(self, signals, names):
         """Render all the signals and labels."""
         for i in range(len(self.signals)):
-            self.draw_trace(self.signals[i], self.COLOURS[i % 4], i)
+            self.draw_trace(self.signals[i], self.colours[i % 4], i)
             self.render_text(self.names[i], 10, 470 - 90 * i)
 
     def render(self, text):

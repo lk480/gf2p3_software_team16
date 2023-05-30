@@ -262,24 +262,28 @@ class Parser:
         count = 0
         while defining_devices is True:
             # Create new device
-            if count >= 10:
+            if count >= 500:
                 break
             count += 1
             self.device_creation()
             # Get next symbol
             self.get_next_symbol()
             # Check if next symbol is CONNECT
+
             if (
                 self.symbol.type == self.scanner.KEYWORD
                 and self.symbol.id == self.scanner.CONNECT_ID
             ):
                 defining_devices = False
 
-            if (
+            elif (
                 self.symbol.type == self.scanner.KEYWORD
                 and self.symbol.id == self.scanner.MONITOR_ID
             ):
                 defining_devices = False
+
+            elif self.symbol.type == self.scanner.EOF:
+                break
 
     def device_creation(self):
         print("Successfully called device_creation in parser module")
@@ -289,8 +293,10 @@ class Parser:
                 and self.symbol.id == self.scanner.DEVICE_ID
             ):
                 # Check current symbol is DEVICE
+
                 print(f"Current Symbol {self.names.get_name_string(self.symbol.id)}")
                 self.get_next_symbol()
+
                 if self.symbol.type == self.scanner.COLON:
                     # print(f"Current Symbol {self.names.get_name_string(self.symbol.id)}")
                     self.get_next_symbol()
@@ -338,10 +344,10 @@ class Parser:
                     if self.symbol.type == self.scanner.COMMA:
                         print("SECOND COMMA PARSED")
                         """following comma, device property is specified"""
+                        device_property = self.scanner.get_symbol()
                         self.get_next_symbol()
-                        if self.symbol.id in range(1, 17):
-                            device_property = self.symbol.id
-                        else:
+
+                        if int(device_property.id) not in range(1, 17):
                             raise error.InputPinNumberError(
                                 "Number of device inputs not valid"
                             )

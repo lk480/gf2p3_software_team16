@@ -1,5 +1,6 @@
 import pytest
 
+import error
 from pathlib import Path
 from names import Names
 from scanner import Symbol

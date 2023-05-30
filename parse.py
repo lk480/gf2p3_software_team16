@@ -103,8 +103,8 @@ class Parser:
         if self.error_handler.found_no_errors():
             return True
         else:
-            print("Errors found in defintion file")
-            return False
+            print('Errors found in defintion file')
+            
 
     def connection_list(self):
         try:

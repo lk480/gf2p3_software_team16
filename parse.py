@@ -389,6 +389,7 @@ class Parser:
                         """following comma, device property is specified -
                         any errors will be raised by devices"""
                         device_property = self.scanner.get_symbol()
+
                         self.get_next_symbol()
                         if self.symbol.type == self.scanner.SEMICOLON:
                             pass
@@ -401,6 +402,7 @@ class Parser:
                     # Advance to next symbol --> COMMA
                     self.symbol = self.scanner.get_symbol()
                     if self.symbol.type == self.scanner.COMMA:
+                        print("SECOND COMMA")
                         """following comma, device property is specified -
                         any errors will be raised by devices"""
                         device_property = self.scanner.get_symbol()
@@ -417,7 +419,7 @@ class Parser:
         else:
             # Call make_device
             error_type = self.devices.make_device(
-                device_id, device_kind, device_property
+                device_id, device_kind, int(device_property.id)
             )
             error_type = self.devices.NO_ERROR
             print('Now "fake" calling make_device.')

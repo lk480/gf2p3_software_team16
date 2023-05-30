@@ -105,7 +105,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.names = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
         self.BG_WHITE = (1.0, 1.0, 1.0)
-        self.BG_BLACK = (0.27, 0.27, 0.27)
+        self.BG_BLACK = (0.24, 0.24, 0.24)
 
     def init_gl(self):
         """Configure and initialise the OpenGL context."""
@@ -324,6 +324,8 @@ class Gui(wx.Frame):
         helpMenu.Append(wx.ID_HELP, "&Tutorial")
         fileMenu.Append(wx.ID_EXIT, "&Exit")
 
+        self.dark_mode_flag = True
+
         # Add the file and help menus to the menu bar and set bar
         menuBar.Append(fileMenu, "&File")
         menuBar.Append(helpMenu, "&Help")
@@ -364,6 +366,7 @@ class Gui(wx.Frame):
         self.devices_spin_button = wx.SpinButton(
             self, wx.ID_ANY, style=wx.SP_HORIZONTAL, name="Current device"
         )
+        self.dark_mode_button = wx.Button(self, wx.ID_ANY, "Light mode")
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
@@ -374,6 +377,7 @@ class Gui(wx.Frame):
         self.stop_button.Bind(wx.EVT_BUTTON, self.on_stop_button)
         self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
         self.devices_spin_button.Bind(wx.EVT_SPIN, self.on_spin_devices)
+        self.dark_mode_button.Bind(wx.EVT_BUTTON, self.on_toggle_dark_mode)
 
         # Set spin range and initialise flag for first run
         self.devices_spin_button.SetRange(-1, len(self.devices))
@@ -395,6 +399,7 @@ class Gui(wx.Frame):
         side_sizer.Add(self.text_box, 1, wx.ALL, 5)
         side_sizer.Add(self.devices_spin_button, 1, wx.ALL, 5)
         side_sizer.Add(self.devices_text, 1, wx.ALL, 5)
+        side_sizer.Add(self.dark_mode_button, 1, wx.BOTTOM, 5)
 
         # Set the sizer and configure the window
         self.SetSizeHints(600, 600)
@@ -489,6 +494,16 @@ class Gui(wx.Frame):
 
         self.current_device = spin_value
         self.update_current_device(self.devices[spin_value])
+
+    def on_toggle_dark_mode(self, event):
+        if self.dark_mode_flag:
+            self.dark_mode_flag = False
+            self.canvas.set_light_mode()
+        else:
+            self.dark_mode_flag = True
+            self.canvas.set_dark_mode()
+
+        self.canvas.render("Dark mode toggled")
 
     # Helper functions
     def update_current_device(self, devices):

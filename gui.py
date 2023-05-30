@@ -354,6 +354,7 @@ class Gui(wx.Frame):
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
+        self.Bind(wx.EVT_KEY_DOWN, self.on_keypress)
         self.cycles_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_cycles)
         self.speed_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_speed)
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
@@ -416,6 +417,18 @@ class Gui(wx.Frame):
             if dialog.ShowModal() == wx.ID_OK:
                 file_name = dialog.GetValue()
                 print("File name:", file_name)
+
+    def on_keypress(self, event):
+        print("AA")
+        key = event.GetKeyCode()
+        if key == wx.WXK_LEFT:
+            spin_value = self.devices_spin_button.GetValue() - 1
+            self.devices_spin_button.SetValue(spin_value)
+            self.on_spin_devices("")
+        if key == wx.WXK_RIGHT:
+            spin_value = self.devices_spin_button.GetValue() + 1
+            self.devices_spin_button.SetValue(spin_value)
+            self.on_spin_devices("")
 
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the spin control value."""

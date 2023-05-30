@@ -77,15 +77,18 @@ def test_parse_network_returns_false(new_names, new_device,
 
 
 
-@pytest.mark.parametrize("file_path", [
+@pytest.mark.parametrize("file_path, exception", [
     # (Path.cwd() / "text files for pytests" / "test_openbracket.txt"),
     # (Path.cwd() / "text files for pytests" / "test_closedbracket.txt"),   
-    (Path.cwd() / "text files for pytests" / "test_incorrect_device_def.txt")
+    (Path.cwd() / "text files for pytests" / "test_incorrect_device_def.txt", error.MyException)
     # (Path.cwd() / "example_circuit" / "example_circuit.txt")
     # (Path.cwd() / "monitor_a_switch.txt")
+    # (Path.cwd() / "text files for pytests" / "test_one_device.txt")
+
 ])
 def test_parse_network_raises_exceptions(new_names, new_device,
-                                         new_network, file_path):
+                                         new_network, file_path, exception):
+    
     parser = Parser(new_names, new_device, new_network, new_monitor,
                     Scanner(file_path, new_names))
     
@@ -93,7 +96,7 @@ def test_parse_network_raises_exceptions(new_names, new_device,
 
     # The with pytest.raises below might not work
     # with try and except clauses
-    with pytest.raises(Exception):
+    with pytest.raises(exception):
         parser.parse_network()
 
 

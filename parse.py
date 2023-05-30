@@ -91,8 +91,6 @@ class Parser:
         Return True if there are no errors in the defintion file,
         false otherwise."""
 
-        managed_to_parse_network = False
-
         print("Calling parse_network().")
         # Advance to the next symbol
         self.get_next_symbol()
@@ -105,8 +103,8 @@ class Parser:
         self.monitor_list()
 
         if self.error_handler.found_no_errors():
-            managed_to_parse_network = True
-            return managed_to_parse_network
+            print("Defintion File Parsed")
+            return True
         else:
             self.error_handler.raise_error()
             
@@ -121,14 +119,15 @@ class Parser:
             ):
                 self.symbol = self.scanner.get_symbol()
                 print("Making a connection.\n")
+                self.get_next_symbol()
                 self.connection()
-
+                self.get_next_symbol()  # SHOULD BE COMMA OR SEMICOLON
                 # Checking for mutiple connections
                 while self.symbol.type == self.scanner.COMMA:
                     self.symbol = self.scanner.get_symbol()
                     print("Making a connection.\n")
                     self.connection()
-
+                self.get_next_symbol()
                 if self.symbol.type == self.scanner.SEMICOLON:
                     self.symbol = self.scanner.get_symbol()
                 else:
@@ -151,7 +150,9 @@ class Parser:
         try:
             """first find output device id and port_id
             (note port_id will be None for all devices except DTYPE )"""
+
             op_device_id, op_port_id = self.output_device()
+
             if self.symbol.type == self.scanner.EQUALS:
                 self.get_next_symbol()
                 ip_device_id, ip_port_id = self.input_device()
@@ -206,7 +207,7 @@ class Parser:
             else:
                 # Device is not a DTYPE Latch
                 print("Device is NOT DTYPE")
-                input_str = self.names.get_name_string()
+                input_str = self.names.get_name_string(self.symbol.id)
                 if input_str[0] == "I" and input_str[1:].isdigit():
                     ip_port_id = self.symbol.id
                     return ip_device_id, ip_port_id
@@ -225,6 +226,7 @@ class Parser:
         the make_connection() method from the network module"""
         # Retrieve device id
         op_device_id = self.get_device_id()
+
         # Check if output device_id is obtained
         if op_device_id is None:
             raise error.DefinitionError(
@@ -266,24 +268,29 @@ class Parser:
         count = 0
         while defining_devices is True:
             # Create new device
-            if count >= 50:
+            if count >= 500:
                 break
+                
             count += 1
             self.device_creation()
             # Get next symbol
             self.get_next_symbol()
             # Check if next symbol is CONNECT
+
             if (
                 self.symbol.type == self.scanner.KEYWORD
                 and self.symbol.id == self.scanner.CONNECT_ID
             ):
                 defining_devices = False
 
-            if (
+            elif (
                 self.symbol.type == self.scanner.KEYWORD
                 and self.symbol.id == self.scanner.MONITOR_ID
             ):
                 defining_devices = False
+
+            elif self.symbol.type == self.scanner.EOF:
+                break
 
     def device_creation(self):
         print("Successfully called device_creation in parser module")
@@ -293,8 +300,10 @@ class Parser:
                 and self.symbol.id == self.scanner.DEVICE_ID
             ):
                 # Check current symbol is DEVICE
+
                 print(f"Current Symbol {self.names.get_name_string(self.symbol.id)}")
                 self.get_next_symbol()
+
                 if self.symbol.type == self.scanner.COLON:
                     # print(f"Current Symbol {self.names.get_name_string(self.symbol.id)}")
                     self.get_next_symbol()
@@ -341,10 +350,10 @@ class Parser:
                     if self.symbol.type == self.scanner.COMMA:
                         print("SECOND COMMA PARSED")
                         """following comma, device property is specified"""
+                        device_property = self.scanner.get_symbol()
                         self.get_next_symbol()
-                        if self.symbol.id in range(1, 17):
-                            device_property = self.symbol.id
-                        else:
+
+                        if int(device_property.id) not in range(1, 17):
                             raise error.InputPinNumberError(
                                 "Number of device inputs not valid"
                             )
@@ -368,7 +377,7 @@ class Parser:
                     )
                     device_kind = self.symbol.id
                     # Advance to next symbol --> COMMA
-                    self.get_next_symbol()
+                    self.symbol = self.scanner.get_symbol()
                     if self.symbol.type == self.scanner.COMMA:
                         """following comma, device property is specified"""
                         # For D_TYPE and XOR gates, this should be NoneType
@@ -420,9 +429,15 @@ class Parser:
 
         else:
             # Call make_device
+            # Using None to avoid problems with switches in state 0
+            if device_property is not None:
+                int_device_property = int(device_property.id)
+            else:
+                int_device_property = None
             error_type = self.devices.make_device(
-                device_id, device_kind, int(device_property.id)
+                device_id, device_kind, int_device_property
             )
+
             error_type = self.devices.NO_ERROR
             print('Now "fake" calling make_device.')
             if error_type != self.devices.NO_ERROR:

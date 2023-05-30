@@ -1,0 +1,2 @@
+DEVICE: X1, XOR;
+MONITOR: X1;

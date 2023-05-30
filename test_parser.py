@@ -60,11 +60,29 @@ def new_parser(new_names, new_device, new_network,
                   new_network, new_monitor, new_scanner_connections_txt)
 
 
+@pytest.mark.parametrize("file_path, parse_bool_value", [
+    (Path.cwd() / "text files for pytests" / "test_incorrect_monitor.txt", False),
+    (Path.cwd() / "text files for pytests" / "test_correct_monitor.txt", True),
+    (Path.cwd() / "text files for pytests" / "test_incorrect_device_def.txt", False),
+    (Path.cwd() / "monitor_a_switch.txt", True)
+])
+def test_parse_network_returns_false(new_names, new_device,
+                                     new_network, file_path, parse_bool_value):
+    parser = Parser(new_names, new_device, new_network, new_monitor,
+                    Scanner(file_path, new_names))
+    
+    assert parser.parse_network() == parse_bool_value
+
+
+
+
+
 @pytest.mark.parametrize("file_path", [
     # (Path.cwd() / "text files for pytests" / "test_openbracket.txt"),
     # (Path.cwd() / "text files for pytests" / "test_closedbracket.txt"),   
-    
     (Path.cwd() / "text files for pytests" / "test_incorrect_device_def.txt")
+    # (Path.cwd() / "example_circuit" / "example_circuit.txt")
+    # (Path.cwd() / "monitor_a_switch.txt")
 ])
 def test_parse_network_raises_exceptions(new_names, new_device,
                                          new_network, file_path):

@@ -74,8 +74,7 @@ class Parser:
         # after implementing the cursor position
         while self.symbol.type not in [self.scanner.SEMICOLON, self.scanner.EOF]:
             self.get_next_symbol()
-
-        print('I am about to enter self.parse_network() in log_error() in parse.py')
+            
 
     def get_next_symbol(self):
         """Get next symbol and assign it to self.symbol"""
@@ -90,6 +89,7 @@ class Parser:
         self.get_next_symbol()
         # Parse specified devices in def. file
         self.device_list()
+        
         # Parse specified connections in def. file
         self.connection_list()
         # Parse specified monitor points in def. file
@@ -110,11 +110,13 @@ class Parser:
                 self.symbol = self.scanner.get_symbol()
                 print('Making a connection.\n')
                 self.connection()
+                
                 # Checking for mutiple connections
                 while self.symbol.type == self.scanner.COMMA:
                     self.symbol = self.scanner.get_symbol()
                     print('Making a connection.\n')
                     self.connection()
+                
                 if self.symbol.type == self.scanner.SEMICOLON:
                     self.symbol = self.scanner.get_symbol()
                 else:
@@ -236,9 +238,6 @@ class Parser:
             raise error.DeviceNameError(
                 "Device Name must be an alphanumeric string.")
 
-    """ TODO: implement a method to repeatedly call device creation
-            to define devices"""
-
     # Continue checking for devices until keyword "CONNECT" is detected
     def device_list(self):
         if (self.symbol.type == self.scanner.KEYWORD
@@ -307,20 +306,20 @@ class Parser:
                     if self.symbol.type == self.scanner.COMMA:
                         print('SECOND COMMA PARSED')
                         """following comma, device property is specified"""
-                        self.get
+                        self.get_next_symbol()
                         if self.symbol.id in range(1, 17):
                             device_property = self.symbol.id
                         else:
                             raise error.InputPinNumberError(
                                 'Number of device inputs not valid')
                         # Advance to final symbol --> SEMICOLON
-                        self.get_next_symbol()
-                        if self.symbol.type == self.scanner.SEMICOLON:
-                            print('SEMICOLON PARSED')
-                            pass
-                        else:
-                            raise error.MissingPunctuationError(
-                                "Missing SEMICOLON at end of line.")
+                            self.get_next_symbol()
+                            if self.symbol.type == self.scanner.SEMICOLON:
+                                pass      
+                            else:
+                                raise error.MissingPunctuationError("Missing SEMICOLON at end of line.")
+                
+                
                 # If DEVICE TYPE is D_TYPE or XOR
                 elif (self.symbol.type is self.scanner.NAME and self.symbol.id
                         in [self.devices.D_TYPE, self.devices.XOR]):
@@ -377,8 +376,6 @@ class Parser:
             # Call make_device
             error_type = self.devices.make_device(
                 device_id, device_kind, device_property)
-
-            # TODO: Comment the thing above in final code
             error_type = self.devices.NO_ERROR
             print('Now "fake" calling make_device.')
             if error_type != self.devices.NO_ERROR:
@@ -395,6 +392,7 @@ class Parser:
                     self.get_next_symbol()
                     # Calling monitor
                     self.monitor()
+                    
                     # When monitoring multiple ports
                     while self.symbol.type == self.scanner.COMMA:
                         self.get_next_symbol()

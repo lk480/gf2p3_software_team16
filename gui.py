@@ -330,7 +330,20 @@ class Gui(wx.Frame):
         self.SetMenuBar(menuBar)
 
         # TEMP list of devices to test
-        self.devices = [["G1", "0", "1"], ["G2", "1", "0"], ["G3", "2", "3"]]
+        self.devices = [
+            ["G1", "0", "0"],
+            ["G2", "1", "4"],
+            ["G3", "2", "5"],
+            ["G4", "3", "4"],
+            ["G5", "4", "2"],
+            ["G6", "5", "2"],
+            ["G7", "6", "5"],
+            ["G8", "7", "3"],
+            ["G9", "8", "0"],
+            ["G10", "9", "1"],
+            ["G11", "10", "1"],
+            ["G12", "11", "5"],
+        ]
         self.current_device = len(self.devices) + 2
 
         # Canvas for drawing signals
@@ -363,7 +376,7 @@ class Gui(wx.Frame):
         self.devices_spin_button.Bind(wx.EVT_SPIN, self.on_spin_devices)
 
         # Set spin range and initialise flag for first run
-        self.devices_spin_button.SetRange(0, len(self.devices))
+        self.devices_spin_button.SetRange(-1, len(self.devices))
         self.no_devices = True
 
         # Configure sizers for layout
@@ -419,7 +432,6 @@ class Gui(wx.Frame):
                 print("File name:", file_name)
 
     def on_keypress(self, event):
-        print("AA")
         key = event.GetKeyCode()
         if key == wx.WXK_LEFT:
             spin_value = self.devices_spin_button.GetValue() - 1
@@ -468,7 +480,6 @@ class Gui(wx.Frame):
             return
 
         spin_value = self.devices_spin_button.GetValue()
-
         if spin_value <= -1:
             self.devices_spin_button.SetValue(len(self.devices) - 1)
             spin_value = len(self.devices) - 1

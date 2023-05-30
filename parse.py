@@ -94,9 +94,10 @@ class Parser:
         print("Calling parse_network().")
         # Advance to the next symbol
         self.get_next_symbol()
+        # Check for comments
+        self.comment()
         # Parse specified devices in def. file
         self.device_list()
-
         # Parse specified connections in def. file
         self.connection_list()
         # Parse specified monitor points in def. file
@@ -106,6 +107,8 @@ class Parser:
             print("Defintion File Parsed")
             return True
         else:
+            # this should raise the first error
+            self.error_handler.print_error(self.scanner)
             self.error_handler.raise_error()
             
             
@@ -300,8 +303,8 @@ class Parser:
                 and self.symbol.id == self.scanner.DEVICE_ID
             ):
                 # Check current symbol is DEVICE
-
                 print(f"Current Symbol {self.names.get_name_string(self.symbol.id)}")
+
                 self.get_next_symbol()
 
                 if self.symbol.type == self.scanner.COLON:
@@ -332,6 +335,7 @@ class Parser:
                 print("FIRST COMMA PARSED")
                 # Advance to the next symbol --> DEVICE TYPE
                 self.get_next_symbol()
+
                 # If DEVICE-TYPE is AND,NAND,OR,NOR
                 if self.symbol.type is self.scanner.NAME and self.symbol.id in [
                     self.devices.AND,
@@ -351,20 +355,26 @@ class Parser:
                         print("SECOND COMMA PARSED")
                         """following comma, device property is specified"""
                         device_property = self.scanner.get_symbol()
-                        self.get_next_symbol()
 
-                        if int(device_property.id) not in range(1, 17):
+                        # I dont think the line below is needed.
+                        #self.get_next_symbol()
+                        if device_property.id is None:
+                            raise error.InputPinNumberError(
+                                'Number of device inputs to specified')
+                        elif int(device_property.id) not in range(1, 17):
                             raise error.InputPinNumberError(
                                 "Number of device inputs not valid"
                             )
-                            # Advance to final symbol --> SEMICOLON
-                            self.get_next_symbol()
-                            if self.symbol.type == self.scanner.SEMICOLON:
-                                pass
-                            else:
-                                raise error.MissingPunctuationError(
-                                    "Missing SEMICOLON at end of line."
-                                )
+                        
+                        # Advance to final symbol --> SEMICOLON
+                        self.get_next_symbol()
+                        if self.symbol.type is not self.scanner.SEMICOLON:
+                            raise error.MissingPunctuationError(
+                                "Missing SEMICOLON at end of line."
+                            )
+                    else:
+                        raise error.MissingPunctuationError("Missing 2nd COMMA in DEVICE definiton.")
+                
 
                 # If DEVICE TYPE is D_TYPE or XOR
                 elif self.symbol.type is self.scanner.NAME and self.symbol.id in [
@@ -405,7 +415,8 @@ class Parser:
                         self.get_next_symbol()
                         if self.symbol.type == self.scanner.SEMICOLON:
                             pass
-
+                
+                # If DEVICE TYPE is SWITCH        
                 elif (
                     self.symbol.type is self.scanner.NAME
                     and self.symbol.id == self.devices.SWITCH
@@ -422,6 +433,10 @@ class Parser:
 
                         if self.symbol.type == self.scanner.SEMICOLON:
                             pass
+                else:
+                    raise error.DeviceTypeError("Device type is missing or unknown.")
+            else:
+                raise error.MissingPunctuationError('Missing a COMMA in DEVICE: definition.')
 
         except error.MyException as err:
             print("Im in the except inside of device() in parse.py")
@@ -471,7 +486,7 @@ class Parser:
                         'Missing ":" in MONITOR definition.'
                     )
             else:
-                raise error.KeywordError("MONITOR keyword is missing")
+                raise error.MonitorError("MONITOR keyword is missing. You must have at least 1 monitor point.")
 
         except error.MyException as err:
             # Logs an error and continue parsing

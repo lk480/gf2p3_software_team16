@@ -82,7 +82,7 @@ class DevicePropertyError(MyException):
 
 
 class MonitorError(MyException):
-    """Error raised when system input cannot be monitored."""
+    """Error raised when system input cannot be monitored or no monitor is declared."""
 
 
 class DeviceExistsError(MyException):
@@ -138,8 +138,7 @@ class ErrorHandler:
                 f"{lines[error.error_row]}\n",
                 f"{' ' * error.error_col}^\n"
             )
-    
-    
+
     def print_error(self, scanner: Scanner):
         """Prints the encountered error."""
 

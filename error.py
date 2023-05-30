@@ -138,3 +138,11 @@ class ErrorHandler:
                 f"{lines[error.error_row]}\n",
                 f"{' ' * error.error_col}^\n",
             )
+    
+    def raise_error(self):
+        """Method raises an error at end of parsing."""
+
+        if self.found_no_errors():
+            return None
+        
+        raise self.error_list[0]

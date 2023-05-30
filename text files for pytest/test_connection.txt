@@ -1,0 +1,1 @@
+CONNECT G1.I1 = SW1, G2.I2 = SW2;

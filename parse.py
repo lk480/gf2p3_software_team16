@@ -68,7 +68,8 @@ class Parser:
         # print all errors
         err.set_error_position(self.scanner)
         print(f"Error row: {err.error_row}, column: {err.error_col}.")
-        self.error_handler.print_all_errors(self.scanner)
+
+        self.error_handler.print_error(self.scanner)
         print("Done with printing log_error.")
 
         # Edit the below comment
@@ -89,7 +90,10 @@ class Parser:
         """Parse the circuit definition file.
         Return True if there are no errors in the defintion file,
         false otherwise."""
-        print("Successfully called parse_network")
+
+        managed_to_parse_network = False
+
+        print("Calling parse_network().")
         # Advance to the next symbol
         self.get_next_symbol()
         # Parse specified devices in def. file
@@ -101,9 +105,11 @@ class Parser:
         self.monitor_list()
 
         if self.error_handler.found_no_errors():
-            return True
+            managed_to_parse_network = True
+            return managed_to_parse_network
         else:
-            print('Errors found in defintion file')
+            self.error_handler.raise_error()
+            
             
 
     def connection_list(self):
@@ -139,7 +145,6 @@ class Parser:
                 )
         except error.MyException as err:
             print("Im in the except inside of connection_list() in parse.py")
-            print(err.get_error_name)
             self.log_error(err)
 
     def connection(self):
@@ -160,7 +165,6 @@ class Parser:
                 )
         except error.MyException() as err:
             print("Successfuly entered exception condition of connection()")
-            print(err.get_error_name)
             # print error log
             self.log_error(err)
         # if there are no errors, call make connection
@@ -262,7 +266,7 @@ class Parser:
         count = 0
         while defining_devices is True:
             # Create new device
-            if count >= 10:
+            if count >= 50:
                 break
             count += 1
             self.device_creation()
@@ -304,7 +308,6 @@ class Parser:
                 raise error.DeviceNameError("Device name is missing.")
         except error.MyException as err:
             # Logs an error and continue parsing
-            print(err.get_error_name)
             self.log_error(err)
 
     def device(self):
@@ -413,7 +416,6 @@ class Parser:
 
         except error.MyException as err:
             print("Im in the except inside of device() in parse.py")
-            print(err.get_error_name)
             self.log_error(err)
 
         else:
@@ -458,14 +460,12 @@ class Parser:
 
         except error.MyException as err:
             # Logs an error and continue parsing
-            print(err.get_error_name)
             self.log_error(err)
 
     def monitor(self):
         try:
             op_device_id, op_port_id = self.output_device()
         except error.MyException as err:
-            print(err.get_error_name)
             self.log_error(err)
         else:
             self.monitors.make_monitor(op_device_id, op_port_id)

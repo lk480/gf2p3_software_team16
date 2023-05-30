@@ -130,14 +130,34 @@ class ErrorHandler:
             )
 
         lines = [line.replace("\n", " ") for line in input_file.readlines()] + [""]
-        print(lines)
+        # print(lines)
 
         for i, error in enumerate(self.error_list):
             print(
                 f"Error number {i} in ErrorHandler().error_list is: {error.get_error_name}\n",
                 f"{lines[error.error_row]}\n",
-                f"{' ' * error.error_col}^\n",
+                f"{' ' * error.error_col}^\n"
             )
+    
+    
+    def print_error(self, scanner: Scanner):
+        """Prints the encountered error."""
+
+        path = scanner.path
+
+        try:
+            input_file = open(path, "r")
+        except IOError:
+            raise FileNotFoundError(
+                "Cannot find file or read data in print_all_errors in error.py."
+            )
+
+        lines = [line.replace("\n", " ") for line in input_file.readlines()] + [""]
+
+        print(f"Error no. {len(self.error_list) - 1} in ErrorHandler().error_list is: {self.error_list[-1].get_error_name}\n",
+              f"{lines[self.error_list[-1].error_row]}\n",
+              f"{' ' * self.error_list[-1].error_col}^\n"
+        )
     
     def raise_error(self):
         """Method raises an error at end of parsing."""
@@ -146,3 +166,4 @@ class ErrorHandler:
             return None
         
         raise self.error_list[0]
+    

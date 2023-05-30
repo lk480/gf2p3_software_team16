@@ -94,8 +94,9 @@ class Parser:
         self.device_list()
         # self.connection_list()
         self.monitor_list()
-        # TODO Should return true if all symbols are correctly parsed, if not return false
-        pass
+
+        # Returns true if all symbols are correctly parsed, if not return false
+        return self.error_handler.found_no_errors()
 
     def connection_list(self):
         # print('Im inside parser connection_list')

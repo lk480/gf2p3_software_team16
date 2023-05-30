@@ -1,7 +1,6 @@
 from scanner import Scanner
 
 
-
 class MyException(Exception):
     """My exception is class that inherits properties from the Exception class.
     All of our syntax and semantic error build upon MyException.
@@ -56,6 +55,7 @@ class DeviceTypeError(MyException):
 
 
 # Semantic Errors
+
 
 class ConnectError(MyException):
     """Error is raised when in a CONNECT the first param is a device input
@@ -123,14 +123,18 @@ class ErrorHandler:
         path = scanner.path
 
         try:
-            input_file = open(path, 'r')
+            input_file = open(path, "r")
         except IOError:
-            raise FileNotFoundError("Cannot find file or read data in print_all_errors in error.py.")
+            raise FileNotFoundError(
+                "Cannot find file or read data in print_all_errors in error.py."
+            )
 
         lines = [line.replace("\n", " ") for line in input_file.readlines()] + [""]
         print(lines)
 
         for i, error in enumerate(self.error_list):
-            print(f'Error number {i} in ErrorHandler().error_list is: {error.get_error_name}\n',
-                  f'{lines[error.error_row]}\n',
-                  f"{' ' * error.error_col}^\n")
+            print(
+                f"Error number {i} in ErrorHandler().error_list is: {error.get_error_name}\n",
+                f"{lines[error.error_row]}\n",
+                f"{' ' * error.error_col}^\n",
+            )

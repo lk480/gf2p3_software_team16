@@ -58,45 +58,52 @@ class Scanner:
     def __init__(self, path, names):
         """Open specified file and initialise reserved words and IDs."""
         # if isinstance(names, Names)
-        
+
         self.names = names
         # print(f'Elements of the passed names.names_list is: {names.names_list}')
         # print(f'In begining, result of looking up the same _IDs again: {self.names.lookup(self.keywords_list)}')
         self.path = path
 
         try:
-            self.input_file = open(path, 'r')
+            self.input_file = open(path, "r")
         except IOError:
             raise FileNotFoundError("Cannot find file or read data")
 
-        self.current_character = ' '
-        self.keywords_list = ['DEVICE', 'CONNECT',
-                              'MONITOR', 'TYPE', 'STATE', 'INPUTS']
-        
+        self.current_character = " "
+        self.keywords_list = ["DEVICE", "CONNECT", "MONITOR", "TYPE", "STATE", "INPUTS"]
+
         # This will tell us where the marker is currently in the file
         self.marker_row = 0
         self.marker_col = -1
 
         self.start_of_symbol_row = None
         self.start_of_symbol_col = None
-        
-        
-        # self.NAME refers to name of a gate
-        self.symbol_type_list = [self.COMMA, self.SEMICOLON, self.EQUALS,
-                                 self.DOT, self.OPENBRACKET,
-                                 self.CLOSEDBRACKET, self.KEYWORD,
-                                 self.NUMBER,
-                                 self.NAME, self.EOF,
-                                 self.COLON, self.HASH] = range(12)
-        
-        [self.DEVICE_ID,
-         self.CONNECT_ID,
-         self.MONITOR_ID,
-         self.TYPE_ID,
-         self.STATE_ID,
-         self.INPUTS_ID,
-         ] = self.names.lookup(self.keywords_list)
 
+        # self.NAME refers to name of a gate
+        self.symbol_type_list = [
+            self.COMMA,
+            self.SEMICOLON,
+            self.EQUALS,
+            self.DOT,
+            self.OPENBRACKET,
+            self.CLOSEDBRACKET,
+            self.KEYWORD,
+            self.NUMBER,
+            self.NAME,
+            self.EOF,
+            self.COLON,
+            self.HASH,
+        ] = range(12)
+
+        # Index starts at 14
+        [
+            self.DEVICE_ID,
+            self.CONNECT_ID,
+            self.MONITOR_ID,
+            self.TYPE_ID,
+            self.STATE_ID,
+            self.INPUTS_ID,
+        ] = self.names.lookup(self.keywords_list)
 
     def get_symbol(self):
         """Translate the next sequence of characters into a symbol."""
@@ -106,8 +113,7 @@ class Scanner:
         self.start_of_symbol_col = self.marker_col
 
         self.skip_space()  # current character now not a whitespace
-        
-        
+
         if self.current_character.isalpha():
             name_string = self.get_name()
             # print(f'string: {name_string}')
@@ -116,30 +122,33 @@ class Scanner:
             if name_string in self.keywords_list:
                 symbol.type = self.KEYWORD
             elif name_string in self.names.names_list:
-                # TODO
-                pass
-            else:
                 symbol.type = self.NAME
-            
+            elif name_string.isdigit():
+                symbol.type = self.NUMBER
+            elif name_string.isalnum():
+                symbol.type = self.NAME
+            else:
+                symbol.type = None
+
             [symbol.id] = self.names.lookup([name_string])
 
         elif self.current_character.isdigit():
             symbol.id = self.get_number()
             symbol.type = self.NUMBER
 
-        elif self.current_character == '(':
+        elif self.current_character == "(":
             symbol.type = self.OPENBRACKET
             self.advance()
-        elif self.current_character == ')':
+        elif self.current_character == ")":
             symbol.type = self.CLOSEDBRACKET
             self.advance()
-        elif self.current_character == ',':
+        elif self.current_character == ",":
             symbol.type = self.COMMA
             self.advance()
-        elif self.current_character == ':':
+        elif self.current_character == ":":
             symbol.type = self.COLON
             self.advance()
-        elif self.current_character == ';':
+        elif self.current_character == ";":
             symbol.type = self.SEMICOLON
             self.advance()
         elif self.current_character == "":
@@ -148,7 +157,7 @@ class Scanner:
         elif self.current_character == ".":
             symbol.type = self.DOT
             self.advance()
-        elif self.current_character == '#':
+        elif self.current_character == "#":
             symbol.type = self.HASH
             self.advance()
         else:  # not a valid character
@@ -173,8 +182,6 @@ class Scanner:
 
         self.current_character = self.input_file.read(1)
         print(self.current_character)
-
-        
 
         return self.current_character
 

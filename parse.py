@@ -76,7 +76,10 @@ class Parser:
             self.get_next_symbol()
 
         print('I am about to enter self.parse_network() in log_error() in parse.py')
-        self.parse_network()
+        
+        # THIS LINE BELOW IS ONLY NEEDED IF ALL OF THE DEVICE_LIST AND MONITORS_LIST
+        # FUNCTIONS ARE COMMENTTED OUT inside log_error.
+        #self.parse_network()
 
     def get_next_symbol(self):
         """Get next symbol and assign it to self.symbol"""
@@ -90,7 +93,7 @@ class Parser:
         self.get_next_symbol()
         self.device_list()
         # self.connection_list()
-        # self.monitor_list()
+        self.monitor_list()
         # TODO Should return true if all symbols are correctly parsed, if not return false
         pass
 
@@ -324,17 +327,18 @@ class Parser:
             return None
 
     def monitor_list(self):
+        print("i'm inside monitor_list")
         try:
-            if (self.symbol == self.scanner.KEYWORD
+            if (self.symbol.type == self.scanner.KEYWORD
                     and self.symbol.id == self.scanner.MONITOR_ID):
 
                 self.get_next_symbol()
                 if (self.symbol.type == self.scanner.COLON):
                     self.get_next_symbol()
-                    # self.monitor()
+                    self.monitor()
                     while self.symbol.type == self.scanner.COMMA:
                         self.get_next_symbol()
-                        # self.monitor()
+                        self.monitor()
                     if self.symbol.type == self.scanner.SEMICOLON:
                         self.get_next_symbol()
                     else:

@@ -376,7 +376,7 @@ class Parser:
                     )
                     device_kind = self.symbol.id
                     # Advance to next symbol --> COMMA
-                    self.get_next_symbol()
+                    self.symbol = self.scanner.get_symbol()
                     if self.symbol.type == self.scanner.COMMA:
                         """following comma, device property is specified"""
                         # For D_TYPE and XOR gates, this should be NoneType
@@ -429,9 +429,15 @@ class Parser:
 
         else:
             # Call make_device
+            # Using None to avoid problems with switches in state 0
+            if device_property is not None:
+                int_device_property = int(device_property.id)
+            else:
+                int_device_property = None
             error_type = self.devices.make_device(
-                device_id, device_kind, int(device_property.id)
+                device_id, device_kind, int_device_property
             )
+
             error_type = self.devices.NO_ERROR
             print('Now "fake" calling make_device.')
             if error_type != self.devices.NO_ERROR:

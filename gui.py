@@ -183,7 +183,6 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.init_gl()
             self.init = True
 
-        size = self.GetClientSize()
         self.render(self.signals_list)
 
     def on_size(self, event):
@@ -270,9 +269,11 @@ class Gui(wx.Frame):
         self.monitors = monitors
         self.network = network
 
+        self.cycle_count = 10
+
         self.devices_list = self.set_up_devices(devices, names)
 
-        self.signals_list = self.gather_signal_data(devices, names)
+        self.signals_list = self.gather_signal_data(devices, names, self.cycle_count)
 
         # Configure the file menu
         # Initialise menus and bar
@@ -294,21 +295,6 @@ class Gui(wx.Frame):
         menuBar.Append(helpMenu, "&Help")
         self.SetMenuBar(menuBar)
 
-        # TEMP list of devices to test
-        self.devices = [
-            ["G1", "0", "0"],
-            ["G2", "1", "4"],
-            ["G3", "2", "5"],
-            ["G4", "3", "4"],
-            ["G5", "4", "2"],
-            ["G6", "5", "2"],
-            ["G7", "6", "5"],
-            ["G8", "7", "3"],
-            ["G9", "8", "0"],
-            ["G10", "9", "1"],
-            ["G11", "10", "1"],
-            ["G12", "11", "5"],
-        ]
         self.current_device = len(self.devices_list) + 2
 
         # Canvas for drawing signals
@@ -378,9 +364,9 @@ class Gui(wx.Frame):
 
         return devices_list
 
-    def gather_signal_data(self, devices, names):
+    def gather_signal_data(self, devices, names, cycle_count):
         signals_list = []
-        self.run(20)
+        self.run(cycle_count)
         for item in self.monitors.monitors_dictionary.items():
             single_signal = []
             single_signal.append(names.get_name_string(item[0][0]))
@@ -390,6 +376,8 @@ class Gui(wx.Frame):
         return signals_list
 
     def run(self, cycles):
+        self.monitors.reset_monitors()
+        self.devices.cold_startup()
         for _ in range(cycles):
             if self.network.execute_network():
                 self.monitors.record_signals()
@@ -450,16 +438,18 @@ class Gui(wx.Frame):
 
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the spin control value."""
-        spin_value = self.cycles_spin.GetValue()
+        self.cycle_count = self.cycles_spin.GetValue()
         self.canvas.render(self.signals_list)
 
     def on_spin_speed(self, event):
         """Handle the event when the user changes the spin control value."""
-        spin_value = self.speed_spin.GetValue()
         self.canvas.render(self.signals_list)
 
     def on_run_button(self, event):
         """Handle the event when the user clicks the run button."""
+        self.signals_list = self.gather_signal_data(
+            self.devices, self.names, self.cycle_count
+        )
         self.canvas.render(self.signals_list)
 
     def on_stop_button(self, event):

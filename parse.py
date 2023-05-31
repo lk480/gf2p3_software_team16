@@ -107,8 +107,6 @@ class Parser:
             return True
         else:
             self.error_handler.raise_error()
-            
-            
 
     def connection_list(self):
         try:
@@ -270,7 +268,7 @@ class Parser:
             # Create new device
             if count >= 500:
                 break
-                
+
             count += 1
             self.device_creation()
             # Get next symbol

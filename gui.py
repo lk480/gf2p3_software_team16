@@ -87,7 +87,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.RED = (1.0, 0.0, 0.0)
         self.GREEN = (0.0, 1.0, 0.0)
         self.BLUE = (0.0, 0.0, 1.0)
-        self.colours = [self.BLACK, self.RED, self.GREEN, self.BLUE]
+        self.colours = [self.WHITE, self.RED, self.GREEN, self.BLUE]
 
         # TEMP STUFF
         self.signals = [
@@ -106,13 +106,15 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
         self.BG_WHITE = (1.0, 1.0, 1.0)
         self.BG_BLACK = (0.24, 0.24, 0.24)
+        self.BG_COLOUR = self.BG_BLACK
 
     def init_gl(self):
         """Configure and initialise the OpenGL context."""
+
         size = self.GetClientSize()
         self.SetCurrent(self.context)
         GL.glDrawBuffer(GL.GL_BACK)
-        GL.glClearColor(self.BG_WHITE[0], self.BG_WHITE[1], self.BG_WHITE[2], 1.0)
+        GL.glClearColor(self.BG_COLOUR[0], self.BG_COLOUR[1], self.BG_COLOUR[2], 1.0)
         GL.glViewport(0, 0, size.width, size.height)
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
@@ -121,8 +123,6 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glLoadIdentity()
         GL.glTranslated(self.pan_x, self.pan_y, 0.0)
         GL.glScaled(self.zoom, self.zoom, self.zoom)
-
-        self.set_dark_mode()
 
     def set_dark_mode(self):
         GL.glClearColor(self.BG_BLACK[0], self.BG_BLACK[1], self.BG_BLACK[2], 1.0)
@@ -311,6 +311,11 @@ class Gui(wx.Frame):
         """Initialise widgets and layout."""
         super().__init__(parent=None, title=title, size=(800, 600))
 
+        self.names = names
+        self.devices = devices
+
+        self.devices_list = self.set_up_devices(devices, names)
+
         # Configure the file menu
         # Initialise menus and bar
         menuBar = wx.MenuBar()
@@ -346,7 +351,7 @@ class Gui(wx.Frame):
             ["G11", "10", "1"],
             ["G12", "11", "5"],
         ]
-        self.current_device = len(self.devices) + 2
+        self.current_device = len(self.devices_list) + 2
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
@@ -380,7 +385,7 @@ class Gui(wx.Frame):
         self.dark_mode_button.Bind(wx.EVT_BUTTON, self.on_toggle_dark_mode)
 
         # Set spin range and initialise flag for first run
-        self.devices_spin_button.SetRange(-1, len(self.devices))
+        self.devices_spin_button.SetRange(-1, len(self.devices_list))
         self.no_devices = True
 
         # Configure sizers for layout
@@ -404,6 +409,27 @@ class Gui(wx.Frame):
         # Set the sizer and configure the window
         self.SetSizeHints(600, 600)
         self.SetSizer(main_sizer)
+
+    def set_up_devices(self, devices, names):
+        devices_list = []
+        for device in devices.devices_list:
+            single_device_list = []
+            id = device.device_id
+            single_device_list.append(names.get_name_string(id))
+            single_device_list.append(self.device_number_to_string(device.device_kind))
+            single_device_list.append(devices.return_property(id))
+
+            devices_list.append(single_device_list)
+
+        return devices_list
+
+    def device_number_to_string(self, device_number):
+        if device_number == 2:
+            return "NAND"
+        elif device_number == 6:
+            return "SWITCH"
+        else:
+            return "UNKNOWN(ADD TO GUI))"
 
     # Event handlers
     def on_menu(self, event):
@@ -468,6 +494,7 @@ class Gui(wx.Frame):
         """Handle the event when the user clicks the run button."""
         text = "Stop button pressed."
         self.canvas.render(text)
+        print(self.devices_list)
 
     def on_text_box(self, event):
         """Handle the event when the user enters text."""
@@ -481,33 +508,46 @@ class Gui(wx.Frame):
         if self.no_devices:
             self.no_devices = False
             self.devices_spin_button.SetValue(0)
-            self.update_current_device(self.devices[0])
+            self.update_current_device(self.devices_list[0])
             return
 
         spin_value = self.devices_spin_button.GetValue()
         if spin_value <= -1:
-            self.devices_spin_button.SetValue(len(self.devices) - 1)
-            spin_value = len(self.devices) - 1
-        elif spin_value >= len(self.devices):
+            self.devices_spin_button.SetValue(len(self.devices_list) - 1)
+            spin_value = len(self.devices_list) - 1
+        elif spin_value >= len(self.devices_list):
             self.devices_spin_button.SetValue(0)
             spin_value = 0
 
         self.current_device = spin_value
-        self.update_current_device(self.devices[spin_value])
+        self.update_current_device(self.devices_list[spin_value])
 
     def on_toggle_dark_mode(self, event):
         if self.dark_mode_flag:
             self.dark_mode_flag = False
             self.canvas.set_light_mode()
+            self.canvas.BG_COLOUR = self.canvas.BG_WHITE
+
         else:
             self.dark_mode_flag = True
             self.canvas.set_dark_mode()
+            self.canvas.BG_COLOUR = self.canvas.BG_BLACK
 
         self.canvas.render("Dark mode toggled")
 
     # Helper functions
     def update_current_device(self, devices):
         """Update the current device text label"""
+        property = None
+        if devices[1] == "SWITCH":
+            property = "STATE"
+        elif devices[1] == "CLOCK":
+            property = "PERIOD"
+        elif devices[1] == "DTYPE":
+            property = "STATE"
+        else:
+            self.devices_text.SetLabel(f" Device: {devices[0]} \n Type: {devices[1]}")
+            return
         self.devices_text.SetLabel(
-            f" Device: {devices[0]} \n ID: {devices[1]} \n Property: {devices[2]}"
+            f" Device: {devices[0]} \n Type: {devices[1]} \n {property}: {devices[2]}"
         )

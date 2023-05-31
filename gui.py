@@ -420,6 +420,10 @@ class Gui(wx.Frame):
 
         return devices_list
 
+    def gather_signal_data(self, devices, names):
+        pass
+
+
     def device_number_to_string(self, device_number):
         if device_number == 2:
             return "NAND"

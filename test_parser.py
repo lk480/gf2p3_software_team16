@@ -51,6 +51,7 @@ def test_parser(new_names, new_device,
 
     parser = Parser(new_names, new_device, new_network, new_monitor,
                     Scanner(file_path, new_names))
+
     assert parser.parse_network() == parse_bool_value
 
 
@@ -79,10 +80,10 @@ def test_parser(new_names, new_device,
      "missing_device.txt", error.KeywordError),
 
 
-
-    # below tests MAY NOT work. Truss me bro the 1s above w0rk.
+    # below tests MAY NOT work.
     
     #(Path.cwd() / "text files for pytest" / "semantic errors" / "ConnectError.txt",
+
     # error.ConnectError)
 
     # (Path.cwd() / "text files for pytest" / "semantic errors" / "ReferenceError.txt", error.ReferenceError)

@@ -88,6 +88,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.GREEN = (0.0, 1.0, 0.0)
         self.BLUE = (0.0, 0.0, 1.0)
         self.colours = [self.WHITE, self.RED, self.GREEN, self.BLUE]
+        self.signals_list = []
 
         # TEMP STUFF
         self.signals = [
@@ -136,21 +137,21 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         """Draw a trace for a given signal."""
         GL.glColor3f(colour[0], colour[1], colour[2])
         GL.glBegin(GL.GL_LINE_STRIP)
-        for i in range(10):
+        for i in range(len(signal)):
             x = (i * 50) + 30
             x_next = (i * 50) + 80
-            y = 450 + 50 * signal[i] - 90 * position
+            y = 450 + 50 * int(signal[i]) - 90 * position
             GL.glVertex2f(x, y)
             GL.glVertex2f(x_next, y)
         GL.glEnd()
 
-    def render_signals(self, signals, names):
+    def render_signals(self):
         """Render all the signals and labels."""
-        for i in range(len(self.signals)):
-            self.draw_trace(self.signals[i], self.colours[i % 4], i)
-            self.render_text(self.names[i], 10, 470 - 90 * i)
+        for i in range(len(self.signals_list)):
+            self.draw_trace(self.signals_list[i][1], self.colours[i % 4], i)
+            self.render_text(self.signals_list[i][0], 10, 470 - 90 * i)
 
-    def render(self, text):
+    def render(self, signals_list):
         """Handle all drawing operations."""
         self.SetCurrent(self.context)
         if not self.init:
@@ -162,10 +163,12 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
         # Draw specified text at position (10, 10)
-        self.render_text(text, 10, 10)
 
         # Draw a sample signal trace
-        self.render_signals("a", "b")
+
+        if signals_list is not None:
+            self.signals_list = signals_list
+        self.render_signals()
 
         # We have been drawing to the back buffer, flush the graphics pipeline
         # and swap the back buffer to the front
@@ -181,15 +184,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.init = True
 
         size = self.GetClientSize()
-        text = "".join(
-            [
-                "Canvas redrawn on paint event, size is ",
-                str(size.width),
-                ", ",
-                str(size.height),
-            ]
-        )
-        self.render(text)
+        self.render(self.signals_list)
 
     def on_size(self, event):
         """Handle the canvas resize event."""
@@ -199,7 +194,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
     def on_mouse(self, event):
         """Handle mouse events."""
-        text = ""
+
         # Calculate object coordinates of the mouse position
         size = self.GetClientSize()
         ox = (event.GetX() - self.pan_x) / self.zoom
@@ -208,67 +203,26 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         if event.ButtonDown():
             self.last_mouse_x = event.GetX()
             self.last_mouse_y = event.GetY()
-            text = "".join(
-                [
-                    "Mouse button pressed at: ",
-                    str(event.GetX()),
-                    ", ",
-                    str(event.GetY()),
-                ]
-            )
-        if event.ButtonUp():
-            text = "".join(
-                [
-                    "Mouse button released at: ",
-                    str(event.GetX()),
-                    ", ",
-                    str(event.GetY()),
-                ]
-            )
-        if event.Leaving():
-            text = "".join(
-                ["Mouse left canvas at: ", str(event.GetX()), ", ", str(event.GetY())]
-            )
         if event.Dragging():
             self.pan_x += event.GetX() - self.last_mouse_x
             self.pan_y -= event.GetY() - self.last_mouse_y
             self.last_mouse_x = event.GetX()
             self.last_mouse_y = event.GetY()
             self.init = False
-            text = "".join(
-                [
-                    "Mouse dragged to: ",
-                    str(event.GetX()),
-                    ", ",
-                    str(event.GetY()),
-                    ". Pan is now: ",
-                    str(self.pan_x),
-                    ", ",
-                    str(self.pan_y),
-                ]
-            )
         if event.GetWheelRotation() < 0:
             self.zoom *= 1.0 + (event.GetWheelRotation() / (10 * event.GetWheelDelta()))
             # Adjust pan so as to zoom around the mouse position
             self.pan_x -= (self.zoom - old_zoom) * ox
             self.pan_y -= (self.zoom - old_zoom) * oy
             self.init = False
-            text = "".join(
-                ["Negative mouse wheel rotation. Zoom is now: ", str(self.zoom)]
-            )
         if event.GetWheelRotation() > 0:
             self.zoom /= 1.0 - (event.GetWheelRotation() / (10 * event.GetWheelDelta()))
             # Adjust pan so as to zoom around the mouse position
             self.pan_x -= (self.zoom - old_zoom) * ox
             self.pan_y -= (self.zoom - old_zoom) * oy
             self.init = False
-            text = "".join(
-                ["Positive mouse wheel rotation. Zoom is now: ", str(self.zoom)]
-            )
-        if text:
-            self.render(text)
-        else:
-            self.Refresh()  # triggers the paint event
+        self.render(self.signals_list)
+        self.Refresh()  # triggers the paint event
 
     def render_text(self, text, x_pos, y_pos):
         """Handle text drawing operations."""
@@ -313,8 +267,12 @@ class Gui(wx.Frame):
 
         self.names = names
         self.devices = devices
+        self.monitors = monitors
+        self.network = network
 
         self.devices_list = self.set_up_devices(devices, names)
+
+        self.signals_list = self.gather_signal_data(devices, names)
 
         # Configure the file menu
         # Initialise menus and bar
@@ -355,7 +313,7 @@ class Gui(wx.Frame):
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
-
+        self.canvas.render(self.signals_list)
         # Set up help menu text
         self.HELP_TEXT = "HELP ME"
 
@@ -421,8 +379,20 @@ class Gui(wx.Frame):
         return devices_list
 
     def gather_signal_data(self, devices, names):
-        pass
+        signals_list = []
+        self.run(20)
+        for item in self.monitors.monitors_dictionary.items():
+            single_signal = []
+            single_signal.append(names.get_name_string(item[0][0]))
+            single_signal.append(item[1])
+            signals_list.append(single_signal)
 
+        return signals_list
+
+    def run(self, cycles):
+        for _ in range(cycles):
+            if self.network.execute_network():
+                self.monitors.record_signals()
 
     def device_number_to_string(self, device_number):
         if device_number == 2:
@@ -481,24 +451,20 @@ class Gui(wx.Frame):
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the spin control value."""
         spin_value = self.cycles_spin.GetValue()
-        text = "".join(["New cycles control value: ", str(spin_value)])
-        self.canvas.render(text)
+        self.canvas.render(self.signals_list)
 
     def on_spin_speed(self, event):
         """Handle the event when the user changes the spin control value."""
         spin_value = self.speed_spin.GetValue()
-        text = "".join(["New rate control value: ", str(spin_value)])
-        self.canvas.render(text)
+        self.canvas.render(self.signals_list)
 
     def on_run_button(self, event):
         """Handle the event when the user clicks the run button."""
-        text = "Run button pressed."
-        self.canvas.render(text)
+        self.canvas.render(self.signals_list)
 
     def on_stop_button(self, event):
         """Handle the event when the user clicks the run button."""
-        text = "Stop button pressed."
-        self.canvas.render(text)
+        self.canvas.render(self.signals_list)
         print(self.devices_list)
 
     def on_spin_devices(self, event):
@@ -532,7 +498,7 @@ class Gui(wx.Frame):
             self.canvas.set_dark_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_BLACK
 
-        self.canvas.render("Dark mode toggled")
+        self.canvas.render(None)
 
     # Helper functions
     def update_current_device(self, devices):

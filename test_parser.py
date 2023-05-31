@@ -56,29 +56,34 @@ def test_parser(new_names, new_device,
 
 
 @pytest.mark.parametrize("file_path, exception", [
+
+    # Syntax error checking
     (Path.cwd() / "text files for pytest" / "syntax errors" /
-     "test_incorrect_device_def.txt", error.MissingPunctuationError),
+     "missing_colon.txt", error.MissingPunctuationError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
-     "test_incorrect_monitor_a_circuit.txt", error.MissingPunctuationError),
+     "missing_colon2.txt", error.MissingPunctuationError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
-     "test_one_device.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "semantic errors" /
-     "MonitorError1.txt", error.MonitorError),
+     "missing_colon3.txt", error.MissingPunctuationError),
+    (Path.cwd() / "text files for pytest" / "syntax errors" /
+     "missing_colon_with_comment.txt", error.MissingPunctuationError),
     (Path.cwd() / "text files for pytest" / "syntax errors" / "missing_comma.txt",
      error.MissingPunctuationError),
+    (Path.cwd() / "text files for pytest" / "syntax errors" /
+     "missing_comma2.txt", error.MissingPunctuationError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
      "missing_attribute.txt", error.InputPinNumberError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
      "missing_semicolon.txt", error.MissingPunctuationError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
-     "missing_colon.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
-     "missing_colon_with_comment.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
      "missing_device_type.txt", error.DeviceTypeError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
-     "missing_device.txt", error.KeywordError),
+     "missing_device.txt", error.KeywordError)
 
+
+    # Sematic error checking
+
+    #(Path.cwd() / "text files for pytest" / "semantic errors" /
+    # "MonitorError1.txt", error.MonitorError)
 
     # below tests MAY NOT work.
     
@@ -90,7 +95,7 @@ def test_parser(new_names, new_device,
     # (Path.cwd() / "text files for pytest" / "semantic errors" / "PortReferenceError.txt", error.PortReferenceError)
 
 ])
-def test_parse_network_raises_exceptions(new_names, new_device,
+def test_parser_raises_exceptions(new_names, new_device,
                                          new_network, new_monitor,
                                          file_path, exception):
 

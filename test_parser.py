@@ -62,26 +62,28 @@ def new_parser(new_names, new_device, new_network,
 
 
 @pytest.mark.parametrize("file_path, parse_bool_value", [
-    #(Path.cwd() / "text files for pytest" / "syntax errors" / "test_incorrect_monitor.txt", False),
-    (Path.cwd() / "text files for pytests" / "test_correct_monitor.txt", True),
+    # (Path.cwd() / "text files for pytest" / "syntax errors" / "test_incorrect_monitor.txt", False),
+    (Path.cwd() / "text files for pytest" / "test_correct_monitor.txt", True),
     (Path.cwd() / "monitor_a_switch.txt", True),
-    (Path.cwd() / "text files for pytests" / "test_comment.txt", True),
+    (Path.cwd() / "text files for pytest" / "test_comment.txt", True),
 ])
 def test_parse_network_returns_false(new_names, new_device,
                                      new_network, file_path, parse_bool_value):
     parser = Parser(new_names, new_device, new_network, new_monitor,
                     Scanner(file_path, new_names))
-    
+
     assert parser.parse_network() == parse_bool_value
 
 
-@pytest.mark.parametrize("file_path, exception", [   
+@pytest.mark.parametrize("file_path, exception", [
     (Path.cwd() / "text files for pytest" / "syntax errors" /
-      "test_incorrect_device_def.txt", error.MissingPunctuationError),
+     "test_incorrect_device_def.txt", error.MissingPunctuationError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
-      "test_incorrect_monitor_a_circuit.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" / "test_one_device.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "semantic errors" / "MonitorError1.txt", error.MonitorError),
+     "test_incorrect_monitor_a_circuit.txt", error.MissingPunctuationError),
+    (Path.cwd() / "text files for pytest" / "syntax errors" /
+     "test_one_device.txt", error.MissingPunctuationError),
+    (Path.cwd() / "text files for pytest" / "semantic errors" /
+     "MonitorError1.txt", error.MonitorError),
     (Path.cwd() / "text files for pytest" / "syntax errors" / "missing_comma.txt",
      error.MissingPunctuationError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
@@ -95,14 +97,14 @@ def test_parse_network_returns_false(new_names, new_device,
 
     # below tests MAY NOT work. Truss me bro the 1s above w0rk.
 
-    
+
     (Path.cwd() / "text files for pytest" / "syntax errors" /
      "missing_device_type.txt", error.DeviceTypeError)
     #
     # (Path.cwd() / "text files for pytest" / "syntax errors" /
     #  "test_incorrect_device_def8.txt", error.KeywordError)
 
-    # (Path.cwd() / "text files for pytest" / "semantic errors" / "ConnectError.txt", 
+    # (Path.cwd() / "text files for pytest" / "semantic errors" / "ConnectError.txt",
     # error.ConnectError)
 
     # (Path.cwd() / "text files for pytest" / "semantic errors" / "ReferenceError.txt", error.ReferenceError)
@@ -111,13 +113,12 @@ def test_parse_network_returns_false(new_names, new_device,
 ])
 def test_parse_network_raises_exceptions(new_names, new_device,
                                          new_network, file_path, exception):
-    
+
     parser = Parser(new_names, new_device, new_network, new_monitor,
                     Scanner(file_path, new_names))
 
     with pytest.raises(exception):
         parser.parse_network()
-
 
 
 def test_parser(new_parser):

@@ -110,8 +110,6 @@ class Parser:
             # this should raise the first error
             self.error_handler.print_error(self.scanner)
             self.error_handler.raise_error()
-            
-            
 
     def connection_list(self):
         try:
@@ -120,26 +118,28 @@ class Parser:
                 self.symbol.type == self.scanner.KEYWORD
                 and self.symbol.id == self.scanner.CONNECT_ID
             ):
-                self.symbol = self.scanner.get_symbol()
-                print("Making a connection.\n")
+                self.get_next_symbol()  # This symbol should be COLON
                 self.get_next_symbol()
-                self.connection()
-                self.get_next_symbol()  # SHOULD BE COMMA OR SEMICOLON
+                if (self.symbol.type == self.scanner.KEYWORD
+                        and self.symbol.id == self.scanner.NONE_ID):
+                    print('No connection specified')
+                    self.get_next_symbol()
+                else:
+                    print("Making a connection.\n")
+                    self.connection()
+                # self.get_next_symbol()  # check this
                 # Checking for mutiple connections
                 while self.symbol.type == self.scanner.COMMA:
                     self.symbol = self.scanner.get_symbol()
                     print("Making a connection.\n")
                     self.connection()
-                self.get_next_symbol()
+                # self.get_next_symbol()  # check this
                 if self.symbol.type == self.scanner.SEMICOLON:
-                    self.symbol = self.scanner.get_symbol()
+                    self.get_next_symbol()
                 else:
                     raise error.MissingPunctuationError(
                         "Missing SEMICOLON at end of line."
                     )
-                """THIS IS A TEMPORARY THING DELETE PLEASE"""
-            elif 1 == 1:
-                pass
             else:
                 print(self.symbol)
                 raise error.KeywordError(
@@ -161,7 +161,8 @@ class Parser:
                 ip_device_id, ip_port_id = self.input_device()
                 input_device = self.devices.get_device(ip_device_id)
                 if input_device.inputs[ip_port_id] is not None:
-                    raise error.MultipleInputError("This input is already connected")
+                    raise error.MultipleInputError(
+                        "This input is already connected")
 
             else:
                 raise error.MissingPunctuationError(
@@ -181,11 +182,9 @@ class Parser:
             if error_type != self.devices.NO_ERROR:
                 self.log_error(error_type)
 
-        # TODO for Lolith: call parse_network()
-
     def input_device(self):
         """Function that returns the input device id and input port id
-        (in case of DTYPE Latch) - these paramters are needed when calling
+        (in case of DTYPE Latch) - these parameters are needed when calling
         the make_connection() method from the network module"""
         # Retrieve device id
         ip_device_id = self.get_device_id()
@@ -200,6 +199,7 @@ class Parser:
         # Check symbol type is DOT which denotes definition of input port
         if self.symbol.type == self.scanner.DOT:
             self.get_next_symbol()
+            print(f"AAAAAA {self.symbol.type}")
             # Find input port name and check whether device is a DTYPE Latch
             if self.symbol.id in self.devices.dtype_input_ids:
                 # Device is DTYPE Latch
@@ -213,6 +213,8 @@ class Parser:
                 input_str = self.names.get_name_string(self.symbol.id)
                 if input_str[0] == "I" and input_str[1:].isdigit():
                     ip_port_id = self.symbol.id
+                    # Advance symbol -- test
+                    self.get_next_symbol()
                     return ip_device_id, ip_port_id
                 else:
                     raise error.PortReferenceError(
@@ -243,11 +245,14 @@ class Parser:
                 if self.symbol.id in self.devices.dtype_output_ids:
                     # Device is a DTYPE Latch
                     print("Device is a DTYPE Latch")
+                    print(f"Output PORT ID: {self.symbol.id}")
                     op_port_id = self.symbol.id
                     self.get_next_symbol()
+
                     return op_device_id, op_port_id
                 else:
-                    raise error.PortReferenceError("Device input port does not exist")
+                    raise error.PortReferenceError(
+                        "Device input port does not exist")
         else:
             print("Device is not a DTYPE Latch")
             # Output device is not a DTYPE Latch so op_port_id must be None
@@ -259,7 +264,8 @@ class Parser:
         elif self.symbol.type == self.scanner.KEYWORD:
             raise error.DeviceNameError("Cannot use KEYWORD as device name")
         else:
-            raise error.DeviceNameError("Device Name must be an alphanumeric string.")
+            raise error.DeviceNameError(
+                "Device Name must be an alphanumeric string.")
 
     # Continue checking for devices until keyword "CONNECT" is detected
     def device_list(self):
@@ -273,7 +279,7 @@ class Parser:
             # Create new device
             if count >= 500:
                 break
-                
+
             count += 1
             self.device_creation()
             # Get next symbol
@@ -303,7 +309,8 @@ class Parser:
                 and self.symbol.id == self.scanner.DEVICE_ID
             ):
                 # Check current symbol is DEVICE
-                print(f"Current Symbol {self.names.get_name_string(self.symbol.id)}")
+                print(
+                    f"Current Symbol {self.names.get_name_string(self.symbol.id)}")
 
                 self.get_next_symbol()
 
@@ -324,7 +331,8 @@ class Parser:
 
     def device(self):
         try:
-            print(f"Current symbol {self.names.get_name_string(self.symbol.id)}")
+            print(
+                f"Current symbol {self.names.get_name_string(self.symbol.id)}")
             # Initalise parameters of the device
             device_id = self.get_device_id()
             device_kind = None
@@ -357,7 +365,7 @@ class Parser:
                         device_property = self.scanner.get_symbol()
 
                         # I dont think the line below is needed.
-                        #self.get_next_symbol()
+                        # self.get_next_symbol()
                         if device_property.id is None:
                             raise error.InputPinNumberError(
                                 'Number of device inputs to specified')
@@ -365,7 +373,7 @@ class Parser:
                             raise error.InputPinNumberError(
                                 "Number of device inputs not valid"
                             )
-                        
+
                         # Advance to final symbol --> SEMICOLON
                         self.get_next_symbol()
                         if self.symbol.type is not self.scanner.SEMICOLON:
@@ -373,8 +381,8 @@ class Parser:
                                 "Missing SEMICOLON at end of line."
                             )
                     else:
-                        raise error.MissingPunctuationError("Missing 2nd COMMA in DEVICE definiton.")
-                
+                        raise error.MissingPunctuationError(
+                            "Missing 2nd COMMA in DEVICE definiton.")
 
                 # If DEVICE TYPE is D_TYPE or XOR
                 elif self.symbol.type is self.scanner.NAME and self.symbol.id in [
@@ -415,8 +423,8 @@ class Parser:
                         self.get_next_symbol()
                         if self.symbol.type == self.scanner.SEMICOLON:
                             pass
-                
-                # If DEVICE TYPE is SWITCH        
+
+                # If DEVICE TYPE is SWITCH
                 elif (
                     self.symbol.type is self.scanner.NAME
                     and self.symbol.id == self.devices.SWITCH
@@ -434,9 +442,11 @@ class Parser:
                         if self.symbol.type == self.scanner.SEMICOLON:
                             pass
                 else:
-                    raise error.DeviceTypeError("Device type is missing or unknown.")
+                    raise error.DeviceTypeError(
+                        "Device type is missing or unknown.")
             else:
-                raise error.MissingPunctuationError('Missing a COMMA in DEVICE: definition.')
+                raise error.MissingPunctuationError(
+                    'Missing a COMMA in DEVICE: definition.')
 
         except error.MyException as err:
             print("Im in the except inside of device() in parse.py")
@@ -447,19 +457,22 @@ class Parser:
             # Using None to avoid problems with switches in state 0
             if device_property is not None:
                 int_device_property = int(device_property.id)
+                error_type = self.devices.make_device(
+                    device_id, device_kind, int_device_property)
+
             else:
                 int_device_property = None
-            error_type = self.devices.make_device(
-                device_id, device_kind, int_device_property
-            )
+                error_type = self.devices.make_device(
+                    device_id, device_kind, int_device_property
+                )
 
-            error_type = self.devices.NO_ERROR
-            print('Now "fake" calling make_device.')
             if error_type != self.devices.NO_ERROR:
                 self.log_error(error_type)
 
     def monitor_list(self):
         print("i'm inside monitor_list")
+        if self.symbol.type == self.scanner.SEMICOLON:
+            self.get_next_symbol()
         try:
             if (
                 self.symbol.type == self.scanner.KEYWORD
@@ -486,7 +499,8 @@ class Parser:
                         'Missing ":" in MONITOR definition.'
                     )
             else:
-                raise error.MonitorError("MONITOR keyword is missing. You must have at least 1 monitor point.")
+                raise error.MonitorError(
+                    "MONITOR keyword is missing.")
 
         except error.MyException as err:
             # Logs an error and continue parsing

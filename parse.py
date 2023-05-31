@@ -268,6 +268,10 @@ class Parser:
             and self.symbol.id == self.scanner.DEVICE_ID
         ):
             defining_devices = True
+        
+        else:
+            raise error.KeywordError("File needs to have at least 1 DEVICE.")
+            
         count = 0
         while defining_devices is True:
             # Create new device

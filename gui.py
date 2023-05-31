@@ -366,8 +366,7 @@ class Gui(wx.Frame):
         self.stop_button = wx.Button(self, wx.ID_ANY, "Stop")
         self.speed_text = wx.StaticText(self, wx.ID_ANY, "Cycles /s")
         self.speed_spin = wx.SpinCtrl(self, wx.ID_ANY, "1")
-        self.text_box = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
-        self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected")
+        self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected \n \n")
         self.devices_spin_button = wx.SpinButton(
             self, wx.ID_ANY, style=wx.SP_HORIZONTAL, name="Current device"
         )
@@ -380,7 +379,6 @@ class Gui(wx.Frame):
         self.speed_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_speed)
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
         self.stop_button.Bind(wx.EVT_BUTTON, self.on_stop_button)
-        self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
         self.devices_spin_button.Bind(wx.EVT_SPIN, self.on_spin_devices)
         self.dark_mode_button.Bind(wx.EVT_BUTTON, self.on_toggle_dark_mode)
 
@@ -401,7 +399,6 @@ class Gui(wx.Frame):
         side_sizer.Add(self.stop_button, 1, wx.ALL, 5)
         side_sizer.Add(self.speed_text, 1, wx.ALL, 10)
         side_sizer.Add(self.speed_spin, 1, wx.ALL, 5)
-        side_sizer.Add(self.text_box, 1, wx.ALL, 5)
         side_sizer.Add(self.devices_spin_button, 1, wx.ALL, 5)
         side_sizer.Add(self.devices_text, 1, wx.ALL, 5)
         side_sizer.Add(self.dark_mode_button, 1, wx.BOTTOM, 5)
@@ -495,12 +492,6 @@ class Gui(wx.Frame):
         text = "Stop button pressed."
         self.canvas.render(text)
         print(self.devices_list)
-
-    def on_text_box(self, event):
-        """Handle the event when the user enters text."""
-        text_box_value = self.text_box.GetValue()
-        text = "".join(["New text box value: ", text_box_value])
-        self.canvas.render(text)
 
     def on_spin_devices(self, event):
         """Handle the event when the user selects a new device"""

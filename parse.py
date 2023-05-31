@@ -241,18 +241,22 @@ class Parser:
         self.get_next_symbol()
         if self.symbol.type == self.scanner.DOT:
             self.get_next_symbol()
-            if self.symbol.type == self.scanner.NAME:
-                if self.symbol.id in self.devices.dtype_output_ids:
-                    # Device is a DTYPE Latch
-                    print("Device is a DTYPE Latch")
-                    print(f"Output PORT ID: {self.symbol.id}")
-                    op_port_id = self.symbol.id
-                    self.get_next_symbol()
+            if (self.symbol.type == self.scanner.NAME and
+                    self.symbol.id in self.devices.dtype_output_ids):
+                # Device is a DTYPE Latch
+                print("Device is a DTYPE Latch")
+                print(f"Output PORT ID: {self.symbol.id}")
+                op_port_id = self.symbol.id
+                self.get_next_symbol()
 
-                    return op_device_id, op_port_id
-                else:
-                    raise error.PortReferenceError(
-                        "Device input port does not exist")
+                return op_device_id, op_port_id
+
+            elif self.symbol.type == self.scanner.NAME:
+                raise error.MonitorError('Cannot monitor a device input')
+
+            else:
+                raise error.PortReferenceError(
+                    "DTYPE input port does not exist")
         else:
             print("Device is not a DTYPE Latch")
             # Output device is not a DTYPE Latch so op_port_id must be None
@@ -274,10 +278,10 @@ class Parser:
             and self.symbol.id == self.scanner.DEVICE_ID
         ):
             defining_devices = True
-        
+
         else:
             raise error.KeywordError("File needs to have at least 1 DEVICE.")
-            
+
         count = 0
         while defining_devices is True:
             # Create new device

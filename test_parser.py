@@ -77,13 +77,13 @@ def test_parser(new_names, new_device,
     (Path.cwd() / "text files for pytest" / "syntax errors" /
      "missing_device_type.txt", error.DeviceTypeError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
-     "missing_device.txt", error.KeywordError)
+     "missing_device.txt", error.KeywordError),
 
 
     # Sematic error checking
 
-    #(Path.cwd() / "text files for pytest" / "semantic errors" /
-    # "MonitorError1.txt", error.MonitorError)
+    (Path.cwd() / "text files for pytest" / "semantic errors" /
+     "monitor_input.txt", error.MonitorError)
 
     # below tests MAY NOT work.
     

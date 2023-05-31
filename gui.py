@@ -423,10 +423,14 @@ class Gui(wx.Frame):
     def device_number_to_string(self, device_number):
         if device_number == 2:
             return "NAND"
+        elif device_number == 5:
+            return "CLOCK"
         elif device_number == 6:
             return "SWITCH"
+        elif device_number == 7:
+            return "DTYPE"
         else:
-            return "UNKNOWN(ADD TO GUI))"
+            return str(device_number)
 
     # Event handlers
     def on_menu(self, event):
@@ -535,7 +539,7 @@ class Gui(wx.Frame):
         elif devices[1] == "CLOCK":
             property = "PERIOD"
         elif devices[1] == "DTYPE":
-            property = "STATE"
+            property = "MEMORY"
         else:
             self.devices_text.SetLabel(f" Device: {devices[0]} \n Type: {devices[1]}")
             return

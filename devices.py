@@ -109,13 +109,14 @@ class Devices:
         dtype_inputs = ["CLK", "SET", "CLEAR", "DATA"]
         dtype_outputs = ["Q", "QBAR"]
 
+        # following are for semantic errors
         [
             self.NO_ERROR,
-            self.INVALID_QUALIFIER,
-            self.NO_QUALIFIER,
-            self.BAD_DEVICE,
-            self.QUALIFIER_PRESENT,
-            self.DEVICE_PRESENT,
+            self.INVALID_QUALIFIER,  # the qualifier of a device is invalid
+            self.NO_QUALIFIER,  # no qualifier specified for a device
+            self.BAD_DEVICE, # device does not exists (it must be e.g. AND,OR,DTYPE...)
+            self.QUALIFIER_PRESENT,  # XOR and DTYPE have a qualifier, but they shouldn't
+            self.DEVICE_PRESENT,  # device is already created, can't redefine it again
         ] = self.names.unique_error_codes(6)
 
         self.signal_types = [
@@ -293,9 +294,11 @@ class Devices:
 
             elif device.device_kind == self.CLOCK:
                 clock_signal = random.choice([self.LOW, self.HIGH])
-                self.add_output(device.device_id, output_id=None, signal=clock_signal)
+                self.add_output(device.device_id,
+                                output_id=None, signal=clock_signal)
                 # Initialise it to a random point in its cycle.
-                device.clock_counter = random.randrange(device.clock_half_period)
+                device.clock_counter = random.randrange(
+                    device.clock_half_period)
 
     def make_device(self, device_id, device_kind, device_property=None):
         """Create the specified device.

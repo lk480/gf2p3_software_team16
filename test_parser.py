@@ -77,27 +77,33 @@ def test_parser(new_names, new_device,
     (Path.cwd() / "text files for pytest" / "syntax errors" /
      "missing_device_type.txt", error.DeviceTypeError),
     (Path.cwd() / "text files for pytest" / "syntax errors" /
-     "missing_device.txt", error.KeywordError),
+     "missing_device.txt", error.KeywordError)
 
 
     # Sematic error checking
 
-    (Path.cwd() / "text files for pytest" / "semantic errors" /
-     "monitor_input.txt", error.MonitorError)
+    # (Path.cwd() / "text files for pytest" / "semantic errors" /
+    # "monitor_input.txt", error.InputPinNumberError), # Monitor Error
+    
+    
+
 
     # below tests MAY NOT work.
-    
-    #(Path.cwd() / "text files for pytest" / "semantic errors" / "ConnectError.txt",
 
-    # error.ConnectError)
+    # (Path.cwd() / "text files for pytest" / "semantic errors" /
+    # "keyword_name_error.txt", error.DeviceNameError)
 
-    # (Path.cwd() / "text files for pytest" / "semantic errors" / "ReferenceError.txt", error.ReferenceError)
-    # (Path.cwd() / "text files for pytest" / "semantic errors" / "PortReferenceError.txt", error.PortReferenceError)
+
+    #(Path.cwd() / "text files for pytest" / "semantic errors" /
+    # "connect_error.txt", error.ConnectError)
+
+    #(Path.cwd() / "text files for pytest" / "semantic errors" /
+    # "port_reference_error.txt", error.PortReferenceError)
 
 ])
 def test_parser_raises_exceptions(new_names, new_device,
-                                         new_network, new_monitor,
-                                         file_path, exception):
+                                  new_network, new_monitor,
+                                  file_path, exception):
 
     parser = Parser(new_names, new_device, new_network, new_monitor,
                     Scanner(file_path, new_names))

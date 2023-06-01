@@ -1,7 +1,7 @@
 from scanner import Scanner
 
 
-class MyException(Exception):
+class MyException(BaseException):
     """My exception is class that inherits properties from the Exception class.
     All of our syntax and semantic error build upon MyException.
 
@@ -77,8 +77,8 @@ class PortReferenceError(MyException):
     """Error is raised when referenced port does not exist."""
 
 
-class DevicePropertyError(MyException):
-    """Error is raised when device property is incorrectly defined."""
+class InvalidQualifierError(MyException):
+    """Error is raised when device property/qualifier is incorrectly defined."""
 
 
 class MonitorError(MyException):
@@ -89,16 +89,27 @@ class DeviceExistsError(MyException):
     """Error raised when device already exists."""
 
 
-class MissingParameterError(MyException):
-    """Error raised when insufficient parameters are defined when creating a DEVICE."""
+class NoQualifierError(MyException):
+    """Error raised when a qualifier is missing. This can happen
+    when the last parameter is missing when creating a DEVICE.
+    """
 
 
-class KeywordNameError(MyException):
-    """Error raised when a keyword is used for device name."""
+class BadDeviceError(MyException):
+    """Error is raised when device does not exists.
+    A device must be e.g. AND,OR,DTYPE..."""
+
+
+class QualifierPresentError(MyException):
+    """Error is raised when a XOR or DTYPE have a qualifier, but they shouldn't."""
 
 
 class MultipleInputError(MyException):
     """Error raised when multiple outputs connect to a single input port."""
+
+
+class UnknownUniqueErrorCode(MyException):
+    """Error raised for unknown unique error code."""
 
 
 class ErrorHandler:
@@ -165,4 +176,3 @@ class ErrorHandler:
             return None
         
         raise self.error_list[0]
-    

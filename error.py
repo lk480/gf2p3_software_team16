@@ -1,7 +1,7 @@
 from scanner import Scanner
 
 
-class MyException(BaseException):
+class MyException(Exception):
     """My exception is class that inherits properties from the Exception class.
     All of our syntax and semantic error build upon MyException.
 
@@ -140,7 +140,8 @@ class ErrorHandler:
                 "Cannot find file or read data in print_all_errors in error.py."
             )
 
-        lines = [line.replace("\n", " ") for line in input_file.readlines()] + [""]
+        lines = [line.replace("\n", " ")
+                 for line in input_file.readlines()] + [""]
         # print(lines)
 
         for i, error in enumerate(self.error_list):
@@ -162,17 +163,18 @@ class ErrorHandler:
                 "Cannot find file or read data in print_all_errors in error.py."
             )
 
-        lines = [line.replace("\n", " ") for line in input_file.readlines()] + [""]
+        lines = [line.replace("\n", " ")
+                 for line in input_file.readlines()] + [""]
 
         print(f"Error no. {len(self.error_list) - 1} in ErrorHandler().error_list is: {self.error_list[-1].get_error_name}\n",
               f"{lines[self.error_list[-1].error_row]}\n",
               f"{' ' * self.error_list[-1].error_col}^\n"
-        )
-    
+              )
+
     def raise_error(self):
         """Method raises an error at end of parsing."""
 
         if self.found_no_errors():
             return None
-        
+
         raise self.error_list[0]

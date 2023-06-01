@@ -297,7 +297,7 @@ class Gui(wx.Frame):
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
-        
+
         # Set up help menu text
         self.HELP_TEXT = "HELP ME"
 
@@ -317,6 +317,20 @@ class Gui(wx.Frame):
             self, wx.ID_ANY, style=wx.SP_HORIZONTAL, name="Current device"
         )
         self.dark_mode_button = wx.Button(self, wx.ID_ANY, "Light mode")
+        self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
+
+        # Create a sizer for the device scroll panel
+        device_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # Add devices to the sizer
+        for device in self.devices_list:
+            device_text = wx.StaticText(self.device_scroll, label=device[0])
+            device_sizer.Add(device_text, 0, wx.ALL, 5)
+
+        # Set the sizer for the device scroll panel
+        self.device_scroll.SetSizer(device_sizer)
+        self.device_scroll.Layout()
+        self.device_scroll.SetScrollRate(0, 20)
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
@@ -345,7 +359,8 @@ class Gui(wx.Frame):
         side_sizer.Add(self.run_button, 3, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.stop_button, 3, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.devices_spin_button, 10, wx.ALL | wx.EXPAND, 5)
-        side_sizer.Add(self.devices_text, 10, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        side_sizer.Add(self.devices_text, 3, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        side_sizer.Add(self.device_scroll, 10, wx.ALL | wx.EXPAND, 5)
 
         # Add side_sizer to main_sizer as the last item
         main_sizer.Add(side_sizer, 10, wx.ALL | wx.EXPAND, 5)
@@ -355,7 +370,6 @@ class Gui(wx.Frame):
         # self.SetSizeHints(600, 600)
         self.Maximize(True)
         self.SetSizer(main_sizer)
-
 
     def set_up_devices(self, devices, names):
         devices_list = []

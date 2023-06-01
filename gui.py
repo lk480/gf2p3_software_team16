@@ -297,7 +297,7 @@ class Gui(wx.Frame):
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
-        self.canvas.render(self.signals_list)
+        
         # Set up help menu text
         self.HELP_TEXT = "HELP ME"
 
@@ -355,6 +355,7 @@ class Gui(wx.Frame):
         # self.SetSizeHints(600, 600)
         self.Maximize(True)
         self.SetSizer(main_sizer)
+
 
     def set_up_devices(self, devices, names):
         devices_list = []

@@ -60,8 +60,6 @@ class Scanner:
         # if isinstance(names, Names)
 
         self.names = names
-        # print(f'Elements of the passed names.names_list is: {names.names_list}')
-        # print(f'In begining, result of looking up the same _IDs again: {self.names.lookup(self.keywords_list)}')
         self.path = path
 
         try:

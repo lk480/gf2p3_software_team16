@@ -179,6 +179,9 @@ class Parser:
                 self.get_next_symbol()
                 ip_device_id, ip_port_id = self.input_device()
                 input_device = self.devices.get_device(ip_device_id)
+                if input_device is None:
+                    raise error.InvalidQualifierError(
+                        'Device qualifier has been defined incorrectly')
                 if input_device.inputs[ip_port_id] is not None:
                     raise error.MultipleInputError(
                         "This input is already connected")

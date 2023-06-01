@@ -259,6 +259,7 @@ class Network:
 
         Return True if successful.
         """
+
         device = self.devices.get_device(device_id)
 
         for input_id in device.inputs:
@@ -377,6 +378,7 @@ class Network:
             # Execute D-type devices before clocks to catch the rising edge of
             # the clock
             for device_id in d_type_devices:  # execute DTYPE devices
+                # print('ENTERED IN DTYPE DEVICES')
                 if not self.execute_d_type(device_id):
                     return False
             for device_id in clock_devices:  # complete clock executions

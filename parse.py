@@ -82,7 +82,7 @@ class Parser:
         while self.symbol.type not in [self.scanner.SEMICOLON, self.scanner.EOF]:
             self.get_next_symbol()
 
-    def error_type_repoting(self, error_type: int):
+    def semantic_error_repoting(self, error_type: int):
         """Function converts the error_type(either 0, 1, 2, 3, 4 or 5) to a
         custom built exception.
 
@@ -90,9 +90,9 @@ class Parser:
         0 (NO_ERROR)            ->  pass
         1 (INVALID_QUALIFIER)   ->  InvalidQualifierError()
         2 (NO_QUALIFIER)        ->  NoQualifierError()
-        3 (BAD_DEVICE)          ->  BadDeviceError()
-        4 (QUALIFIER_PRESENT)   ->  
-        5 (DEVICE_PRESENT)
+        3 (BAD_DEVICE)          ->  NoDeviceFoundError()
+        4 (QUALIFIER_PRESENT)   ->  QualifierPresentError()
+        5 (DEVICE_PRESENT)      ->  DevicePresentError()
         """
 
         if error_type not in range(6):
@@ -100,6 +100,18 @@ class Parser:
 
         if error_type == 0:
             pass
+        if error_type == 1:
+            raise error.InvalidQualifierError(
+                'Device qualifier is incorrectly defined')
+        if error_type == 2:
+            raise error.NoQualifierError('Qualifier is missing')
+        if error_type == 3:
+            raise error.NoDeviceFoundError('Device does not exist')
+        if error_type == 4:
+            raise error.QualifierPresentError(
+                'DTYPE and XOR devices do not require a qualifier')
+        if error_type == 5:
+            raise error.DevicePresentError('Device already exists')
 
     def get_next_symbol(self):
         """Get next symbol and assign it to self.symbol"""
@@ -109,18 +121,21 @@ class Parser:
         """Parse the circuit definition file.
         Return True if there are no errors in the defintion file,
         false otherwise."""
-
-        print("Calling parse_network().")
-        # Advance to the next symbol
+        # Advance to first symbol
+        # Check if file is empty
         self.get_next_symbol()
-        # Check for comments
-        self.comment()
-        # Parse specified devices in def. file
-        self.device_list()
-        # Parse specified connections in def. file
-        self.connection_list()
-        # Parse specified monitor points in def. file
-        self.monitor_list()
+        if self.symbol.type == self.scanner.EOF:
+            print('NO CIRCUIT SPECIFIED')
+            return False
+        else:
+            # Check for comments
+            self.comment()
+            # Parse specified devices in def. file
+            self.device_list()
+            # Parse specified connections in def. file
+            self.connection_list()
+            # Parse specified monitor points in def. file
+            self.monitor_list()
 
         if self.error_handler.found_no_errors():
             print("Defintion File Parsed")
@@ -202,7 +217,7 @@ class Parser:
                 op_device_id, op_port_id, ip_device_id, ip_port_id
             )
             if error_type != self.devices.NO_ERROR:
-                self.log_error(error_type)
+                self.semantic_error_repoting(error_type)
 
     def input_device(self):
         """Function that returns the input device id and input port id
@@ -519,8 +534,7 @@ class Parser:
             # to run assert checks for each error type.
             # Ankit asssert "Oh the error type has to be a certain thing."
             if error_type != self.devices.NO_ERROR:
-                # print(f'Error type in line 493 is: {error_type}')
-                self.error_type_repoting(error_type)
+                self.semantic_error_repoting(error_type)
 
     def monitor_list(self):
         print("i'm inside monitor_list")

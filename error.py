@@ -85,23 +85,23 @@ class MonitorError(MyException):
     """Error raised when system input cannot be monitored or no monitor is declared."""
 
 
-class DeviceExistsError(MyException):
+class DevicePresentError(MyException):
     """Error raised when device already exists."""
 
 
 class NoQualifierError(MyException):
-    """Error raised when a qualifier is missing. This can happen
-    when the last parameter is missing when creating a DEVICE.
+    """Error raised when a qualifier is missing e,g. specifiying a GATE
+    without providing the number of inputs.
     """
 
 
-class BadDeviceError(MyException):
-    """Error is raised when device does not exists.
-    A device must be e.g. AND,OR,DTYPE..."""
+class DeviceDoesNotExist(MyException):
+    """Error is raised when device does not exist.
+    A device can be a GATE, BISTABLE or AUXILLARY"""
 
 
 class QualifierPresentError(MyException):
-    """Error is raised when a XOR or DTYPE have a qualifier, but they shouldn't."""
+    """Error is raised when a XOR or DTYPE is specified with a qualifier."""
 
 
 class MultipleInputError(MyException):
@@ -109,7 +109,7 @@ class MultipleInputError(MyException):
 
 
 class UnknownUniqueErrorCode(MyException):
-    """Error raised for unknown unique error code."""
+    """Error raised for an unknown unique error code."""
 
 
 class ErrorHandler:

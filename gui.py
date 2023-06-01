@@ -349,8 +349,8 @@ class Gui(wx.Frame):
         # Add widgets to sizers
         main_sizer.Add(self.canvas, 50, wx.EXPAND | wx.ALL, 5)
 
-        side_sizer.Add(self.cycles_text, 2, wx.TOP | wx.EXPAND, 10)
-        side_sizer.Add(self.cycles_spin, 2, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.cycles_text, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 3)
+        side_sizer.Add(self.cycles_spin, 1, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.run_button, 3, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.stop_button, 3, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.devices_spin_button, 10, wx.ALL | wx.EXPAND, 5)

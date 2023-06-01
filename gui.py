@@ -144,6 +144,19 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             GL.glVertex2f(x, y)
             GL.glVertex2f(x_next, y)
         GL.glEnd()
+        self.draw_markers(signal, position)
+
+    def draw_markers(self, signal, position):
+        GL.glColor3f(0.5, 0.5, 0.5)
+
+        for i in range(len(signal) + 1):
+            GL.glBegin(GL.GL_LINE_STRIP)
+            x = (i * 50) + 30
+            y = 450 - 5 - 90 * position
+            y_next = 450 - 15 - 90 * position
+            GL.glVertex2f(x, y)
+            GL.glVertex2f(x, y_next)
+            GL.glEnd()
 
     def render_signals(self):
         """Render all the signals and labels."""
@@ -269,7 +282,7 @@ class Gui(wx.Frame):
         self.monitors = monitors
         self.network = network
 
-        self.cycle_count = 10
+        self.cycle_count = 16
 
         self.devices_list = self.set_up_devices(devices, names)
 
@@ -305,7 +318,7 @@ class Gui(wx.Frame):
 
         # Configure the widgets
         self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
-        self.cycles_spin = wx.SpinCtrl(self, wx.ID_ANY, "10")
+        self.cycles_spin = wx.SpinCtrl(self, wx.ID_ANY, "16")
         self.run_button = wx.Button(self, wx.ID_ANY, "Run")
         self.stop_button = wx.Button(self, wx.ID_ANY, "Stop")
         self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected \n \n")

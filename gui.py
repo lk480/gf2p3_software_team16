@@ -308,8 +308,6 @@ class Gui(wx.Frame):
         self.cycles_spin = wx.SpinCtrl(self, wx.ID_ANY, "10")
         self.run_button = wx.Button(self, wx.ID_ANY, "Run")
         self.stop_button = wx.Button(self, wx.ID_ANY, "Stop")
-        self.speed_text = wx.StaticText(self, wx.ID_ANY, "Cycles /s")
-        self.speed_spin = wx.SpinCtrl(self, wx.ID_ANY, "1")
         self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected \n \n")
         self.devices_spin_button = wx.SpinButton(
             self, wx.ID_ANY, style=wx.SP_HORIZONTAL, name="Current device"
@@ -318,9 +316,7 @@ class Gui(wx.Frame):
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
-        self.Bind(wx.EVT_KEY_DOWN, self.on_keypress)
         self.cycles_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_cycles)
-        self.speed_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_speed)
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
         self.stop_button.Bind(wx.EVT_BUTTON, self.on_stop_button)
         self.devices_spin_button.Bind(wx.EVT_SPIN, self.on_spin_devices)
@@ -340,14 +336,12 @@ class Gui(wx.Frame):
         # Add widgets to sizers
         main_sizer.Add(self.canvas, 50, wx.EXPAND | wx.ALL, 5)
 
-        side_sizer.Add(self.cycles_text, 10, wx.TOP, 10)
-        side_sizer.Add(self.cycles_spin, 10, wx.ALL, 5)
-        side_sizer.Add(self.run_button, 10, wx.ALL, 5)
-        side_sizer.Add(self.stop_button, 10, wx.ALL, 5)
-        side_sizer.Add(self.speed_text, 10, wx.ALL, 10)
-        side_sizer.Add(self.speed_spin, 10, wx.ALL, 5)
-        side_sizer.Add(self.devices_spin_button, 10, wx.ALL, 5)
-        side_sizer.Add(self.devices_text, 10, wx.ALL, 5)
+        side_sizer.Add(self.cycles_text, 2, wx.TOP | wx.EXPAND, 10)
+        side_sizer.Add(self.cycles_spin, 2, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.run_button, 3, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.stop_button, 3, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.devices_spin_button, 10, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.devices_text, 10, wx.ALL | wx.EXPAND, 5)
 
         # Add side_sizer to main_sizer as the last item
         main_sizer.Add(side_sizer, 10, wx.ALL | wx.EXPAND, 5)
@@ -432,24 +426,9 @@ class Gui(wx.Frame):
                 file_name = dialog.GetValue()
                 print("File name:", file_name)
 
-    def on_keypress(self, event):
-        key = event.GetKeyCode()
-        if key == wx.WXK_LEFT:
-            spin_value = self.devices_spin_button.GetValue() - 1
-            self.devices_spin_button.SetValue(spin_value)
-            self.on_spin_devices("")
-        if key == wx.WXK_RIGHT:
-            spin_value = self.devices_spin_button.GetValue() + 1
-            self.devices_spin_button.SetValue(spin_value)
-            self.on_spin_devices("")
-
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the spin control value."""
         self.cycle_count = self.cycles_spin.GetValue()
-        self.canvas.render(self.signals_list)
-
-    def on_spin_speed(self, event):
-        """Handle the event when the user changes the spin control value."""
         self.canvas.render(self.signals_list)
 
     def on_run_button(self, event):

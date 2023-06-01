@@ -318,10 +318,16 @@ class Gui(wx.Frame):
 
         # Configure the widgets
         self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
-        self.cycles_spin = wx.SpinCtrl(self, wx.ID_ANY, "16")
+        self.cycles_spin = wx.SpinCtrl(
+            self, wx.ID_ANY, "16", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
+        )
         self.run_button = wx.Button(self, wx.ID_ANY, "Run")
         self.stop_button = wx.Button(self, wx.ID_ANY, "Stop")
         self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected \n \n")
+        font = wx.Font(
+            18, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL
+        )
+        self.devices_text.SetFont(font)
         self.devices_spin_button = wx.SpinButton(
             self, wx.ID_ANY, style=wx.SP_HORIZONTAL, name="Current device"
         )
@@ -354,7 +360,7 @@ class Gui(wx.Frame):
         side_sizer.Add(self.run_button, 3, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.stop_button, 3, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.devices_spin_button, 10, wx.ALL | wx.EXPAND, 5)
-        side_sizer.Add(self.devices_text, 10, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.devices_text, 10, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
 
         # Add side_sizer to main_sizer as the last item
         main_sizer.Add(side_sizer, 10, wx.ALL | wx.EXPAND, 5)

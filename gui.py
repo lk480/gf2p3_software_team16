@@ -266,6 +266,8 @@ class Gui(wx.Frame):
         self.devices = devices
         self.monitors = monitors
         self.network = network
+        self.on_checks = {}
+        self.monitor_checks = {}
 
         self.cycle_count = 16
 
@@ -324,8 +326,32 @@ class Gui(wx.Frame):
 
         # Add devices to the sizer
         for device in self.devices_list:
+            device_entry = wx.BoxSizer(wx.HORIZONTAL)
+
             device_text = wx.StaticText(self.device_scroll, label=device[0])
-            device_sizer.Add(device_text, 0, wx.ALL, 5)
+            device_entry.Add(device_text, 1, wx.ALL, 5)
+
+            if device[1] == "SWITCH":
+                device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+                self.monitor_checks[device_checkbox] = device[0]
+                device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+                device_checkbox = wx.CheckBox(self.device_scroll, label="On")
+                self.on_checks[device_checkbox] = device[0]
+                device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+            else:
+                device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+                self.monitor_checks[device_checkbox] = device[0]
+                device_entry.Add(device_checkbox, 2, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+            device_sizer.Add(device_entry, 0, wx.EXPAND)
 
         # Set the sizer for the device scroll panel
         self.device_scroll.SetSizer(device_sizer)
@@ -415,6 +441,22 @@ class Gui(wx.Frame):
             return str(device_number)
 
     # Event handlers
+
+    def on_checkbox_changed(self, event):
+        checkbox = event.GetEventObject()  # Get the checkbox that triggered the event
+        isChecked = checkbox.GetValue()  # Get the current state of the checkbox
+
+        # Perform actions based on the checkbox state
+        if isChecked:
+            # Checkbox is checked
+            if checkbox in self.on_checks:
+                print(self.on_checks[checkbox])
+            # Call the desired function or perform the desired action
+        else:
+            # Checkbox is unchecked
+            print("Checkbox unchecked")
+            # Call the desired function or perform the desired action
+
     def on_menu(self, event):
         """Handle the event when the user selects a menu item."""
         Id = event.GetId()

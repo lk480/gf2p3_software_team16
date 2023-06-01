@@ -106,7 +106,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.names = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
         self.BG_WHITE = (1.0, 1.0, 1.0)
-        self.BG_BLACK = (0.24, 0.24, 0.24)
+        self.BG_BLACK = (0.20, 0.20, 0.20)
         self.BG_COLOUR = self.BG_BLACK
 
     def init_gl(self):
@@ -334,21 +334,28 @@ class Gui(wx.Frame):
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         side_sizer = wx.BoxSizer(wx.VERTICAL)
 
+        main_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        side_sizer = wx.BoxSizer(wx.VERTICAL)
+
         # Add widgets to sizers
-        main_sizer.Add(self.canvas, 5, wx.EXPAND | wx.ALL, 5)
-        main_sizer.Add(side_sizer, 1, wx.ALL, 5)
-        side_sizer.Add(self.cycles_text, 1, wx.TOP, 10)
-        side_sizer.Add(self.cycles_spin, 1, wx.ALL, 5)
-        side_sizer.Add(self.run_button, 1, wx.ALL, 5)
-        side_sizer.Add(self.stop_button, 1, wx.ALL, 5)
-        side_sizer.Add(self.speed_text, 1, wx.ALL, 10)
-        side_sizer.Add(self.speed_spin, 1, wx.ALL, 5)
-        side_sizer.Add(self.devices_spin_button, 1, wx.ALL, 5)
-        side_sizer.Add(self.devices_text, 1, wx.ALL, 5)
-        side_sizer.Add(self.dark_mode_button, 1, wx.BOTTOM, 5)
+        main_sizer.Add(self.canvas, 50, wx.EXPAND | wx.ALL, 5)
+
+        side_sizer.Add(self.cycles_text, 10, wx.TOP, 10)
+        side_sizer.Add(self.cycles_spin, 10, wx.ALL, 5)
+        side_sizer.Add(self.run_button, 10, wx.ALL, 5)
+        side_sizer.Add(self.stop_button, 10, wx.ALL, 5)
+        side_sizer.Add(self.speed_text, 10, wx.ALL, 10)
+        side_sizer.Add(self.speed_spin, 10, wx.ALL, 5)
+        side_sizer.Add(self.devices_spin_button, 10, wx.ALL, 5)
+        side_sizer.Add(self.devices_text, 10, wx.ALL, 5)
+
+        # Add side_sizer to main_sizer as the last item
+        main_sizer.Add(side_sizer, 10, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.dark_mode_button, 1, wx.BOTTOM | wx.EXPAND, 5)
 
         # Set the sizer and configure the window
-        self.SetSizeHints(600, 600)
+        # self.SetSizeHints(600, 600)
+        self.Maximize(True)
         self.SetSizer(main_sizer)
 
     def set_up_devices(self, devices, names):
@@ -482,11 +489,13 @@ class Gui(wx.Frame):
             self.dark_mode_flag = False
             self.canvas.set_light_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_WHITE
+            self.dark_mode_button.SetLabel("Dark Mode")
 
         else:
             self.dark_mode_flag = True
             self.canvas.set_dark_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_BLACK
+            self.dark_mode_button.SetLabel("Light Mode")
 
         self.canvas.render(None)
 

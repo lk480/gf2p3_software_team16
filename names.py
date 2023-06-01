@@ -1,17 +1,6 @@
-"""Map variable names and string names to unique integers.
-
-Used in the Logic Simulator project. Most of the modules in the project
-use this module either directly or indirectly.
-
-Classes
--------
-Names - maps variable names and string names to unique integers.
-"""
-
-
 class Names:
-
-    """Map variable names and string names to unique integers.
+    """
+    Map variable names and string names to unique integers.
 
     This class deals with storing grammatical keywords and user-defined words,
     and their corresponding name IDs, which are internal indexing integers. It
@@ -45,13 +34,14 @@ class Names:
 
     def unique_error_codes(self, num_error_codes):
         """Return a list of unique integer error codes."""
-
         if not isinstance(num_error_codes, int):
             raise TypeError("Expected num_error_codes to be an integer.")
 
         self.error_code_count += num_error_codes
-        return range(self.error_code_count - num_error_codes,
-                     self.error_code_count)
+        return range(
+            self.error_code_count - num_error_codes,
+            self.error_code_count
+        )
 
     def query(self, name_string):
         """Return the corresponding name ID for name_string.
@@ -59,7 +49,7 @@ class Names:
         If the name string is not present in the names list, return None.
         """
         if not isinstance(name_string, str):
-            raise TypeError
+            raise TypeError("Expected name_string to be a string.")
 
         if name_string in self.names_list:
             return self.names_list.index(name_string)
@@ -68,7 +58,7 @@ class Names:
 
     def lookup(self, name_string_list):
         if not isinstance(name_string_list, list):
-            raise TypeError
+            raise TypeError("Expected name_string_list to be a list.")
 
         ids_list = []
         for name_string in name_string_list:
@@ -84,9 +74,9 @@ class Names:
         If the name_id is not an index in the names list, return None.
         """
         if not isinstance(name_id, int):
-            raise TypeError
+            raise TypeError("Expected name_id to be an integer.")
         elif name_id < 0:
-            raise ValueError
+            raise ValueError("Expected name_id to be a non-negative integer.")
         else:
             try:
                 return self.names_list[name_id]

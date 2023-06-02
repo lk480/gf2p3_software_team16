@@ -1,0 +1,9 @@
+DEVICE: CLK1, CLOCK, 1;
+DEVICE: CLK2, CLOCK, 2;
+DEVICE: G1, NAND, 3;
+DEVICE: TOGGLE, SWITCH, 1;
+CONNECT: CLK1 = G1.I1, CLK2 = G1.I2, TOGGLE = G1.I3;
+MONITOR: CLK1, CLK2, G1;
+
+# This circuit results in an output with 3 cycles high 1 low #
+# Switch can be used to toggle between full power and 3/4 power #

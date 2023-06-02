@@ -87,32 +87,20 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.RED = (1.0, 0.0, 0.0)
         self.GREEN = (0.0, 1.0, 0.0)
         self.BLUE = (0.0, 0.0, 1.0)
-        self.colours = [self.BLACK, self.RED, self.GREEN, self.BLUE]
-
-        # TEMP STUFF
-        self.signals = [
-            [1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1],
-            [0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0],
-            [0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0],
-            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-            [0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
-            [1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-            [0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0],
-            [0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0],
-            [1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-            [1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1],
-        ]
-        self.names = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+        self.colours = [self.WHITE, self.RED, self.GREEN, self.BLUE]
+        self.signals_list = []
 
         self.BG_WHITE = (1.0, 1.0, 1.0)
-        self.BG_BLACK = (0.24, 0.24, 0.24)
+        self.BG_BLACK = (0.20, 0.20, 0.20)
+        self.BG_COLOUR = self.BG_BLACK
 
     def init_gl(self):
         """Configure and initialise the OpenGL context."""
+
         size = self.GetClientSize()
         self.SetCurrent(self.context)
         GL.glDrawBuffer(GL.GL_BACK)
-        GL.glClearColor(self.BG_WHITE[0], self.BG_WHITE[1], self.BG_WHITE[2], 1.0)
+        GL.glClearColor(self.BG_COLOUR[0], self.BG_COLOUR[1], self.BG_COLOUR[2], 1.0)
         GL.glViewport(0, 0, size.width, size.height)
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
@@ -121,8 +109,6 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glLoadIdentity()
         GL.glTranslated(self.pan_x, self.pan_y, 0.0)
         GL.glScaled(self.zoom, self.zoom, self.zoom)
-
-        self.set_dark_mode()
 
     def set_dark_mode(self):
         GL.glClearColor(self.BG_BLACK[0], self.BG_BLACK[1], self.BG_BLACK[2], 1.0)
@@ -136,21 +122,34 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         """Draw a trace for a given signal."""
         GL.glColor3f(colour[0], colour[1], colour[2])
         GL.glBegin(GL.GL_LINE_STRIP)
-        for i in range(10):
+        for i in range(len(signal)):
             x = (i * 50) + 30
             x_next = (i * 50) + 80
-            y = 450 + 50 * signal[i] - 90 * position
+            y = 450 + 50 * int(signal[i]) - 90 * position
             GL.glVertex2f(x, y)
             GL.glVertex2f(x_next, y)
         GL.glEnd()
+        self.draw_markers(signal, position)
 
-    def render_signals(self, signals, names):
+    def draw_markers(self, signal, position):
+        GL.glColor3f(0.5, 0.5, 0.5)
+
+        for i in range(len(signal) + 1):
+            GL.glBegin(GL.GL_LINE_STRIP)
+            x = (i * 50) + 30
+            y = 450 - 5 - 90 * position
+            y_next = 450 - 15 - 90 * position
+            GL.glVertex2f(x, y)
+            GL.glVertex2f(x, y_next)
+            GL.glEnd()
+
+    def render_signals(self):
         """Render all the signals and labels."""
-        for i in range(len(self.signals)):
-            self.draw_trace(self.signals[i], self.colours[i % 4], i)
-            self.render_text(self.names[i], 10, 470 - 90 * i)
+        for i in range(len(self.signals_list)):
+            self.draw_trace(self.signals_list[i][1], self.colours[i % 4], i)
+            self.render_text(self.signals_list[i][0], 10, 470 - 90 * i)
 
-    def render(self, text):
+    def render(self, signals_list):
         """Handle all drawing operations."""
         self.SetCurrent(self.context)
         if not self.init:
@@ -162,10 +161,12 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
         # Draw specified text at position (10, 10)
-        self.render_text(text, 10, 10)
 
         # Draw a sample signal trace
-        self.render_signals("a", "b")
+
+        if signals_list is not None:
+            self.signals_list = signals_list
+        self.render_signals()
 
         # We have been drawing to the back buffer, flush the graphics pipeline
         # and swap the back buffer to the front
@@ -180,16 +181,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
             self.init_gl()
             self.init = True
 
-        size = self.GetClientSize()
-        text = "".join(
-            [
-                "Canvas redrawn on paint event, size is ",
-                str(size.width),
-                ", ",
-                str(size.height),
-            ]
-        )
-        self.render(text)
+        self.render(self.signals_list)
 
     def on_size(self, event):
         """Handle the canvas resize event."""
@@ -199,7 +191,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
     def on_mouse(self, event):
         """Handle mouse events."""
-        text = ""
+
         # Calculate object coordinates of the mouse position
         size = self.GetClientSize()
         ox = (event.GetX() - self.pan_x) / self.zoom
@@ -208,67 +200,26 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         if event.ButtonDown():
             self.last_mouse_x = event.GetX()
             self.last_mouse_y = event.GetY()
-            text = "".join(
-                [
-                    "Mouse button pressed at: ",
-                    str(event.GetX()),
-                    ", ",
-                    str(event.GetY()),
-                ]
-            )
-        if event.ButtonUp():
-            text = "".join(
-                [
-                    "Mouse button released at: ",
-                    str(event.GetX()),
-                    ", ",
-                    str(event.GetY()),
-                ]
-            )
-        if event.Leaving():
-            text = "".join(
-                ["Mouse left canvas at: ", str(event.GetX()), ", ", str(event.GetY())]
-            )
         if event.Dragging():
             self.pan_x += event.GetX() - self.last_mouse_x
             self.pan_y -= event.GetY() - self.last_mouse_y
             self.last_mouse_x = event.GetX()
             self.last_mouse_y = event.GetY()
             self.init = False
-            text = "".join(
-                [
-                    "Mouse dragged to: ",
-                    str(event.GetX()),
-                    ", ",
-                    str(event.GetY()),
-                    ". Pan is now: ",
-                    str(self.pan_x),
-                    ", ",
-                    str(self.pan_y),
-                ]
-            )
         if event.GetWheelRotation() < 0:
             self.zoom *= 1.0 + (event.GetWheelRotation() / (10 * event.GetWheelDelta()))
             # Adjust pan so as to zoom around the mouse position
             self.pan_x -= (self.zoom - old_zoom) * ox
             self.pan_y -= (self.zoom - old_zoom) * oy
             self.init = False
-            text = "".join(
-                ["Negative mouse wheel rotation. Zoom is now: ", str(self.zoom)]
-            )
         if event.GetWheelRotation() > 0:
             self.zoom /= 1.0 - (event.GetWheelRotation() / (10 * event.GetWheelDelta()))
             # Adjust pan so as to zoom around the mouse position
             self.pan_x -= (self.zoom - old_zoom) * ox
             self.pan_y -= (self.zoom - old_zoom) * oy
             self.init = False
-            text = "".join(
-                ["Positive mouse wheel rotation. Zoom is now: ", str(self.zoom)]
-            )
-        if text:
-            self.render(text)
-        else:
-            self.Refresh()  # triggers the paint event
+        self.render(self.signals_list)
+        self.Refresh()  # triggers the paint event
 
     def render_text(self, text, x_pos, y_pos):
         """Handle text drawing operations."""
@@ -311,6 +262,20 @@ class Gui(wx.Frame):
         """Initialise widgets and layout."""
         super().__init__(parent=None, title=title, size=(800, 600))
 
+        self.names = names
+        self.devices = devices
+        self.monitors = monitors
+        self.network = network
+        self.on_checks = {}
+        self.monitor_checks = {}
+        self.monitored_list = self.generate_monitored_list(devices, names)
+
+        self.cycle_count = 16
+
+        self.devices_list = self.set_up_devices(devices, names)
+
+        self.signals_list = self.gather_signal_data(devices, names, self.cycle_count)
+
         # Configure the file menu
         # Initialise menus and bar
         menuBar = wx.MenuBar()
@@ -331,22 +296,7 @@ class Gui(wx.Frame):
         menuBar.Append(helpMenu, "&Help")
         self.SetMenuBar(menuBar)
 
-        # TEMP list of devices to test
-        self.devices = [
-            ["G1", "0", "0"],
-            ["G2", "1", "4"],
-            ["G3", "2", "5"],
-            ["G4", "3", "4"],
-            ["G5", "4", "2"],
-            ["G6", "5", "2"],
-            ["G7", "6", "5"],
-            ["G8", "7", "3"],
-            ["G9", "8", "0"],
-            ["G10", "9", "1"],
-            ["G11", "10", "1"],
-            ["G12", "11", "5"],
-        ]
-        self.current_device = len(self.devices) + 2
+        self.current_device = len(self.devices_list) + 2
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
@@ -356,56 +306,192 @@ class Gui(wx.Frame):
 
         # Configure the widgets
         self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
-        self.cycles_spin = wx.SpinCtrl(self, wx.ID_ANY, "10")
-        self.run_button = wx.Button(self, wx.ID_ANY, "Run")
-        self.stop_button = wx.Button(self, wx.ID_ANY, "Stop")
-        self.speed_text = wx.StaticText(self, wx.ID_ANY, "Cycles /s")
-        self.speed_spin = wx.SpinCtrl(self, wx.ID_ANY, "1")
-        self.text_box = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_PROCESS_ENTER)
-        self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected")
-        self.devices_spin_button = wx.SpinButton(
-            self, wx.ID_ANY, style=wx.SP_HORIZONTAL, name="Current device"
+        self.cycles_spin = wx.SpinCtrl(
+            self, wx.ID_ANY, "18", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
         )
+        self.run_button = wx.Button(self, wx.ID_ANY, "Run")
+        self.continue_button = wx.Button(self, wx.ID_ANY, "Continue")
         self.dark_mode_button = wx.Button(self, wx.ID_ANY, "Light mode")
+        self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
+
+        font = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+
+        self.run_button.SetFont(font)
+        self.continue_button.SetFont(font)
+
+        # Create a sizer for the device scroll panel
+        device_sizer = wx.BoxSizer(wx.VERTICAL)
+
+        # Add devices to the sizer
+        for device in self.devices_list:
+            device_entry = wx.BoxSizer(wx.HORIZONTAL)
+
+            device_text = wx.StaticText(self.device_scroll, label=device[0])
+            device_entry.Add(device_text, 1, wx.ALL, 5)
+
+            if device[1] == "SWITCH":
+                device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+                if device[0] in self.monitored_list:
+                    device_checkbox.SetValue(True)
+                self.monitor_checks[device_checkbox] = device[0]
+                device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+                device_checkbox = wx.CheckBox(self.device_scroll, label="On")
+                if device[2] == 1:
+                    device_checkbox.SetValue(True)
+                self.on_checks[device_checkbox] = device[0]
+                device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+            elif device[1] == "CLOCK":
+                device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+                if device[0] in self.monitored_list:
+                    device_checkbox.SetValue(True)
+                self.monitor_checks[device_checkbox] = device[0]
+                device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+                device_spin = wx.SpinCtrl(self.device_scroll, wx.ID_ANY, str(device[2]))
+                device_entry.Add(device_spin, 1, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+
+            else:
+                device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+                if device[0] in self.monitored_list:
+                    device_checkbox.SetValue(True)
+                self.monitor_checks[device_checkbox] = device[0]
+                device_entry.Add(device_checkbox, 2, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+            device_sizer.Add(device_entry, 0, wx.EXPAND)
+
+        # Set the sizer for the device scroll panel
+        self.device_scroll.SetSizer(device_sizer)
+        self.device_scroll.Layout()
+        self.device_scroll.SetScrollRate(0, 20)
 
         # Bind events to widgets
         self.Bind(wx.EVT_MENU, self.on_menu)
-        self.Bind(wx.EVT_KEY_DOWN, self.on_keypress)
         self.cycles_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_cycles)
-        self.speed_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_speed)
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
-        self.stop_button.Bind(wx.EVT_BUTTON, self.on_stop_button)
-        self.text_box.Bind(wx.EVT_TEXT_ENTER, self.on_text_box)
-        self.devices_spin_button.Bind(wx.EVT_SPIN, self.on_spin_devices)
+        self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
         self.dark_mode_button.Bind(wx.EVT_BUTTON, self.on_toggle_dark_mode)
 
         # Set spin range and initialise flag for first run
-        self.devices_spin_button.SetRange(-1, len(self.devices))
         self.no_devices = True
 
         # Configure sizers for layout
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         side_sizer = wx.BoxSizer(wx.VERTICAL)
 
+        main_sizer = wx.BoxSizer(wx.HORIZONTAL)
+        side_sizer = wx.BoxSizer(wx.VERTICAL)
+
         # Add widgets to sizers
-        main_sizer.Add(self.canvas, 5, wx.EXPAND | wx.ALL, 5)
-        main_sizer.Add(side_sizer, 1, wx.ALL, 5)
-        side_sizer.Add(self.cycles_text, 1, wx.TOP, 10)
-        side_sizer.Add(self.cycles_spin, 1, wx.ALL, 5)
-        side_sizer.Add(self.run_button, 1, wx.ALL, 5)
-        side_sizer.Add(self.stop_button, 1, wx.ALL, 5)
-        side_sizer.Add(self.speed_text, 1, wx.ALL, 10)
-        side_sizer.Add(self.speed_spin, 1, wx.ALL, 5)
-        side_sizer.Add(self.text_box, 1, wx.ALL, 5)
-        side_sizer.Add(self.devices_spin_button, 1, wx.ALL, 5)
-        side_sizer.Add(self.devices_text, 1, wx.ALL, 5)
-        side_sizer.Add(self.dark_mode_button, 1, wx.BOTTOM, 5)
+        main_sizer.Add(self.canvas, 50, wx.EXPAND | wx.ALL, 5)
+
+        side_sizer.Add(self.cycles_text, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 3)
+        side_sizer.Add(self.cycles_spin, 1, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.run_button, 3, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.continue_button, 3, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.device_scroll, 10, wx.ALL | wx.EXPAND, 5)
+
+        # Add side_sizer to main_sizer as the last item
+        main_sizer.Add(side_sizer, 10, wx.ALL | wx.EXPAND, 5)
+        side_sizer.Add(self.dark_mode_button, 1, wx.BOTTOM | wx.EXPAND, 5)
 
         # Set the sizer and configure the window
-        self.SetSizeHints(600, 600)
+        # self.SetSizeHints(600, 600)
+        self.Maximize(True)
         self.SetSizer(main_sizer)
 
+    def set_up_devices(self, devices, names):
+        devices_list = []
+        for device in devices.devices_list:
+            single_device_list = []
+            id = device.device_id
+            single_device_list.append(names.get_name_string(id))
+            single_device_list.append(self.device_number_to_string(device.device_kind))
+            single_device_list.append(devices.return_property(id))
+
+            devices_list.append(single_device_list)
+
+        return devices_list
+
+    def generate_monitored_list(self, devices, names):
+        monitored_list = []
+        for item in self.monitors.monitors_dictionary.items():
+            monitored_list.append(names.get_name_string(item[0][0]))
+        return monitored_list
+
+    def gather_signal_data(self, devices, names, cycle_count):
+        signals_list = []
+        self.run(cycle_count)
+        for item in self.monitors.monitors_dictionary.items():
+            single_signal = []
+            single_signal.append(names.get_name_string(item[0][0]))
+            single_signal.append(item[1])
+            signals_list.append(single_signal)
+
+        return signals_list
+
+    def run(self, cycles):
+        self.monitors.reset_monitors()
+        self.devices.cold_startup()
+        for _ in range(cycles):
+            if self.network.execute_network():
+                self.monitors.record_signals()
+
+    def device_number_to_string(self, device_number):
+        if device_number == 2:
+            return "NAND"
+        elif device_number == 5:
+            return "CLOCK"
+        elif device_number == 6:
+            return "SWITCH"
+        elif device_number == 7:
+            return "DTYPE"
+        else:
+            return str(device_number)
+
     # Event handlers
+
+    def on_checkbox_changed(self, event):
+        checkbox = event.GetEventObject()  # Get the checkbox that triggered the event
+        isChecked = checkbox.GetValue()  # Get the current state of the checkbox
+
+        # Perform actions based on the checkbox state
+        if isChecked:
+            # Checkbox is checked
+            if checkbox in self.on_checks:
+                name_id = self.names.query(self.on_checks[checkbox])
+                self.devices.set_switch(name_id, 1)
+                
+
+            if checkbox in self.monitor_checks:
+                # BREAK FOR DTYPE
+                name_id = self.names.query(self.monitor_checks[checkbox])
+                self.monitors.make_monitor(name_id, None, self.cycle_count)
+
+        else:
+            # Checkbox is unchecked
+            if checkbox in self.on_checks:
+                name_id = self.names.query(self.on_checks[checkbox])
+                self.devices.set_switch(name_id, 0)
+            if checkbox in self.monitor_checks:
+                # BREAK FOR DTYPE
+                name_id = self.names.query(self.monitor_checks[checkbox])
+                self.monitors.remove_monitor(name_id, None)
+        self.signals_list = self.gather_signal_data(
+            self.devices, self.names, self.cycle_count
+        )
+        self.canvas.render(self.signals_list)
+
     def on_menu(self, event):
         """Handle the event when the user selects a menu item."""
         Id = event.GetId()
@@ -413,7 +499,7 @@ class Gui(wx.Frame):
             self.Close(True)
         if Id == wx.ID_ABOUT:
             wx.MessageBox(
-                "Logic Simulator\nCreated by Mojisola Agboola\n2017",
+                "Logic Simulator\nCreated by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n2023\nBased on skeleton code by Mojisola Agboola 2017",
                 "About Logsim",
                 wx.ICON_INFORMATION | wx.OK,
             )
@@ -436,78 +522,35 @@ class Gui(wx.Frame):
                 file_name = dialog.GetValue()
                 print("File name:", file_name)
 
-    def on_keypress(self, event):
-        key = event.GetKeyCode()
-        if key == wx.WXK_LEFT:
-            spin_value = self.devices_spin_button.GetValue() - 1
-            self.devices_spin_button.SetValue(spin_value)
-            self.on_spin_devices("")
-        if key == wx.WXK_RIGHT:
-            spin_value = self.devices_spin_button.GetValue() + 1
-            self.devices_spin_button.SetValue(spin_value)
-            self.on_spin_devices("")
-
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the spin control value."""
-        spin_value = self.cycles_spin.GetValue()
-        text = "".join(["New cycles control value: ", str(spin_value)])
-        self.canvas.render(text)
-
-    def on_spin_speed(self, event):
-        """Handle the event when the user changes the spin control value."""
-        spin_value = self.speed_spin.GetValue()
-        text = "".join(["New rate control value: ", str(spin_value)])
-        self.canvas.render(text)
+        self.cycle_count = self.cycles_spin.GetValue()
+        self.canvas.render(self.signals_list)
 
     def on_run_button(self, event):
         """Handle the event when the user clicks the run button."""
-        text = "Run button pressed."
-        self.canvas.render(text)
+        self.signals_list = self.gather_signal_data(
+            self.devices, self.names, self.cycle_count
+        )
+        self.canvas.render(self.signals_list)
 
-    def on_stop_button(self, event):
+    def on_continue_button(self, event):
         """Handle the event when the user clicks the run button."""
-        text = "Stop button pressed."
-        self.canvas.render(text)
+        self.canvas.render(self.signals_list)
+        print(self.devices_list)
 
-    def on_text_box(self, event):
-        """Handle the event when the user enters text."""
-        text_box_value = self.text_box.GetValue()
-        text = "".join(["New text box value: ", text_box_value])
-        self.canvas.render(text)
-
-    def on_spin_devices(self, event):
-        """Handle the event when the user selects a new device"""
-
-        if self.no_devices:
-            self.no_devices = False
-            self.devices_spin_button.SetValue(0)
-            self.update_current_device(self.devices[0])
-            return
-
-        spin_value = self.devices_spin_button.GetValue()
-        if spin_value <= -1:
-            self.devices_spin_button.SetValue(len(self.devices) - 1)
-            spin_value = len(self.devices) - 1
-        elif spin_value >= len(self.devices):
-            self.devices_spin_button.SetValue(0)
-            spin_value = 0
-
-        self.current_device = spin_value
-        self.update_current_device(self.devices[spin_value])
 
     def on_toggle_dark_mode(self, event):
         if self.dark_mode_flag:
             self.dark_mode_flag = False
             self.canvas.set_light_mode()
+            self.canvas.BG_COLOUR = self.canvas.BG_WHITE
+            self.dark_mode_button.SetLabel("Dark Mode")
+
         else:
             self.dark_mode_flag = True
             self.canvas.set_dark_mode()
+            self.canvas.BG_COLOUR = self.canvas.BG_BLACK
+            self.dark_mode_button.SetLabel("Light Mode")
 
-        self.canvas.render("Dark mode toggled")
-
-    # Helper functions
-    def update_current_device(self, devices):
-        """Update the current device text label"""
-        self.devices_text.SetLabel(
-            f" Device: {devices[0]} \n ID: {devices[1]} \n Property: {devices[2]}"
-        )
+        self.canvas.render(None)

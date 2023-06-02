@@ -476,7 +476,8 @@ class Gui(wx.Frame):
         if isChecked:
             # Checkbox is checked
             if checkbox in self.on_checks:
-                print(self.on_checks[checkbox])
+                name_id = self.names.query(self.on_checks[checkbox])
+                self.devices.set_switch(name_id, 1)
 
             if checkbox in self.monitor_checks:
                 # BREAK FOR DTYPE
@@ -485,6 +486,9 @@ class Gui(wx.Frame):
 
         else:
             # Checkbox is unchecked
+            if checkbox in self.on_checks:
+                name_id = self.names.query(self.on_checks[checkbox])
+                self.devices.set_switch(name_id, 0)
             if checkbox in self.monitor_checks:
                 # BREAK FOR DTYPE
                 name_id = self.names.query(self.monitor_checks[checkbox])

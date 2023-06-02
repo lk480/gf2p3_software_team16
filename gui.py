@@ -268,6 +268,7 @@ class Gui(wx.Frame):
         self.network = network
         self.on_checks = {}
         self.monitor_checks = {}
+        self.monitored_list = self.generate_monitored_list(devices, names)
 
         self.cycle_count = 16
 
@@ -333,19 +334,38 @@ class Gui(wx.Frame):
 
             if device[1] == "SWITCH":
                 device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+                if device[0] in self.monitored_list:
+                    device_checkbox.SetValue(True)
                 self.monitor_checks[device_checkbox] = device[0]
                 device_entry.Add(device_checkbox, 1, wx.ALL, 5)
                 # Bind an event handler to the checkbox
                 device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
                 device_checkbox = wx.CheckBox(self.device_scroll, label="On")
+                if device[2] == 1:
+                    device_checkbox.SetValue(True)
                 self.on_checks[device_checkbox] = device[0]
                 device_entry.Add(device_checkbox, 1, wx.ALL, 5)
                 # Bind an event handler to the checkbox
                 device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
+            elif device[1] == "CLOCK":
+                device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+                if device[0] in self.monitored_list:
+                    device_checkbox.SetValue(True)
+                self.monitor_checks[device_checkbox] = device[0]
+                device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+                device_spin = wx.SpinCtrl(self.device_scroll, wx.ID_ANY, str(device[2]))
+                device_entry.Add(device_spin, 1, wx.ALL, 5)
+                # Bind an event handler to the checkbox
+
             else:
                 device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+                if device[0] in self.monitored_list:
+                    device_checkbox.SetValue(True)
                 self.monitor_checks[device_checkbox] = device[0]
                 device_entry.Add(device_checkbox, 2, wx.ALL, 5)
                 # Bind an event handler to the checkbox
@@ -410,6 +430,12 @@ class Gui(wx.Frame):
 
         return devices_list
 
+    def generate_monitored_list(self, devices, names):
+        monitored_list = []
+        for item in self.monitors.monitors_dictionary.items():
+            monitored_list.append(names.get_name_string(item[0][0]))
+        return monitored_list
+
     def gather_signal_data(self, devices, names, cycle_count):
         signals_list = []
         self.run(cycle_count)
@@ -451,6 +477,17 @@ class Gui(wx.Frame):
             # Checkbox is checked
             if checkbox in self.on_checks:
                 print(self.on_checks[checkbox])
+
+            if checkbox in self.monitor_checks:
+                # BREAK FOR DTYPE
+                name_id = self.names.query(self.monitor_checks[checkbox])
+                monitor_error = self.monitors.make_monitor(name_id, None, 20)
+                if monitor_error == self.monitors.NO_ERROR:
+                    print("Successfully made monitor.")
+                else:
+                    print("Error! Could not make monitor.")
+
+                # monitored_list.append(names.get_name_string(item[0][0]))
             # Call the desired function or perform the desired action
         else:
             # Checkbox is unchecked

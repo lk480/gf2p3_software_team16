@@ -481,18 +481,14 @@ class Gui(wx.Frame):
             if checkbox in self.monitor_checks:
                 # BREAK FOR DTYPE
                 name_id = self.names.query(self.monitor_checks[checkbox])
-                monitor_error = self.monitors.make_monitor(name_id, None, 20)
-                if monitor_error == self.monitors.NO_ERROR:
-                    print("Successfully made monitor.")
-                else:
-                    print("Error! Could not make monitor.")
+                self.monitors.make_monitor(name_id, None, self.cycle_count)
 
-                # monitored_list.append(names.get_name_string(item[0][0]))
-            # Call the desired function or perform the desired action
         else:
             # Checkbox is unchecked
-            print("Checkbox unchecked")
-            # Call the desired function or perform the desired action
+            if checkbox in self.monitor_checks:
+                # BREAK FOR DTYPE
+                name_id = self.names.query(self.monitor_checks[checkbox])
+                self.monitors.remove_monitor(name_id, None)
 
     def on_menu(self, event):
         """Handle the event when the user selects a menu item."""

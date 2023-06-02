@@ -303,7 +303,7 @@ class Gui(wx.Frame):
         self.canvas = MyGLCanvas(self, devices, monitors)
 
         # Set up help menu text
-        self.HELP_TEXT = "HELP ME"
+        self.HELP_TEXT = """Select the number of Cycles at the top of the control panel on the right, and click the button labelled "Run" to simulate the circuit. You can use the button labelled "Continue" to continue simulating the circuit for another N cycles (N is the number in the Cycles box).\n \n """
 
         # Configure the widgets
         self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
@@ -506,7 +506,7 @@ class Gui(wx.Frame):
         if Id == wx.ID_HELP:
             wx.MessageBox(
                 self.HELP_TEXT,
-                "HELP BOX",
+                "Additional information",
                 wx.ICON_INFORMATION | wx.OK,
             )
 

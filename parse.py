@@ -158,7 +158,7 @@ class Parser:
                         "Missing SEMICOLON at end of line."
                     )
                 # TODO: Check if self.get_next_symbol() is missing here
-                
+
             else:
                 print(self.symbol)
                 raise error.KeywordError(
@@ -187,7 +187,7 @@ class Parser:
                 raise error.MissingPunctuationError(
                     "Connections must be specified with an EQUAL (=)"
                 )
-        except error.MyException() as err:
+        except error.MyException as err:
             print("Successfuly entered exception condition of connection()")
             # print error log
             self.log_error(err)
@@ -432,7 +432,7 @@ class Parser:
 
                     elif self.symbol.type == self.scanner.COMMA:
                         raise error.QualifierPresentError(
-                            'For DTYPE or XOR, qualifier should be None.')
+                            'For DTYPE or XOR, there should not be a qualifier.')
 
                     else:
                         raise error.MissingPunctuationError(
@@ -516,7 +516,7 @@ class Parser:
             # to run assert checks for each error type.
             # Ankit asssert "Oh the error type has to be a certain thing."
             if error_type != self.devices.NO_ERROR:
-                #print(f'Error type in line 493 is: {error_type}')
+                # print(f'Error type in line 493 is: {error_type}')
                 self.error_type_repoting(error_type)
 
     def monitor_list(self):

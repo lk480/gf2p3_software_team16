@@ -1,0 +1,192 @@
+commit 70bb80babb9d4822f7da31fe22907650555c2e6d
+Merge: 682a850 cff3a9d
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Thu Jun 1 15:05:16 2023 +0100
+
+    Merge branch 'os415_GUI_integration_test_parser' of github.com:lk480/gf2p3_software_team16 into os415_GUI_integration_test_parser
+
+commit 682a8508d443b58bddc636077fac89ef86ddbf7d
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Thu Jun 1 15:02:58 2023 +0100
+
+    semantic errorchanges to error.py and device.py
+
+commit a90d31767787c7bc55892364003811b436f9e3a6
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Wed May 31 16:09:51 2023 +0100
+
+    semantic error cannot monitor an input
+
+commit 93a5da83be0dd5ed3d70a33f939cb7d94cad26b5
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Wed May 31 15:07:51 2023 +0100
+
+    cosmetic updates to .txt files
+
+commit 2eab9de5402db74b071932e0b2a083e8652ce790
+Merge: 80a0ec8 5605cbf
+Author: Ognjen Stefanovic <72799142+Ognjen303@users.noreply.github.com>
+Date:   Wed May 31 14:44:16 2023 +0100
+
+    Merge pull request #7 from lk480/lk480_DTYPE_functionality
+    
+    fixed bugs in parser for DTYPE latches
+
+commit 5605cbf992ece250e51946f677e1860941268698
+Merge: 92e99c5 80a0ec8
+Author: Ognjen Stefanovic <72799142+Ognjen303@users.noreply.github.com>
+Date:   Wed May 31 14:44:01 2023 +0100
+
+    Merge branch 'os415_GUI_integration_test_parser' into lk480_DTYPE_functionality
+
+commit 80a0ec895f60de64fb3898bb3f914355a254a262
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Wed May 31 13:39:36 2023 +0100
+
+    clean up of test_parser.py
+
+commit a547104da45cf81e8822b7d3f379c9fd229a6c29
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 30 23:25:08 2023 +0100
+
+    added new tests to test_parser.py
+
+commit f1ee60f31fb23c05dcd3f850e6706364f529ba25
+Merge: 6109b0a 3bd59cf
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 30 20:45:03 2023 +0100
+
+    Merge branch 'os415_GUI_integration_test_parser' of github.com:lk480/gf2p3_software_team16 into os415_GUI_integration_test_parser
+
+commit 3bd59cf8e38d705b7a7127a0f739615102202b84
+Merge: 451a2c3 5b880e4
+Author: Ognjen Stefanovic <72799142+Ognjen303@users.noreply.github.com>
+Date:   Tue May 30 20:44:27 2023 +0100
+
+    Merge pull request #6 from lk480/GUI_integration_jpm217
+    
+    G UI integration jpm217
+
+commit 5b880e4669e469d73abfbf5bf7e106b6191cf270
+Merge: f7291ec 451a2c3
+Author: Ognjen Stefanovic <72799142+Ognjen303@users.noreply.github.com>
+Date:   Tue May 30 20:44:06 2023 +0100
+
+    Merge branch 'os415_GUI_integration_test_parser' into GUI_integration_jpm217
+
+commit 6109b0a316201edbb7fd2bd808257082ad60c7ff
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 30 20:36:14 2023 +0100
+
+    added circuitDebuging.txt
+
+commit 451a2c36e88758d72fd0170f847b775ec083c383
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 30 16:40:27 2023 +0100
+
+    Added new tests which don't run correctly
+
+commit 94311b3ba2b7c527f11fcbf7583b70f4852ab074
+Merge: 05db2e3 8945975
+Author: Ognjen Stefanovic <72799142+Ognjen303@users.noreply.github.com>
+Date:   Tue May 30 13:36:54 2023 +0100
+
+    Merge pull request #5 from lk480/GUI_integration_jpm217
+    
+    Merging new changes from Juan and Loliths chagnes
+
+commit 05db2e37d034251e4c1393958e6b804bac46d4f4
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 30 13:32:50 2023 +0100
+
+    minor changes
+
+commit 9049ea508f23b773680a4ee08c3d88625871c832
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 30 13:27:43 2023 +0100
+
+    added tests to test_parser.py
+
+commit 5cc0b50eb302c2ea7ab49cdc26a6104bef300b2d
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 30 13:25:39 2023 +0100
+
+    Added raise_error in error.py
+
+commit eccc42dbf8bb13326c6948a34fee12b719160d11
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 30 10:07:55 2023 +0100
+
+    Added a new test to test_parser.py
+
+commit d8c5eebf46c5d544a45dee7fe2806e812af3ecf6
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 30 01:05:45 2023 +0100
+
+    Deleted line in log_error and edited monitor_list
+
+commit a87f4f77603539fa9fdaba41559fc1c85da60554
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Mon May 29 21:21:49 2023 +0100
+
+    Implemented the "^" marker and added .txt files
+
+commit 65951b124f52ad6b941a152277e1a9138c3ffa19
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Mon May 29 16:57:19 2023 +0100
+
+    Added missing test files
+
+commit f7c6ffb704fba80bbb77cae875787c504d5d50c4
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Mon May 29 00:06:23 2023 +0100
+
+    Cosmetic changes to log_error in parse.py
+
+commit c1223ec1f3352a94e95dbe296015c8a2469e75c1
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Sun May 28 23:38:40 2023 +0100
+
+    Added try,except,else in device() in parse.py
+
+commit 61df6fd63e2c28efcdae839eeea5fb0097211038
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Sun May 28 23:19:15 2023 +0100
+
+    Changed device() in parse.py
+
+commit 569653b3bf09508dc71d57484d47ac54cf2e3f3f
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Sun May 28 22:52:32 2023 +0100
+
+    Added error handing to parser.py
+
+commit c93a00dd098cf8af97691c7b30ab0203a4815d21
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Sun May 28 16:12:41 2023 +0100
+
+    small edit to parse.py
+
+commit 5e0f3128bf5dce16a3b6d09fce96ce1bdcd91352
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Sun May 28 16:04:00 2023 +0100
+
+    Added error.py and edited parse.py
+
+commit 8505396f25f04d87f313093245e0f7fc7b40e8a1
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Sat May 27 22:09:50 2023 +0100
+
+    Added test_parser.py and revoked gates scanner.py
+
+commit 50606b80903a05b240d72ba47311b027086bb34e
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Fri May 26 22:31:12 2023 +0100
+
+    Changes to scanner.py, added GATE atributes
+
+commit f20f1a0b817ccecf803f41ed9016b77789894471
+Author: Ognjen Stefanovic <os415@cam.ac.uk>
+Date:   Tue May 23 16:34:12 2023 +0100
+
+    Written test_names.py and changed names.py

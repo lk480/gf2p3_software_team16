@@ -310,15 +310,7 @@ class Gui(wx.Frame):
             self, wx.ID_ANY, "16", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
         )
         self.run_button = wx.Button(self, wx.ID_ANY, "Run")
-        self.stop_button = wx.Button(self, wx.ID_ANY, "Stop")
-        self.devices_text = wx.StaticText(self, wx.ID_ANY, "No device selected \n \n")
-        font = wx.Font(
-            18, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL
-        )
-        self.devices_text.SetFont(font)
-        self.devices_spin_button = wx.SpinButton(
-            self, wx.ID_ANY, style=wx.SP_HORIZONTAL, name="Current device"
-        )
+        self.continue_button = wx.Button(self, wx.ID_ANY, "Continue")
         self.dark_mode_button = wx.Button(self, wx.ID_ANY, "Light mode")
         self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
 
@@ -382,12 +374,10 @@ class Gui(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_menu)
         self.cycles_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_cycles)
         self.run_button.Bind(wx.EVT_BUTTON, self.on_run_button)
-        self.stop_button.Bind(wx.EVT_BUTTON, self.on_stop_button)
-        self.devices_spin_button.Bind(wx.EVT_SPIN, self.on_spin_devices)
+        self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
         self.dark_mode_button.Bind(wx.EVT_BUTTON, self.on_toggle_dark_mode)
 
         # Set spin range and initialise flag for first run
-        self.devices_spin_button.SetRange(-1, len(self.devices_list))
         self.no_devices = True
 
         # Configure sizers for layout
@@ -403,9 +393,7 @@ class Gui(wx.Frame):
         side_sizer.Add(self.cycles_text, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 3)
         side_sizer.Add(self.cycles_spin, 1, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.run_button, 3, wx.ALL | wx.EXPAND, 5)
-        side_sizer.Add(self.stop_button, 3, wx.ALL | wx.EXPAND, 5)
-        side_sizer.Add(self.devices_spin_button, 10, wx.ALL | wx.EXPAND, 5)
-        side_sizer.Add(self.devices_text, 3, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 5)
+        side_sizer.Add(self.continue_button, 3, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.device_scroll, 10, wx.ALL | wx.EXPAND, 5)
 
         # Add side_sizer to main_sizer as the last item
@@ -478,6 +466,7 @@ class Gui(wx.Frame):
             if checkbox in self.on_checks:
                 name_id = self.names.query(self.on_checks[checkbox])
                 self.devices.set_switch(name_id, 1)
+                
 
             if checkbox in self.monitor_checks:
                 # BREAK FOR DTYPE
@@ -493,6 +482,10 @@ class Gui(wx.Frame):
                 # BREAK FOR DTYPE
                 name_id = self.names.query(self.monitor_checks[checkbox])
                 self.monitors.remove_monitor(name_id, None)
+        self.signals_list = self.gather_signal_data(
+            self.devices, self.names, self.cycle_count
+        )
+        self.canvas.render(self.signals_list)
 
     def on_menu(self, event):
         """Handle the event when the user selects a menu item."""
@@ -536,30 +529,11 @@ class Gui(wx.Frame):
         )
         self.canvas.render(self.signals_list)
 
-    def on_stop_button(self, event):
+    def on_continue_button(self, event):
         """Handle the event when the user clicks the run button."""
         self.canvas.render(self.signals_list)
         print(self.devices_list)
 
-    def on_spin_devices(self, event):
-        """Handle the event when the user selects a new device"""
-
-        if self.no_devices:
-            self.no_devices = False
-            self.devices_spin_button.SetValue(0)
-            self.update_current_device(self.devices_list[0])
-            return
-
-        spin_value = self.devices_spin_button.GetValue()
-        if spin_value <= -1:
-            self.devices_spin_button.SetValue(len(self.devices_list) - 1)
-            spin_value = len(self.devices_list) - 1
-        elif spin_value >= len(self.devices_list):
-            self.devices_spin_button.SetValue(0)
-            spin_value = 0
-
-        self.current_device = spin_value
-        self.update_current_device(self.devices_list[spin_value])
 
     def on_toggle_dark_mode(self, event):
         if self.dark_mode_flag:
@@ -575,20 +549,3 @@ class Gui(wx.Frame):
             self.dark_mode_button.SetLabel("Light Mode")
 
         self.canvas.render(None)
-
-    # Helper functions
-    def update_current_device(self, devices):
-        """Update the current device text label"""
-        property = None
-        if devices[1] == "SWITCH":
-            property = "STATE"
-        elif devices[1] == "CLOCK":
-            property = "PERIOD"
-        elif devices[1] == "DTYPE":
-            property = "MEMORY"
-        else:
-            self.devices_text.SetLabel(f" Device: {devices[0]} \n Type: {devices[1]}")
-            return
-        self.devices_text.SetLabel(
-            f" Device: {devices[0]} \n Type: {devices[1]} \n {property}: {devices[2]}"
-        )

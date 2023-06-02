@@ -307,12 +307,17 @@ class Gui(wx.Frame):
         # Configure the widgets
         self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
         self.cycles_spin = wx.SpinCtrl(
-            self, wx.ID_ANY, "16", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
+            self, wx.ID_ANY, "18", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
         )
         self.run_button = wx.Button(self, wx.ID_ANY, "Run")
         self.continue_button = wx.Button(self, wx.ID_ANY, "Continue")
         self.dark_mode_button = wx.Button(self, wx.ID_ANY, "Light mode")
         self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
+
+        font = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+
+        self.run_button.SetFont(font)
+        self.continue_button.SetFont(font)
 
         # Create a sizer for the device scroll panel
         device_sizer = wx.BoxSizer(wx.VERTICAL)

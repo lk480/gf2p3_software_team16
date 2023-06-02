@@ -77,28 +77,39 @@ class PortReferenceError(MyException):
     """Error is raised when referenced port does not exist."""
 
 
-class DevicePropertyError(MyException):
-    """Error is raised when device property is incorrectly defined."""
+class InvalidQualifierError(MyException):
+    """Error is raised when device property/qualifier is incorrectly defined."""
 
 
 class MonitorError(MyException):
     """Error raised when system input cannot be monitored or no monitor is declared."""
 
 
-class DeviceExistsError(MyException):
+class DevicePresentError(MyException):
     """Error raised when device already exists."""
 
 
-class MissingParameterError(MyException):
-    """Error raised when insufficient parameters are defined when creating a DEVICE."""
+class NoQualifierError(MyException):
+    """Error raised when a qualifier is missing e,g. specifiying a GATE
+    without providing the number of inputs.
+    """
 
 
-class KeywordNameError(MyException):
-    """Error raised when a keyword is used for device name."""
+class DeviceDoesNotExist(MyException):
+    """Error is raised when device does not exist.
+    A device can be a GATE, BISTABLE or AUXILLARY"""
+
+
+class QualifierPresentError(MyException):
+    """Error is raised when a XOR or DTYPE is specified with a qualifier."""
 
 
 class MultipleInputError(MyException):
     """Error raised when multiple outputs connect to a single input port."""
+
+
+class UnknownUniqueErrorCode(MyException):
+    """Error raised for an unknown unique error code."""
 
 
 class ErrorHandler:
@@ -129,7 +140,8 @@ class ErrorHandler:
                 "Cannot find file or read data in print_all_errors in error.py."
             )
 
-        lines = [line.replace("\n", " ") for line in input_file.readlines()] + [""]
+        lines = [line.replace("\n", " ")
+                 for line in input_file.readlines()] + [""]
         # print(lines)
 
         for i, error in enumerate(self.error_list):
@@ -151,18 +163,18 @@ class ErrorHandler:
                 "Cannot find file or read data in print_all_errors in error.py."
             )
 
-        lines = [line.replace("\n", " ") for line in input_file.readlines()] + [""]
+        lines = [line.replace("\n", " ")
+                 for line in input_file.readlines()] + [""]
 
         print(f"Error no. {len(self.error_list) - 1} in ErrorHandler().error_list is: {self.error_list[-1].get_error_name}\n",
               f"{lines[self.error_list[-1].error_row]}\n",
               f"{' ' * self.error_list[-1].error_col}^\n"
-        )
-    
+              )
+
     def raise_error(self):
         """Method raises an error at end of parsing."""
 
         if self.found_no_errors():
             return None
-        
+
         raise self.error_list[0]
-    

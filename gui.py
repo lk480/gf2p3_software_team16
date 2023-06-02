@@ -125,7 +125,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         for i in range(len(signal)):
             x = (i * 50) + 30
             x_next = (i * 50) + 80
-            y = 450 + 50 * int(signal[i]) - 90 * position
+            y = 930 + 50 * int(signal[i]) - 90 * position
             GL.glVertex2f(x, y)
             GL.glVertex2f(x_next, y)
         GL.glEnd()
@@ -137,8 +137,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         for i in range(len(signal) + 1):
             GL.glBegin(GL.GL_LINE_STRIP)
             x = (i * 50) + 30
-            y = 450 - 5 - 90 * position
-            y_next = 450 - 15 - 90 * position
+            y = 930 - 5 - 90 * position
+            y_next = 930 - 15 - 90 * position
             GL.glVertex2f(x, y)
             GL.glVertex2f(x, y_next)
             GL.glEnd()
@@ -147,7 +147,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         """Render all the signals and labels."""
         for i in range(len(self.signals_list)):
             self.draw_trace(self.signals_list[i][1], self.colours[i % 4], i)
-            self.render_text(self.signals_list[i][0], 10, 470 - 90 * i)
+            self.render_text(self.signals_list[i][0], 10, 950 - 90 * i)
 
     def render(self, signals_list):
         """Handle all drawing operations."""
@@ -269,6 +269,7 @@ class Gui(wx.Frame):
         self.on_checks = {}
         self.monitor_checks = {}
         self.monitored_list = self.generate_monitored_list(devices, names)
+        self.running = False
 
         self.cycle_count = 16
 
@@ -441,8 +442,7 @@ class Gui(wx.Frame):
         return signals_list
 
     def run(self, cycles):
-        self.monitors.reset_monitors()
-        self.devices.cold_startup()
+        
         for _ in range(cycles):
             if self.network.execute_network():
                 self.monitors.record_signals()
@@ -487,9 +487,9 @@ class Gui(wx.Frame):
                 # BREAK FOR DTYPE
                 name_id = self.names.query(self.monitor_checks[checkbox])
                 self.monitors.remove_monitor(name_id, None)
-        self.signals_list = self.gather_signal_data(
-            self.devices, self.names, self.cycle_count
-        )
+        if not self.running:
+            return
+        self.signals_list = self.on_run_button("")
         self.canvas.render(self.signals_list)
 
     def on_menu(self, event):
@@ -529,15 +529,21 @@ class Gui(wx.Frame):
 
     def on_run_button(self, event):
         """Handle the event when the user clicks the run button."""
+        self.monitors.reset_monitors()
+        self.devices.cold_startup()
         self.signals_list = self.gather_signal_data(
             self.devices, self.names, self.cycle_count
         )
         self.canvas.render(self.signals_list)
+        self.running = True
 
     def on_continue_button(self, event):
         """Handle the event when the user clicks the run button."""
+        if not self.running:
+            self.on_run_button("")
+            return
+        self.signals_list = self.gather_signal_data(self.devices, self.names, self.cycle_count)
         self.canvas.render(self.signals_list)
-        print(self.devices_list)
 
 
     def on_toggle_dark_mode(self, event):

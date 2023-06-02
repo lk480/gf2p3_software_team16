@@ -501,7 +501,7 @@ class Gui(wx.Frame):
             self.Close(True)
         if Id == wx.ID_ABOUT:
             wx.MessageBox(
-                "Logic Simulator\nCreated by Mojisola Agboola\n2017",
+                "Logic Simulator\nCreated by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n2023\nBased on skeleton code by Mojisola Agboola 2017",
                 "About Logsim",
                 wx.ICON_INFORMATION | wx.OK,
             )

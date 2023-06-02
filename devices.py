@@ -114,7 +114,8 @@ class Devices:
             self.NO_ERROR,
             self.INVALID_QUALIFIER,  # the qualifier of a device is invalid
             self.NO_QUALIFIER,  # no qualifier specified for a device
-            self.BAD_DEVICE, # device does not exists (it must be e.g. AND,OR,DTYPE...)
+            # device does not exists (it must be e.g. AND,OR,DTYPE...)
+            self.BAD_DEVICE,
             self.QUALIFIER_PRESENT,  # XOR and DTYPE have a qualifier, but they shouldn't
             self.DEVICE_PRESENT,  # device is already created, can't redefine it again
         ] = self.names.unique_error_codes(6)

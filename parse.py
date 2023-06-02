@@ -121,12 +121,8 @@ class Parser:
         """Parse the circuit definition file.
         Return True if there are no errors in the defintion file,
         false otherwise."""
-        # Check whether parsing needs to be interrupted
-        if break_parse is True:
-            print("AAAAAA")
-        # Advance to first symbol
-        # Check if file is empty
         self.get_next_symbol()
+        # Check if file is empty
         if self.symbol.type == self.scanner.EOF:
             print("NO CIRCUIT SPECIFIED")
             return False
@@ -314,8 +310,6 @@ class Parser:
         count = 0
         while defining_devices is True:
             # Create new device
-
-            # TODO: comments the count below.
             # Its for debuging inf loops only.
             if count >= 500:
                 break
@@ -366,6 +360,16 @@ class Parser:
         try:
             print(
                 f"Current symbol {self.names.get_name_string(self.symbol.id)}")
+            # Check device name must not be KEYWORD or GATE TYPE
+            if (
+                self.symbol.type is self.scanner.KEYWORD
+                or self.symbol.id in [
+                    self.devices.AND, self.devices.NAND, self.devices.OR,
+                    self.devices.NOR
+                ]
+            ):
+                raise error.DeviceNameError(
+                    'Device name cannot be KEYWORD or GATE')
             # Initalise parameters of the device
             device_id = self.get_device_id()
             device_kind = None
@@ -565,8 +569,6 @@ class Parser:
                 self.get_next_symbol()
                 # move to next symbol
             self.get_next_symbol()
-            if self.symbol.type == self.scanner.EOF:
-                self.parse_network(break_parse=True)
 
     def error(self):
         raise Exception("You have an error!")

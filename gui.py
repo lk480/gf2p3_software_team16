@@ -260,6 +260,7 @@ class Gui(wx.Frame):
 
     def __init__(self, title, path, names, devices, network, monitors):
         """Initialise widgets, layout and variables."""
+
         super().__init__(parent=None, title=title, size=(800, 600))
 
         # Assign variable to the other modules
@@ -281,7 +282,7 @@ class Gui(wx.Frame):
 
         # Set up list of devices and signals
         self.devices_list = self.set_up_devices(devices, names)
-        self.signals_list = self.gather_signal_data(devices, names, self.cycle_count)
+        self.signals_list = self.gather_signal_data(names, self.cycle_count)
 
         # Initialise menus and bar
         menuBar = wx.MenuBar()
@@ -368,7 +369,8 @@ class Gui(wx.Frame):
         self.running = True
 
     def set_up_widgets(self):
-        """Sets up the widgets for the GUI"""
+        """Sets up the widgets for the GUI."""
+
         self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
         self.cycles_spin = wx.SpinCtrl(
             self, wx.ID_ANY, "18", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
@@ -379,6 +381,8 @@ class Gui(wx.Frame):
         self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
 
     def set_up_devices(self, devices, names):
+        """NOT SURE WHAT THIS DOES TODO."""
+
         devices_list = []
         for device in devices.devices_list:
             single_device_list = []
@@ -392,9 +396,16 @@ class Gui(wx.Frame):
         return devices_list
 
     def add_scroll_widgets(self, device_sizer, device):
+        """Adds widgets for every device to the device scroll panel."""
+
+        # Create a sizer for the device entry
         device_entry = wx.BoxSizer(wx.HORIZONTAL)
+
+        # Add name label
         device_text = wx.StaticText(self.device_scroll, label=device[0])
         device_entry.Add(device_text, 1, wx.ALL, 5)
+
+        # Based on device type, add the appropriate widgets
         if device[1] == "SWITCH":
             self.add_switch_scroll_widget(device_entry, device)
 
@@ -404,54 +415,92 @@ class Gui(wx.Frame):
         else:
             self.add_other_scroll_widget(device_entry, device)
 
+        # Add to device sizer
         device_sizer.Add(device_entry, 0, wx.EXPAND)
 
     def add_switch_scroll_widget(self, device_entry, device):
+        """Adds a monitor and on/off checkbox for a switch device to the device scroll panel."""
+
+        # Add monitor checkbox
         device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+
+        # If monitored in file, initialise as on
         if device[0] in self.monitored_list:
             device_checkbox.SetValue(True)
+
+        # Add to dictionary of checks and add to device entry row
         self.monitor_checks[device_checkbox] = device[0]
         device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+
         # Bind an event handler to the checkbox
         device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
+        # Add on/off checkbox
         device_checkbox = wx.CheckBox(self.device_scroll, label="On")
+
+        # If on in file, initialise as on
         if device[2] == 1:
             device_checkbox.SetValue(True)
+
+        # Add to dictionary of checks and add to device entry row
         self.on_checks[device_checkbox] = device[0]
         device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+
         # Bind an event handler to the checkbox
         device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
     def add_clock_scroll_widget(self, device_entry, device):
+        """Adds a monitor and spin box for a clock device to the device scroll panel."""
+
+        # Add monitor checkbox
         device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+
+        # If monitored in file, initialise as on
         if device[0] in self.monitored_list:
             device_checkbox.SetValue(True)
+
+        # Add to dictionary of checks and add to device entry row
         self.monitor_checks[device_checkbox] = device[0]
         device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+
         # Bind an event handler to the checkbox
         device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
+        # Add spin box with initial value as set in file
         device_spin = wx.SpinCtrl(self.device_scroll, wx.ID_ANY, str(device[2]))
         device_entry.Add(device_spin, 1, wx.ALL, 5)
-        # Bind an event handler to the checkbox
+
+        # Bind an event handler to the checkbox TODO
+        return
 
     def set_other_scroll_widget(self, device_entry, device):
+        """Adds a monitor checkbox for a non-switch/clock device to the device scroll panel."""
+
+        # Add monitor checkbox
         device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+
+        # If monitored in file, initialise as on
         if device[0] in self.monitored_list:
             device_checkbox.SetValue(True)
+
+        # Add to dictionary of checks and add to device entry row
         self.monitor_checks[device_checkbox] = device[0]
         device_entry.Add(device_checkbox, 2, wx.ALL, 5)
+
         # Bind an event handler to the checkbox
         device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
     def generate_monitored_list(self, devices, names):
+        """Generates a list of monitored devices."""
+
         monitored_list = []
         for item in self.monitors.monitors_dictionary.items():
             monitored_list.append(names.get_name_string(item[0][0]))
         return monitored_list
 
-    def gather_signal_data(self, devices, names, cycle_count):
+    def gather_signal_data(self, names, cycle_count):
+        """Runs the circuit and record signals for monitored devices."""
+
         signals_list = []
         self.run(cycle_count)
         for item in self.monitors.monitors_dictionary.items():
@@ -463,11 +512,16 @@ class Gui(wx.Frame):
         return signals_list
 
     def run(self, cycles):
+        """Runs the circuit for a given number of cycles."""
+
         for _ in range(cycles):
             if self.network.execute_network():
                 self.monitors.record_signals()
 
     def device_number_to_string(self, device_number):
+        """Converts a device number to the corresponding name."""
+
+        # TODO What the fuck is this used for
         if device_number == 2:
             return "NAND"
         elif device_number == 5:
@@ -480,32 +534,37 @@ class Gui(wx.Frame):
             return str(device_number)
 
     # Event handlers
-
     def on_checkbox_changed(self, event):
-        checkbox = event.GetEventObject()  # Get the checkbox that triggered the event
-        isChecked = checkbox.GetValue()  # Get the current state of the checkbox
+        """Event handler for checkboxes."""
 
-        # Perform actions based on the checkbox state
+        # Get the checkbox that triggered the event and the state
+        checkbox = event.GetEventObject()
+        isChecked = checkbox.GetValue()
+
         if isChecked:
-            # Checkbox is checked
+            # If it's switch on/off
             if checkbox in self.on_checks:
                 name_id = self.names.query(self.on_checks[checkbox])
                 self.devices.set_switch(name_id, 1)
 
+            # If it's monitor
             if checkbox in self.monitor_checks:
-                # BREAK FOR DTYPE
+                # BREAK FOR DTYPE TODO TODO
                 name_id = self.names.query(self.monitor_checks[checkbox])
                 self.monitors.make_monitor(name_id, None, self.cycle_count)
 
         else:
-            # Checkbox is unchecked
+            # If it's switch on/off
             if checkbox in self.on_checks:
                 name_id = self.names.query(self.on_checks[checkbox])
                 self.devices.set_switch(name_id, 0)
+            # If it's monitor
             if checkbox in self.monitor_checks:
-                # BREAK FOR DTYPE
+                # BREAK FOR DTYPE TODO TODO
                 name_id = self.names.query(self.monitor_checks[checkbox])
                 self.monitors.remove_monitor(name_id, None)
+
+        # Update the canvas if the circuit has been run
         if not self.running:
             return
         self.signals_list = self.on_run_button("")
@@ -513,15 +572,21 @@ class Gui(wx.Frame):
 
     def on_menu(self, event):
         """Handle the event when the user selects a menu item."""
+
         Id = event.GetId()
+        # Exit the program
         if Id == wx.ID_EXIT:
             self.Close(True)
+
+        # About dialog
         if Id == wx.ID_ABOUT:
             wx.MessageBox(
                 "Logic Simulator\nCreated by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n2023\nBased on skeleton code by Mojisola Agboola 2017",
                 "About Logsim",
                 wx.ICON_INFORMATION | wx.OK,
             )
+
+        # Help dialog
         if Id == wx.ID_HELP:
             wx.MessageBox(
                 self.HELP_TEXT,
@@ -542,17 +607,22 @@ class Gui(wx.Frame):
                 print("File name:", file_name)
 
     def on_spin_cycles(self, event):
-        """Handle the event when the user changes the spin control value."""
+        """Handle the event when the user changes the number of cycles value."""
+
         self.cycle_count = self.cycles_spin.GetValue()
         self.canvas.render(self.signals_list)
 
     def on_run_button(self, event):
         """Handle the event when the user clicks the run button."""
+
+        # Reset monitors and cold start the devices
         self.monitors.reset_monitors()
         self.devices.cold_startup()
-        self.signals_list = self.gather_signal_data(
-            self.devices, self.names, self.cycle_count
-        )
+
+        # Run the circuit and record signals for monitored devices
+        self.signals_list = self.gather_signal_data(self.names, self.cycle_count)
+
+        # Render the canvas, set to running
         self.canvas.render(self.signals_list)
         self.running = True
 
@@ -561,22 +631,25 @@ class Gui(wx.Frame):
         if not self.running:
             self.on_run_button("")
             return
-        self.signals_list = self.gather_signal_data(
-            self.devices, self.names, self.cycle_count
-        )
+        self.signals_list = self.gather_signal_data(self.names, self.cycle_count)
         self.canvas.render(self.signals_list)
 
     def on_toggle_dark_mode(self, event):
+        """Handle the event when the user clicks the dark mode button."""
+
+        # Turn dark mode off
         if self.dark_mode_flag:
             self.dark_mode_flag = False
             self.canvas.set_light_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_WHITE
             self.dark_mode_button.SetLabel("Dark Mode")
 
+        # Turn dark mode on
         else:
             self.dark_mode_flag = True
             self.canvas.set_dark_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_BLACK
             self.dark_mode_button.SetLabel("Light Mode")
 
+        # Render the canvas
         self.canvas.render(None)

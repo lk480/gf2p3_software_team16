@@ -303,7 +303,9 @@ class Gui(wx.Frame):
         self.canvas = MyGLCanvas(self, devices, monitors)
 
         # Set up help menu text
-        self.HELP_TEXT = """Select the number of Cycles at the top of the control panel on the right, and click the button labelled "Run" to simulate the circuit. You can use the button labelled "Continue" to continue simulating the circuit for another N cycles (N is the number in the Cycles box).\n \n """
+        self.HELP_TEXT = """Select the number of Cycles at the top of the control panel on the right,
+         and click the button labelled "Run" to simulate the circuit. You can use the button labelled
+         "Continue" to continue simulating the circuit for another N cycles (N is the number in the Cycles box).\n \n """
 
         # Configure the widgets
         self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
@@ -315,7 +317,9 @@ class Gui(wx.Frame):
         self.dark_mode_button = wx.Button(self, wx.ID_ANY, "Light mode")
         self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
 
-        font = wx.Font(16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        font = wx.Font(
+            16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL
+        )
 
         self.run_button.SetFont(font)
         self.continue_button.SetFont(font)
@@ -411,6 +415,10 @@ class Gui(wx.Frame):
         self.Maximize(True)
         self.SetSizer(main_sizer)
 
+        # WARNING THESE MIGHT BREAK LINUX
+        self.canvas.render(self.signals_list)
+        self.running = True
+
     def set_up_devices(self, devices, names):
         devices_list = []
         for device in devices.devices_list:
@@ -442,7 +450,6 @@ class Gui(wx.Frame):
         return signals_list
 
     def run(self, cycles):
-        
         for _ in range(cycles):
             if self.network.execute_network():
                 self.monitors.record_signals()
@@ -471,7 +478,6 @@ class Gui(wx.Frame):
             if checkbox in self.on_checks:
                 name_id = self.names.query(self.on_checks[checkbox])
                 self.devices.set_switch(name_id, 1)
-                
 
             if checkbox in self.monitor_checks:
                 # BREAK FOR DTYPE
@@ -542,9 +548,10 @@ class Gui(wx.Frame):
         if not self.running:
             self.on_run_button("")
             return
-        self.signals_list = self.gather_signal_data(self.devices, self.names, self.cycle_count)
+        self.signals_list = self.gather_signal_data(
+            self.devices, self.names, self.cycle_count
+        )
         self.canvas.render(self.signals_list)
-
 
     def on_toggle_dark_mode(self, event):
         if self.dark_mode_flag:

@@ -42,6 +42,7 @@ class Device:
         self.switch_state = None
         self.dtype_memory = None
         self.sequence_2_repeat = None
+        self.rc_period = None
 
 
 class Devices:
@@ -106,7 +107,8 @@ class Devices:
         self.devices_list = []
 
         gate_strings = ["AND", "OR", "NAND", "NOR", "XOR"]
-        device_strings = ["CLOCK", "SWITCH", "DTYPE", "SIGGEN"]
+
+        device_strings = ["CLOCK", "SWITCH", "DTYPE", "RC", "SIGGEN"]
         dtype_inputs = ["CLK", "SET", "CLEAR", "DATA"]
         dtype_outputs = ["Q", "QBAR"]
 
@@ -135,9 +137,15 @@ class Devices:
             self.NOR,
             self.XOR,
         ] = self.names.lookup(gate_strings)
-        self.device_types = [self.CLOCK, self.SWITCH, self.D_TYPE, self.SIGGEN] = self.names.lookup(
-            device_strings
-        )
+
+        self.device_types = [
+            self.CLOCK,
+            self.SWITCH,
+            self.D_TYPE,
+            self.RC,
+            self.SIGGEN
+        ] = self.names.lookup(device_strings)
+
         self.dtype_input_ids = [
             self.CLK_ID,
             self.SET_ID,
@@ -276,6 +284,11 @@ class Devices:
         device.sequence_2_repeat = sequence_2_repeat
         self.cold_startup() # siggen initialised to a random point in its cycle
 
+    def make_rc(self, device_id, rc_period):
+        self.add_device(device_id, self.RC)
+        device = self.get_device(device_id)
+        device.rc_period = rc_period
+
     def make_gate(self, device_id, device_kind, no_of_inputs):
         """Make logic gates with the specified number of inputs."""
         self.add_device(device_id, device_kind)
@@ -296,7 +309,7 @@ class Devices:
         self.cold_startup()  # D-type initialised to a random state
 
     def cold_startup(self):
-        """Simulate cold start-up of D-types and clocks.
+        """Simulate cold start-up of D-types, RCs and clocks.
 
         Set the memory of the D-types to a random state and make the clocks
         begin from a random point in their cycles.
@@ -307,8 +320,7 @@ class Devices:
 
             elif device.device_kind == self.CLOCK:
                 clock_signal = random.choice([self.LOW, self.HIGH])
-                self.add_output(device.device_id,
-                                output_id=None, signal=clock_signal)
+                self.add_output(device.device_id, output_id=None, signal=clock_signal)
                 # Initialise it to a random point in its cycle.
                 device.clock_counter = random.randrange(
                     device.clock_half_period)
@@ -316,6 +328,11 @@ class Devices:
             elif device.device_kind == self.SIGGEN:
                 print('TODO: Write code for cold starting siggen.')
                 # TODO complete
+
+            elif device.device_kind == self.RC:
+                self.add_output(device.device_id, output_id=None, signal=self.HIGH)
+                device.clock_counter = 0
+
 
     def make_device(self, device_id, device_kind, device_property=None):
         """Create the specified device.
@@ -379,7 +396,21 @@ class Devices:
             else:
                 self.make_d_type(device_id)
                 error_type = self.NO_ERROR
-                
+
+        elif device_kind == self.RC:
+            # Device property is rc
+            if device_property is None:
+                error_type = self.NO_QUALIFIER
+            elif device_property <= 0:
+                error_type = self.INVALID_QUALIFIER
+            else:
+                self.make_rc(device_id, device_property)
+                self.add_output(device_id, output_id=None, signal=self.HIGH)
+                # Initialise it to a random point in its cycle.
+                device = self.get_device(device_id)
+                device.clock_counter = 0
+                error_type = self.NO_ERROR
+
         else:
             error_type = self.BAD_DEVICE
 

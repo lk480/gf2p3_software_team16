@@ -489,6 +489,28 @@ class Parser:
                             raise error.MissingPunctuationError(
                                 "Missing SEMICOLON at end of line.")
 
+                        
+                # If DEVICE TYPE is RC
+                elif (self.symbol.type is self.scanner.NAME
+                      and self.symbol.id == self.devices.RC):
+                    # Set device kind
+                    
+                    print(
+                        f"Type {self.names.get_name_string(self.symbol.id)}"
+                    )
+                    device_kind = self.symbol.id
+                    # Advance to next symbol --> COMMA
+                    self.symbol = self.scanner.get_symbol()
+                    if self.symbol.type == self.scanner.COMMA:
+                        """following comma, device property is specified -
+                        any errors will be raised by devices"""
+                        device_property = self.scanner.get_symbol()
+
+                        self.get_next_symbol()
+                        if self.symbol.type is not self.scanner.SEMICOLON:
+                            raise error.MissingPunctuationError(
+                                "Missing SEMICOLON at end of line.")
+
                 else:
                     raise error.DeviceTypeError(
                         "Device type is missing or unknown.")
@@ -506,7 +528,6 @@ class Parser:
             if (device_property is not None and
                 device_kind != self.devices.SIGGEN):
                 int_device_property = int(device_property.id)
-
                 # TODO: Write tests to assert unique error
                 # codes for error type
                 error_type = self.devices.make_device(

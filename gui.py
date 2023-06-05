@@ -52,6 +52,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
     def __init__(self, parent, devices, monitors):
         """Initialise canvas properties and useful variables."""
+
         super().__init__(
             parent,
             -1,
@@ -81,7 +82,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.Bind(wx.EVT_SIZE, self.on_size)
         self.Bind(wx.EVT_MOUSE_EVENTS, self.on_mouse)
 
-        # Colours
+        # Colours for signals
         self.BLACK = (0.0, 0.0, 0.0)
         self.WHITE = (1.0, 1.0, 1.0)
         self.RED = (1.0, 0.0, 0.0)
@@ -90,6 +91,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.colours = [self.WHITE, self.RED, self.GREEN, self.BLUE]
         self.signals_list = []
 
+        # Background colours
         self.BG_WHITE = (1.0, 1.0, 1.0)
         self.BG_BLACK = (0.20, 0.20, 0.20)
         self.BG_COLOUR = self.BG_BLACK
@@ -111,17 +113,23 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glScaled(self.zoom, self.zoom, self.zoom)
 
     def set_dark_mode(self):
+        """Set the background colour to black and first signal colour to white."""
+
         GL.glClearColor(self.BG_BLACK[0], self.BG_BLACK[1], self.BG_BLACK[2], 1.0)
         self.colours[0] = self.WHITE
 
     def set_light_mode(self):
+        """Set the background colour to white and first signal colour to black."""
+
         GL.glClearColor(self.BG_WHITE[0], self.BG_WHITE[1], self.BG_WHITE[2], 1.0)
         self.colours[0] = self.BLACK
 
     def draw_trace(self, signal, colour, position):
         """Draw a trace for a given signal."""
+
         GL.glColor3f(colour[0], colour[1], colour[2])
         GL.glBegin(GL.GL_LINE_STRIP)
+
         for i in range(len(signal)):
             x = (i * 50) + 30
             x_next = (i * 50) + 80
@@ -132,6 +140,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.draw_markers(signal, position)
 
     def draw_markers(self, signal, position):
+        """Draw markers for a given signal."""
+
         GL.glColor3f(0.5, 0.5, 0.5)
 
         for i in range(len(signal) + 1):
@@ -145,12 +155,14 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
     def render_signals(self):
         """Render all the signals and labels."""
+
         for i in range(len(self.signals_list)):
             self.draw_trace(self.signals_list[i][1], self.colours[i % 4], i)
             self.render_text(self.signals_list[i][0], 10, 950 - 90 * i)
 
     def render(self, signals_list):
         """Handle all drawing operations."""
+
         self.SetCurrent(self.context)
         if not self.init:
             # Configure the viewport, modelview and projection matrices
@@ -160,10 +172,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         # Clear everything
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
-        # Draw specified text at position (10, 10)
-
-        # Draw a sample signal trace
-
+        # Update signal list and draw signals
         if signals_list is not None:
             self.signals_list = signals_list
         self.render_signals()
@@ -175,6 +184,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
     def on_paint(self, event):
         """Handle the paint event."""
+
         self.SetCurrent(self.context)
         if not self.init:
             # Configure the viewport, modelview and projection matrices

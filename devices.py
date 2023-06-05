@@ -326,7 +326,6 @@ class Devices:
 
             elif device.device_kind == self.SIGGEN:
                 if device.sequence_2_repeat[0] == "0":
-                    print("ASDASDASDASDASDASDASDASDASD")
                     initial_signal = self.LOW
                 elif device.sequence_2_repeat[0] == "1":
                     initial_signal = self.HIGH
@@ -366,7 +365,6 @@ class Devices:
                 error_type = self.NO_ERROR
 
         elif device_kind == self.SIGGEN:
-            device_property = list(str(device_property))
             # Device property is the periodic sequence
             if device_property is None:
                 error_type = self.NO_QUALIFIER
@@ -374,6 +372,12 @@ class Devices:
                 error_type = self.INVALID_QUALIFIER
             else:
                 self.make_siggen(device_id, device_property)
+                device = self.get_device(device_id)
+                if device.sequence_2_repeat[0] == "0":
+                    self.add_output(device_id, output_id=None, signal=self.LOW)
+                elif device.sequence_2_repeat[0] == "1":
+                    self.add_output(device_id, output_id=None, signal=self.HIGH)
+                device.clock_counter = 0
                 error_type = self.NO_ERROR
 
         elif device_kind in self.gate_types:

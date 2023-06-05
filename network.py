@@ -339,34 +339,6 @@ class Network:
         else:
             return False
 
-    def execute_rc(self, device_id):
-        """Simulate an RC device and update its output signal value.
-
-        Return True if successful.
-        """
-        device = self.devices.get_device(device_id)
-        output_signal = device.outputs[None]  # output ID is None
-
-        if output_signal == self.devices.RISING:
-            new_signal = self.update_signal(output_signal, self.devices.HIGH)
-            if new_signal is None:  # update is unsuccessful
-                return False
-            device.outputs[None] = new_signal
-            return True
-
-        elif output_signal == self.devices.FALLING:
-            new_signal = self.update_signal(output_signal, self.devices.LOW)
-            if new_signal is None:  # update is unsuccessful
-                return False
-            device.outputs[None] = new_signal
-            return True
-
-        elif output_signal in [self.devices.HIGH, self.devices.LOW]:
-            return True
-
-        else:
-            return False
-
     def update_clocks(self):
         """If it is time to do so, set clock signals to RISING or FALLING."""
         clock_devices = self.devices.find_devices(self.devices.CLOCK)
@@ -392,6 +364,21 @@ class Network:
                 device.outputs[None] = self.devices.FALLING
             device.clock_counter += 1
 
+    def update_siggen(self):
+        """If it is time to do so, set RC signals to RISING or FALLING."""
+        siggen_devices = self.devices.find_devices(self.devices.SIGGEN)
+        for device_id in siggen_devices:
+            device = self.devices.get_device(device_id)
+            """Skip RC devices that have already turned off."""
+            sequence = device.sequence_2_repeat
+            device.clock_counter += 1
+            if device.clock_counter == len(sequence):
+                device.clock_counter = 0
+            if sequence[device.clock_counter] == "1":
+                device.outputs[None] = self.devices.RISING
+            elif sequence[device.clock_counter] == "0":
+                device.outputs[None] = self.devices.FALLING
+
     def execute_network(self):
         """Execute all the devices in the network for one simulation cycle.
 
@@ -399,6 +386,7 @@ class Network:
         """
         clock_devices = self.devices.find_devices(self.devices.CLOCK)
         rc_devices = self.devices.find_devices(self.devices.RC)
+        siggen_devices = self.devices.find_devices(self.devices.SIGGEN)
         switch_devices = self.devices.find_devices(self.devices.SWITCH)
         d_type_devices = self.devices.find_devices(self.devices.D_TYPE)
         and_devices = self.devices.find_devices(self.devices.AND)
@@ -410,6 +398,7 @@ class Network:
         # This sets clock signals to RISING or FALLING, where necessary
         self.update_clocks()
         self.update_rcs()
+        self.update_siggen()
 
         # Number of iterations to wait for the signals to settle before
         # declaring the network unstable
@@ -433,7 +422,10 @@ class Network:
                 if not self.execute_clock(device_id):
                     return False
             for device_id in rc_devices:  # complete RC executions
-                if not self.execute_rc(device_id):
+                if not self.execute_clock(device_id):
+                    return False
+            for device_id in siggen_devices:  # complete siggen executions
+                if not self.execute_clock(device_id):
                     return False
             for device_id in and_devices:  # execute AND gate devices
                 if not self.execute_gate(

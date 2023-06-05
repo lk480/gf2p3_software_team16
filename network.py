@@ -338,7 +338,7 @@ class Network:
 
         else:
             return False
-    
+
     def execute_rc(self, device_id):
         """Simulate an RC device and update its output signal value.
 
@@ -388,11 +388,8 @@ class Network:
             device = self.devices.get_device(device_id)
             print(device.rc_period, device.clock_counter)
             """Skip RC devices that have already turned off."""
-            if device.rc_period == 0:
-                pass
             if device.clock_counter == device.rc_period:
                 device.clock_counter = 0
-                device.rc_period = 0
                 device.outputs[None] = self.devices.FALLING
             device.clock_counter += 1
 
@@ -460,7 +457,7 @@ class Network:
             for device_id in xor_devices:  # execute XOR devices
                 if not self.execute_gate(device_id, None, None):
                     return False
-                
+
             if self.steady_state:
                 break
         return self.steady_state

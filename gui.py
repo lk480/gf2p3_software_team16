@@ -488,7 +488,7 @@ class Gui(wx.Frame):
         # Bind an event handler to the checkbox TODO
         return
 
-    def set_other_scroll_widget(self, device_entry, device):
+    def add_other_scroll_widget(self, device_entry, device):
         """Adds a monitor checkbox for a non-switch/clock device to the device scroll panel."""
 
         # Add monitor checkbox

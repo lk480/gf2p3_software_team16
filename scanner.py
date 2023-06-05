@@ -61,8 +61,15 @@ class Scanner:
             raise FileNotFoundError("Cannot find file or read data")
 
         self.current_character = " "
-        self.keywords_list = ["DEVICE", "CONNECT",
-                              "MONITOR", "TYPE", "STATE", "INPUTS", "NONE"]
+        self.keywords_list = [
+            "DEVICE",
+            "CONNECT",
+            "MONITOR",
+            "TYPE",
+            "STATE",
+            "INPUTS",
+            "NONE",
+        ]
 
         # This will tell us where the marker is currently in the file
         self.marker_row = 0
@@ -95,7 +102,7 @@ class Scanner:
             self.TYPE_ID,
             self.STATE_ID,
             self.INPUTS_ID,
-            self.NONE_ID
+            self.NONE_ID,
         ] = self.names.lookup(self.keywords_list)
 
     def get_symbol(self):

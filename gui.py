@@ -259,25 +259,30 @@ class Gui(wx.Frame):
     """
 
     def __init__(self, title, path, names, devices, network, monitors):
-        """Initialise widgets and layout."""
+        """Initialise widgets, layout and variables."""
         super().__init__(parent=None, title=title, size=(800, 600))
 
+        # Assign variable to the other modules
         self.names = names
         self.devices = devices
         self.monitors = monitors
         self.network = network
+
+        # Initialise dictionaries and lists for the checks for switches and monitoring
         self.on_checks = {}
         self.monitor_checks = {}
         self.monitored_list = self.generate_monitored_list(devices, names)
+
+        # Used to use the continue button to run on first click
         self.running = False
 
+        # Default number of cycles
         self.cycle_count = 16
 
+        # Set up list of devices and signals
         self.devices_list = self.set_up_devices(devices, names)
-
         self.signals_list = self.gather_signal_data(devices, names, self.cycle_count)
 
-        # Configure the file menu
         # Initialise menus and bar
         menuBar = wx.MenuBar()
         fileMenu = wx.Menu()
@@ -290,92 +295,40 @@ class Gui(wx.Frame):
         helpMenu.Append(wx.ID_HELP, "&Tutorial")
         fileMenu.Append(wx.ID_EXIT, "&Exit")
 
+        # Default to dark mode
         self.dark_mode_flag = True
 
-        # Add the file and help menus to the menu bar and set bar
+        """Add the file and help menus to the menu bar and set bar"""
         menuBar.Append(fileMenu, "&File")
         menuBar.Append(helpMenu, "&Help")
         self.SetMenuBar(menuBar)
 
-        self.current_device = len(self.devices_list) + 2
-
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
 
-        # Set up help menu text
+        # TODO Set up help menu text
         self.HELP_TEXT = """Select the number of Cycles at the top of the control panel on the right,
          and click the button labelled "Run" to simulate the circuit. You can use the button labelled
          "Continue" to continue simulating the circuit for another N cycles (N is the number in the Cycles box).\n \n """
 
         # Configure the widgets
-        self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
-        self.cycles_spin = wx.SpinCtrl(
-            self, wx.ID_ANY, "18", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
-        )
-        self.run_button = wx.Button(self, wx.ID_ANY, "Run")
-        self.continue_button = wx.Button(self, wx.ID_ANY, "Continue")
-        self.dark_mode_button = wx.Button(self, wx.ID_ANY, "Light mode")
-        self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
+        self.set_up_widgets()
 
-        font = wx.Font(
+        # Choose and set font for buttons
+        button_font = wx.Font(
             16, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL
         )
+        self.run_button.SetFont(button_font)
+        self.continue_button.SetFont(button_font)
 
-        self.run_button.SetFont(font)
-        self.continue_button.SetFont(font)
-
-        # Create a sizer for the device scroll panel
+        # Create a sizer for the device info scroll panel
         device_sizer = wx.BoxSizer(wx.VERTICAL)
 
         # Add devices to the sizer
         for device in self.devices_list:
-            device_entry = wx.BoxSizer(wx.HORIZONTAL)
+            self.add_scroll_widgets(device_sizer, device)
 
-            device_text = wx.StaticText(self.device_scroll, label=device[0])
-            device_entry.Add(device_text, 1, wx.ALL, 5)
-
-            if device[1] == "SWITCH":
-                device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
-                if device[0] in self.monitored_list:
-                    device_checkbox.SetValue(True)
-                self.monitor_checks[device_checkbox] = device[0]
-                device_entry.Add(device_checkbox, 1, wx.ALL, 5)
-                # Bind an event handler to the checkbox
-                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
-
-                device_checkbox = wx.CheckBox(self.device_scroll, label="On")
-                if device[2] == 1:
-                    device_checkbox.SetValue(True)
-                self.on_checks[device_checkbox] = device[0]
-                device_entry.Add(device_checkbox, 1, wx.ALL, 5)
-                # Bind an event handler to the checkbox
-                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
-
-            elif device[1] == "CLOCK":
-                device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
-                if device[0] in self.monitored_list:
-                    device_checkbox.SetValue(True)
-                self.monitor_checks[device_checkbox] = device[0]
-                device_entry.Add(device_checkbox, 1, wx.ALL, 5)
-                # Bind an event handler to the checkbox
-                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
-
-                device_spin = wx.SpinCtrl(self.device_scroll, wx.ID_ANY, str(device[2]))
-                device_entry.Add(device_spin, 1, wx.ALL, 5)
-                # Bind an event handler to the checkbox
-
-            else:
-                device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
-                if device[0] in self.monitored_list:
-                    device_checkbox.SetValue(True)
-                self.monitor_checks[device_checkbox] = device[0]
-                device_entry.Add(device_checkbox, 2, wx.ALL, 5)
-                # Bind an event handler to the checkbox
-                device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
-
-            device_sizer.Add(device_entry, 0, wx.EXPAND)
-
-        # Set the sizer for the device scroll panel
+        # Set the sizer for the device list scroll panel
         self.device_scroll.SetSizer(device_sizer)
         self.device_scroll.Layout()
         self.device_scroll.SetScrollRate(0, 20)
@@ -387,19 +340,12 @@ class Gui(wx.Frame):
         self.continue_button.Bind(wx.EVT_BUTTON, self.on_continue_button)
         self.dark_mode_button.Bind(wx.EVT_BUTTON, self.on_toggle_dark_mode)
 
-        # Set spin range and initialise flag for first run
-        self.no_devices = True
-
-        # Configure sizers for layout
-        main_sizer = wx.BoxSizer(wx.HORIZONTAL)
-        side_sizer = wx.BoxSizer(wx.VERTICAL)
-
+        # Configure main and side sizers for layout
         main_sizer = wx.BoxSizer(wx.HORIZONTAL)
         side_sizer = wx.BoxSizer(wx.VERTICAL)
 
         # Add widgets to sizers
         main_sizer.Add(self.canvas, 50, wx.EXPAND | wx.ALL, 5)
-
         side_sizer.Add(self.cycles_text, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 3)
         side_sizer.Add(self.cycles_spin, 1, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.run_button, 3, wx.ALL | wx.EXPAND, 5)
@@ -411,13 +357,26 @@ class Gui(wx.Frame):
         side_sizer.Add(self.dark_mode_button, 1, wx.BOTTOM | wx.EXPAND, 5)
 
         # Set the sizer and configure the window
-        # self.SetSizeHints(600, 600)
+        # TODO cut this for final version: self.SetSizeHints(600, 600)
         self.Maximize(True)
         self.SetSizer(main_sizer)
 
+        # TODO test and potentially cut this warning from final vers
         # WARNING THESE MIGHT BREAK LINUX
+        # Render canvas and set running flag to true
         self.canvas.render(self.signals_list)
         self.running = True
+
+    def set_up_widgets(self):
+        """Sets up the widgets for the GUI"""
+        self.cycles_text = wx.StaticText(self, wx.ID_ANY, "Cycles")
+        self.cycles_spin = wx.SpinCtrl(
+            self, wx.ID_ANY, "18", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
+        )
+        self.run_button = wx.Button(self, wx.ID_ANY, "Run")
+        self.continue_button = wx.Button(self, wx.ID_ANY, "Continue")
+        self.dark_mode_button = wx.Button(self, wx.ID_ANY, "Light mode")
+        self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
 
     def set_up_devices(self, devices, names):
         devices_list = []
@@ -431,6 +390,60 @@ class Gui(wx.Frame):
             devices_list.append(single_device_list)
 
         return devices_list
+
+    def add_scroll_widgets(self, device_sizer, device):
+        device_entry = wx.BoxSizer(wx.HORIZONTAL)
+        device_text = wx.StaticText(self.device_scroll, label=device[0])
+        device_entry.Add(device_text, 1, wx.ALL, 5)
+        if device[1] == "SWITCH":
+            self.add_switch_scroll_widget(device_entry, device)
+
+        elif device[1] == "CLOCK":
+            self.add_clock_scroll_widget(device_entry, device)
+
+        else:
+            self.add_other_scroll_widget(device_entry, device)
+
+        device_sizer.Add(device_entry, 0, wx.EXPAND)
+
+    def add_switch_scroll_widget(self, device_entry, device):
+        device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+        if device[0] in self.monitored_list:
+            device_checkbox.SetValue(True)
+        self.monitor_checks[device_checkbox] = device[0]
+        device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+        # Bind an event handler to the checkbox
+        device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+        device_checkbox = wx.CheckBox(self.device_scroll, label="On")
+        if device[2] == 1:
+            device_checkbox.SetValue(True)
+        self.on_checks[device_checkbox] = device[0]
+        device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+        # Bind an event handler to the checkbox
+        device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+    def add_clock_scroll_widget(self, device_entry, device):
+        device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+        if device[0] in self.monitored_list:
+            device_checkbox.SetValue(True)
+        self.monitor_checks[device_checkbox] = device[0]
+        device_entry.Add(device_checkbox, 1, wx.ALL, 5)
+        # Bind an event handler to the checkbox
+        device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
+
+        device_spin = wx.SpinCtrl(self.device_scroll, wx.ID_ANY, str(device[2]))
+        device_entry.Add(device_spin, 1, wx.ALL, 5)
+        # Bind an event handler to the checkbox
+
+    def set_other_scroll_widget(self, device_entry, device):
+        device_checkbox = wx.CheckBox(self.device_scroll, label="Monitor")
+        if device[0] in self.monitored_list:
+            device_checkbox.SetValue(True)
+        self.monitor_checks[device_checkbox] = device[0]
+        device_entry.Add(device_checkbox, 2, wx.ALL, 5)
+        # Bind an event handler to the checkbox
+        device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
     def generate_monitored_list(self, devices, names):
         monitored_list = []

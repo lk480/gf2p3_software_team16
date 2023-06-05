@@ -368,12 +368,18 @@ class Devices:
                 error_type = self.INVALID_QUALIFIER
             else:
                 self.make_rc(device_id, device_property)
+                self.add_output(device_id,
+                                output_id=None, signal=self.HIGH)
+                # Initialise it to a random point in its cycle.
+                device = self.get_device(device_id)
+                device.clock_counter = 0
                 error_type = self.NO_ERROR
 
         else:
             error_type = self.BAD_DEVICE
 
         return error_type
+    
 
     def return_property(self, device_id):
         """Return the property of the specified device."""

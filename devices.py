@@ -379,10 +379,7 @@ class Devices:
             else:
                 self.make_d_type(device_id)
                 error_type = self.NO_ERROR
-
-        # TODO:
-        # Add device_kind == self.SIGGEN
-
+                
         else:
             error_type = self.BAD_DEVICE
 

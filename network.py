@@ -398,7 +398,10 @@ class Network:
         # This sets clock signals to RISING or FALLING, where necessary
         self.update_clocks()
         self.update_rcs()
-        self.update_siggen()
+        if not self.devices.run_once:
+            self.devices.run_once = True
+        else:
+            self.update_siggen()
 
         # Number of iterations to wait for the signals to settle before
         # declaring the network unstable

@@ -103,6 +103,7 @@ class Devices:
         """Initialise devices list and constants."""
 
         self.names = names
+        self.run_once = False
 
         self.devices_list = []
 
@@ -330,10 +331,12 @@ class Devices:
                 elif device.sequence_2_repeat[0] == "1":
                     initial_signal = self.HIGH
                 self.add_output(device.device_id, output_id=None, signal=initial_signal)
+                device.clock_counter = 0
 
             elif device.device_kind == self.RC:
                 self.add_output(device.device_id, output_id=None, signal=self.HIGH)
                 device.clock_counter = 0
+        self.run_once = False
 
     def make_device(self, device_id, device_kind, device_property=None):
         """Create the specified device.

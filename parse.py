@@ -467,6 +467,9 @@ class Parser:
                         if self.symbol.type is not self.scanner.SEMICOLON:
                             raise error.MissingPunctuationError(
                                 "Missing SEMICOLON at end of line.")
+                    else:
+                        raise error.MissingPunctuationError(
+                            "Missing 2nd COMMA in DEVICE definiton.")
 
                 # If DEVICE TYPE is SWITCH
                 elif (self.symbol.type is self.scanner.NAME
@@ -484,6 +487,9 @@ class Parser:
                         if self.symbol.type is not self.scanner.SEMICOLON:
                             raise error.MissingPunctuationError(
                                 "Missing SEMICOLON at end of line.")
+                # TODO:
+                # If DEVICE TYPE is SIGGEN
+
                 else:
                     raise error.DeviceTypeError(
                         "Device type is missing or unknown.")

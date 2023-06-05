@@ -195,6 +195,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
     def on_size(self, event):
         """Handle the canvas resize event."""
+
         # Forces reconfiguration of the viewport, modelview and projection
         # matrices on the next paint event
         self.init = False
@@ -233,8 +234,12 @@ class MyGLCanvas(wxcanvas.GLCanvas):
 
     def render_text(self, text, x_pos, y_pos):
         """Handle text drawing operations."""
-        GL.glColor3f(0.0, 0.0, 0.0)  # text is black
+
+        # TODO CHANGE COLOUR READABILITY
+        GL.glColor3f(0.0, 0.0, 0.0)
         GL.glRasterPos2f(x_pos, y_pos)
+
+        # Choose a font and size
         font = GLUT.GLUT_BITMAP_HELVETICA_12
 
         for character in text:

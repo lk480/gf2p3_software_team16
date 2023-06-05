@@ -386,7 +386,6 @@ class Network:
         rc_devices = self.devices.find_devices(self.devices.RC)
         for device_id in rc_devices:
             device = self.devices.get_device(device_id)
-            print(device.rc_period, device.clock_counter)
             """Skip RC devices that have already turned off."""
             if device.clock_counter == device.rc_period:
                 device.clock_counter = 0

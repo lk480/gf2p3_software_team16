@@ -308,8 +308,9 @@ class Devices:
                 # Initialise it to a random point in its cycle.
                 device.clock_counter = random.randrange(device.clock_half_period)
             elif device.device_kind == self.RC:
-                device.outputs[None] = self.HIGH
-                device.rc_counter = 0
+                print("BBBBBBBBBB")
+                self.add_output(device.device_id, output_id=None, signal=self.HIGH)
+                device.clock_counter = 0
 
     def make_device(self, device_id, device_kind, device_property=None):
         """Create the specified device.

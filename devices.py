@@ -41,6 +41,7 @@ class Device:
         self.clock_counter = None
         self.switch_state = None
         self.dtype_memory = None
+        self.sequence_2_repeat = None
         self.rc_period = None
 
 
@@ -106,7 +107,8 @@ class Devices:
         self.devices_list = []
 
         gate_strings = ["AND", "OR", "NAND", "NOR", "XOR"]
-        device_strings = ["CLOCK", "SWITCH", "DTYPE", "RC"]
+
+        device_strings = ["CLOCK", "SWITCH", "DTYPE", "RC", "SIGGEN"]
         dtype_inputs = ["CLK", "SET", "CLEAR", "DATA"]
         dtype_outputs = ["Q", "QBAR"]
 
@@ -135,12 +137,15 @@ class Devices:
             self.NOR,
             self.XOR,
         ] = self.names.lookup(gate_strings)
+
         self.device_types = [
             self.CLOCK,
             self.SWITCH,
             self.D_TYPE,
             self.RC,
+            self.SIGGEN
         ] = self.names.lookup(device_strings)
+
         self.dtype_input_ids = [
             self.CLK_ID,
             self.SET_ID,
@@ -268,6 +273,17 @@ class Devices:
         device.clock_half_period = clock_half_period
         self.cold_startup()  # clock initialised to a random point in its cycle
 
+    def make_siggen(self, device_id, sequence_2_repeat):
+        """Make a siggen device with the specified sequence of 0's and 1's
+        to be repeated periodicaly.
+        
+        sequence_2_repeat is a string containing only digits 0 and 1.
+        """
+        self.add_device(device_id, self.SIGGEN)
+        device = self.get_device(device_id)
+        device.sequence_2_repeat = sequence_2_repeat
+        self.cold_startup() # siggen initialised to a random point in its cycle
+
     def make_rc(self, device_id, rc_period):
         self.add_device(device_id, self.RC)
         device = self.get_device(device_id)
@@ -306,11 +322,17 @@ class Devices:
                 clock_signal = random.choice([self.LOW, self.HIGH])
                 self.add_output(device.device_id, output_id=None, signal=clock_signal)
                 # Initialise it to a random point in its cycle.
-                device.clock_counter = random.randrange(device.clock_half_period)
+                device.clock_counter = random.randrange(
+                    device.clock_half_period)
+            
+            elif device.device_kind == self.SIGGEN:
+                print('TODO: Write code for cold starting siggen.')
+                # TODO complete
+
             elif device.device_kind == self.RC:
-                print("BBBBBBBBBB")
                 self.add_output(device.device_id, output_id=None, signal=self.HIGH)
                 device.clock_counter = 0
+
 
     def make_device(self, device_id, device_kind, device_property=None):
         """Create the specified device.
@@ -339,6 +361,16 @@ class Devices:
                 error_type = self.INVALID_QUALIFIER
             else:
                 self.make_clock(device_id, device_property)
+                error_type = self.NO_ERROR
+        
+        elif device_kind == self.SIGGEN:
+            # Device property is the periodic sequence
+            if device_property is None:
+                error_type = self.NO_QUALIFIER
+            elif set(device_property) <= set('01'):
+                error_type = self.INVALID_QUALIFIER
+            else:
+                self.make_siggen(device_id, device_property)
                 error_type = self.NO_ERROR
 
         elif device_kind in self.gate_types:

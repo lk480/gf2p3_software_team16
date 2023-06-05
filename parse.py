@@ -450,7 +450,8 @@ class Parser:
 
                 # If DEVICE TYPE is CLOCK
                 elif (self.symbol.type is self.scanner.NAME
-                      and self.symbol.id == self.devices.CLOCK):
+                      and self.symbol.id in (self.devices.CLOCK,
+                                             self.devices.SIGGEN)):
                     # Set device kind
                     print(
                         f"Type {self.names.get_name_string(self.symbol.id)}"
@@ -467,6 +468,9 @@ class Parser:
                         if self.symbol.type is not self.scanner.SEMICOLON:
                             raise error.MissingPunctuationError(
                                 "Missing SEMICOLON at end of line.")
+                    else:
+                        raise error.MissingPunctuationError(
+                            "Missing 2nd COMMA in DEVICE definiton.")
 
                 # If DEVICE TYPE is SWITCH
                 elif (self.symbol.type is self.scanner.NAME
@@ -484,6 +488,7 @@ class Parser:
                         if self.symbol.type is not self.scanner.SEMICOLON:
                             raise error.MissingPunctuationError(
                                 "Missing SEMICOLON at end of line.")
+
                         
                 # If DEVICE TYPE is RC
                 elif (self.symbol.type is self.scanner.NAME
@@ -505,7 +510,7 @@ class Parser:
                         if self.symbol.type is not self.scanner.SEMICOLON:
                             raise error.MissingPunctuationError(
                                 "Missing SEMICOLON at end of line.")
-                        
+
                 else:
                     raise error.DeviceTypeError(
                         "Device type is missing or unknown.")
@@ -520,12 +525,23 @@ class Parser:
         else:
             # Call make_device
             # Using None to avoid problems with switches in state 0
-            if device_property is not None:
+            if (device_property is not None and
+                device_kind != self.devices.SIGGEN):
                 int_device_property = int(device_property.id)
                 # TODO: Write tests to assert unique error
                 # codes for error type
                 error_type = self.devices.make_device(
                     device_id, device_kind, int_device_property)
+
+            elif (device_property is not None and
+                  device_kind == self.devices.SIGGEN):
+
+                if not isinstance(device_property, str):
+                    raise TypeError(
+                        'SIGGEN device property should be a string.')
+
+                error_type = self.devices.make_device(
+                    device_id, device_kind, device_property)
 
             else:
                 int_device_property = None

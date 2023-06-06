@@ -306,42 +306,48 @@ class Parser:
 
     # Continue checking for devices until keyword "CONNECT" is detected
     def device_list(self):
-        if (
-            self.symbol.type == self.scanner.KEYWORD
-            and self.symbol.id == self.scanner.DEVICE_ID
-        ):
-            defining_devices = True
-
-        else:
-            raise error.KeywordError("File needs to have at least 1 DEVICE.")
-
-        count = 0
-        while defining_devices is True:
-            # Create new device
-            # Its for debuging inf loops only.
-            if count >= 500:
-                break
-
-            count += 1
-            self.device_creation()
-            # Get next symbol
-            self.get_next_symbol()
-            # Check if next symbol is CONNECT
-
+        try:
             if (
                 self.symbol.type == self.scanner.KEYWORD
-                and self.symbol.id == self.scanner.CONNECT_ID
+                and self.symbol.id == self.scanner.DEVICE_ID
             ):
-                defining_devices = False
+                defining_devices = True
 
-            elif (
-                self.symbol.type == self.scanner.KEYWORD
-                and self.symbol.id == self.scanner.MONITOR_ID
-            ):
-                defining_devices = False
+            else:
+                raise error.KeywordError("File needs to have at least 1 DEVICE.")
+        except error.MyException as err:
+            # Logs an error and continue parsing
+            self.log_error(err)
+        
+        finally:
 
-            elif self.symbol.type == self.scanner.EOF:
-                break
+            count = 0
+            while defining_devices is True:
+                # Create new device
+                # Its for debuging inf loops only.
+                if count >= 500:
+                    break
+
+                count += 1
+                self.device_creation()
+                # Get next symbol
+                self.get_next_symbol()
+                # Check if next symbol is CONNECT
+
+                if (
+                    self.symbol.type == self.scanner.KEYWORD
+                    and self.symbol.id == self.scanner.CONNECT_ID
+                ):
+                    defining_devices = False
+
+                elif (
+                    self.symbol.type == self.scanner.KEYWORD
+                    and self.symbol.id == self.scanner.MONITOR_ID
+                ):
+                    defining_devices = False
+
+                elif self.symbol.type == self.scanner.EOF:
+                    break
 
     def device_creation(self):
         print("Successfully called device_creation in parser module")

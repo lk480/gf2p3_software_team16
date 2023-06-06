@@ -112,12 +112,16 @@ def test_lookup_exceptions(used_names):
     """Test if Names().lookup() raises expected exceptions inside the
     Names class.
     """
+    # Check with float
     with pytest.raises(TypeError):
         used_names.lookup(2.5)
+    # Check with int
     with pytest.raises(TypeError):
         used_names.lookup(2)
+    # Check with bool
     with pytest.raises(TypeError):
         used_names.lookup(True)
+    # Check with None
     with pytest.raises(TypeError):
         used_names.lookup(None)
 
@@ -127,12 +131,16 @@ def test_get_name_string_raises_exceptions(used_names):
     the Names class. The get_name_string() method accepts only
     non-negative integers.
     """
+    # Check with float
     with pytest.raises(TypeError):
         used_names.get_name_string(1.4)
+    # Check with str
     with pytest.raises(TypeError):
         used_names.get_name_string("hello")
+    # Check with negative ID
     with pytest.raises(ValueError):
         used_names.get_name_string(-1)
+    # Check with None
     with pytest.raises(TypeError):
         used_names.get_name_string(None)
 
@@ -195,6 +203,32 @@ def test_lookup_append(used_names):
     assert updated_length == current_length + 1
 
 
+def test_lookup_unique_ids(used_names, name_string_list):
+    """Checks that lookup has assigned unique IDs to each name
+    within the name_string_list"""
+    for i in range(0, 2):
+        for j in range(0, 2):
+            if i != j:
+                assert (
+                    used_names.query(name_string_list[i]) !=
+                    used_names.query(name_string_list[j])
+                )
+            elif i == j:
+                assert (
+                    used_names.query(name_string_list[i]) ==
+                    used_names.query(name_string_list[j])
+                )
+            else:
+                raise IndexError('Unknown ID')
+
+
+def test_method_types(used_names, name_string_list):
+    """Check whether lookup and query are retuning the expected types """
+    for i in range(0, 2):
+        assert type(used_names.query(name_string_list[i])) is int
+        assert type(used_names.lookup(name_string_list)[i]) is int
+
+
 @pytest.mark.parametrize("name_id, expected_string", [
     (0, "Alice"),
     (1, "Bob"),
@@ -204,8 +238,8 @@ def test_lookup_append(used_names):
 ])
 def test_get_name_string(used_names, new_names, name_id, expected_string):
     """Test if Names().get_string() returns the expected name of a person
-    inside the Names class. The name of every person should be stored in the list
-    Names().name_string_list.
+    inside the Names class. The name of every person should be stored in the 
+    list Names().name_string_list.
     """
 
     # used_names an instance of Names class and it is prepopulated

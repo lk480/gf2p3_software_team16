@@ -36,7 +36,7 @@ msgid ""
 "cycles (N is the number in the Cycles box).\n"
 " \n"
 " "
-msgstr "Spanish help text"
+msgstr "Selecciona el numero de ciclos, y pulsa el boton \"Simular\" para simular el circuito. Puedes usar el boton \"Continuar\" para continuar simulando el circuito durante N ciclos mas (N es el numero en la de ciclos seleccionado)."
 
 #: gui.py:389
 msgid "Cycles"
@@ -54,67 +54,90 @@ msgstr "Continuar"
 msgid "Light mode"
 msgstr "Tema claro"
 
-#: gui.py:440 gui.py:471 gui.py:495
+#: gui.py:441 gui.py:472 gui.py:496
 msgid "Monitor"
 msgstr "Monitorear"
 
-#: gui.py:454
+#: gui.py:455
 msgid "On"
 msgstr "Encendido"
 
-#: gui.py:541
+#: gui.py:542
+msgid "AND"
+msgstr "AND"
+
+#: gui.py:543
+msgid "OR"
+msgstr "OR"
+
+#: gui.py:544
 msgid "NAND"
 msgstr "NAND"
 
-#: gui.py:543
+#: gui.py:545
+msgid "NOR"
+msgstr "NOR"
+
+#: gui.py:546
+msgid "XOR"
+msgstr "XOR"
+
+#: gui.py:547
 msgid "CLOCK"
 msgstr "RELOJ"
 
-#: gui.py:545
+#: gui.py:548
 msgid "SWITCH"
 msgstr "INTERRUPTOR"
 
-#: gui.py:547
+#: gui.py:549
 msgid "DTYPE"
 msgstr "DTYPE"
 
-#: gui.py:599
+#: gui.py:550
+msgid "RC"
+msgstr "RC"
+
+#: gui.py:551
+msgid "SIGGEN"
+msgstr "SIGGEN"
+
+#: gui.py:606
 msgid ""
 "Logic Simulator\n"
 "Created by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n"
 "2023\n"
 "Based on skeleton code by Mojisola Agboola 2017"
-msgstr "ABOUT IN SPANISH"
+msgstr "Simulador Logico\nCreado por Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n2023\nBasado en el codigo de Mojisola Agboola 2017"
 
-#: gui.py:602
+#: gui.py:609
 msgid "About Logsim"
 msgstr "Sobre Logsim"
 
-#: gui.py:610
+#: gui.py:617
 msgid "Additional information"
 msgstr "Mas informacion"
 
-#: gui.py:617 gui.py:624
+#: gui.py:624 gui.py:631
 msgid "Enter file name"
-msgstr "Nombre de archivo"
+msgstr "Nombre de archivo:"
 
-#: gui.py:617
+#: gui.py:624
 msgid "Import"
 msgstr "Importar"
 
-#: gui.py:624
+#: gui.py:631
 msgid "Export"
 msgstr "Exportar"
 
-#: gui.py:628
+#: gui.py:635
 msgid "File name:"
-msgstr "Nombre de archivo"
+msgstr "Nombre de archivo:"
 
-#: gui.py:666
+#: gui.py:673
 msgid "Dark Mode"
 msgstr "Tema oscuro"
 
-#: gui.py:673
+#: gui.py:680
 msgid "Light Mode"
 msgstr "Tema claro"
-

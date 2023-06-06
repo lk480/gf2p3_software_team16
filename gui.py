@@ -407,6 +407,7 @@ class Gui(wx.Frame):
             single_device_list.append(devices.return_property(id))
 
             devices_list.append(single_device_list)
+        print(devices_list)
 
         return devices_list
 
@@ -421,10 +422,10 @@ class Gui(wx.Frame):
         device_entry.Add(device_text, 1, wx.ALL, 5)
 
         # Based on device type, add the appropriate widgets
-        if device[1] == "SWITCH":
+        if device[1] == self._("SWITCH"):
             self.add_switch_scroll_widget(device_entry, device)
 
-        elif device[1] == "CLOCK":
+        elif device[1] == self._("CLOCK"):
             self.add_clock_scroll_widget(device_entry, device)
 
         else:
@@ -537,14 +538,20 @@ class Gui(wx.Frame):
         """Returns a string containing the name of the device with the given number."""
 
         # TODO What the fuck is this used for
-        if device_number == 2:
-            return self._("NAND")
-        elif device_number == 5:
-            return self._("CLOCK")
-        elif device_number == 6:
-            return self._("SWITCH")
-        elif device_number == 7:
-            return self._("DTYPE")
+        id_to_name_list = [
+            self._("AND"),
+            self._("OR"),
+            self._("NAND"),
+            self._("NOR"),
+            self._("XOR"),
+            self._("CLOCK"),
+            self._("SWITCH"),
+            self._("DTYPE"),
+            self._("RC"),
+            self._("SIGGEN"),
+        ]
+        if device_number in range(10):
+            return id_to_name_list[device_number]
         else:
             return str(device_number)
 

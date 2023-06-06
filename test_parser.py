@@ -120,7 +120,7 @@ def test_parser(new_names, new_device,
     (Path.cwd() / "definition_files" / "syntax_error_files" /
      "missing_device_type.txt", error.DeviceTypeError),
     (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_device.txt", error.KeywordError),
+     "missing_device.txt", error.KeywordError)
 
 
     # Paths to definition files which contain a semantic error.

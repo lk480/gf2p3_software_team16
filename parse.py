@@ -314,13 +314,15 @@ class Parser:
                 defining_devices = True
 
             else:
-                raise error.KeywordError("File needs to have at least 1 DEVICE.")
+                raise error.KeywordError("File needs to start with a DEVICE.")
         except error.MyException as err:
             # Logs an error and continue parsing
             self.log_error(err)
         
         finally:
 
+            defining_devices = True
+            
             count = 0
             while defining_devices is True:
                 # Create new device

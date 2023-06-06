@@ -1,13 +1,63 @@
-import pytest
 
+import pytest
 from names import Names
 from devices import Device
+
+"""
+Test Suite for names.py module
+
+This test file contains unit tests for the string manipulation utilities
+contained withing the names.py module.
+
+Fixtures:
+---------
+- `new_device()`: Returns a new Device instance. This will be used as a
+  shorthand for instantiating `Device()` when defining other functions.
+
+- `new_names()`: Returns a new `Names()` instance. This will be used as a
+  shorthand for instantiating `Names()` when defining other functions.
+
+- `name_string_list()`: Returns a list of names. This will be used
+  for prepopulating `Names().names_list` with these names.
+
+- `used_names(name_string_list)`: Returns a `Names()` instance with three
+  names added to the names list. So now `used_names.names_list` 
+  has three names.
+
+Test Cases:
+-----------
+- `test_query_raises_exception(used_names)`: Test if `Names.query()` raises
+  expected exceptions inside the `Names` class. `Names.query()` can only accept
+  strings.
+
+- `test_lookup_raises_exception(used_names)`: Test if `Names().lookup()` raises
+  expected exceptions inside the `Names` class.
+
+- `test_get_name_string_raises_exceptions(used_names)`: Test if
+  `Names().get_name_string()` raises expected exceptions inside the `Names`
+  class. The `get_name_string()` method accepts only non-negative integers.
+
+- `test_query(used_names, new_names, expected_name_id, name_string)`: Test if
+  `Names().query()` returns the expected ID of a name inside the `Names`
+  class. It takes as an argument a name string and should return the ID of the
+  name inside `Names().name_string_list`.
+
+- `test_lookup(used_names, new_names, expected_name_id, name_string_list)`: 
+   Test if `Names().lookup()` returns the expected ID of a name inside the
+   `Names` class. `Names().lookup()` gets a list of non-negative indices and
+   returns a list of name strings.
+
+- `test_get_name_string(used_names, new_names, name_id, expected_string)`: Test
+  if `Names().get_name_string()` returns the expected name inside
+  the `Names` class. Each name should be stored in the list
+  `Names().name_string_list`.
+"""
 
 
 @pytest.fixture
 def new_device():
     """Returns a new Device instance. This will be used
-    as a shorthand for instanciating Device() when defining
+    as a shorthand for instantiating Device() when defining
     other functions.
     """
     return Device()
@@ -16,7 +66,7 @@ def new_device():
 @pytest.fixture
 def new_names():
     """Return a new Names() instance. This will be used
-    as a shorthand for instanciating Names()
+    as a shorthand for instantiating Names()
     when defining other functions.
     """
     return Names()
@@ -24,8 +74,8 @@ def new_names():
 
 @pytest.fixture
 def name_string_list():
-    """Returns a list of peoples names. This will be used for
-    prepopulating Names().names_list with these names.
+    """Returns a list of names. This will be used for
+    prepopulating Names().names_list with these test names.
     """
     return ["Alice", "Bob", "Charlie"]
 
@@ -40,21 +90,25 @@ def used_names(name_string_list):
     return my_name
 
 
-def test_query_raises_exception(used_names):
+def test_query_exceptions(used_names):
     """Test if Names.query() raises expected exceptions inside the
     Names class. Names.query() can only accept strings.
     """
-    with pytest.raises(TypeError):
-        used_names.query(2.5)
+    # Check with int
     with pytest.raises(TypeError):
         used_names.query(2)
+    # Check with float
+    with pytest.raises(TypeError):
+        used_names.query(2.5)
+    # Check with bool
     with pytest.raises(TypeError):
         used_names.query(True)
+    # Check with a None
     with pytest.raises(TypeError):
         used_names.query(None)
 
 
-def test_lookup_raises_exception(used_names):
+def test_lookup_exceptions(used_names):
     """Test if Names().lookup() raises expected exceptions inside the
     Names class.
     """
@@ -96,12 +150,14 @@ def test_query(used_names, new_names, expected_name_id, name_string):
     the id of the name inside of Names().name_string_list
     """
 
-    # used_names an instance of Names class and it is prepopulated
-    # with the names ["Alice", "Bob", "Charlie"]
+    """ used_names is an instance of Names class and it is prepopulated
+    with the names ["Alice", "Bob", "Charlie"] """
+
     assert used_names.query(name_string) == expected_name_id
 
-    # new_names an instance of Names class and it has no stored
-    # names in the name_string_list
+    """ new_names an instance of Names class and it has no stored
+    names in the name_string_list """
+
     assert new_names.query(name_string) is None
 
 
@@ -127,7 +183,16 @@ def test_lookup(used_names, new_names, expected_name_id, name_string_list):
     # names in the name_string_list,
     # so new_names.lookup(name_string_list) should retuns indexies
     assert new_names.lookup(name_string_list) == \
-           list(range(len(name_string_list)))
+        list(range(len(name_string_list)))
+
+
+def test_lookup_append(used_names):
+    """Checks that lookup appends a name if not already
+        present in names_list """
+    current_length = len(used_names.names_list)
+    used_names.lookup(['Dave'])
+    updated_length = len(used_names.names_list)
+    assert updated_length == current_length + 1
 
 
 @pytest.mark.parametrize("name_id, expected_string", [

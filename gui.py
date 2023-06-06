@@ -506,7 +506,7 @@ class Gui(wx.Frame):
         device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
     def generate_monitored_list(self, devices, names):
-        """Generates a list of monitored devices."""
+        """Generates and returns a list of monitored devices."""
 
         monitored_list = []
         for item in self.monitors.monitors_dictionary.items():
@@ -514,7 +514,7 @@ class Gui(wx.Frame):
         return monitored_list
 
     def gather_signal_data(self, names, cycle_count):
-        """Runs the circuit and record signals for monitored devices."""
+        """Run the circuit, then record and return signals for monitored devices."""
 
         signals_list = []
         self.run(cycle_count)
@@ -534,7 +534,7 @@ class Gui(wx.Frame):
                 self.monitors.record_signals()
 
     def device_number_to_string(self, device_number):
-        """Converts a device number to the corresponding name."""
+        """Returns a string containing the name of the device with the given number."""
 
         # TODO What the fuck is this used for
         if device_number == 2:

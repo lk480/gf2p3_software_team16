@@ -1,0 +1,1 @@
+ DEVICE: G1, NAND, 12;

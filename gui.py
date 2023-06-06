@@ -11,7 +11,6 @@ Gui - configures the main window and all the widgets.
 import wx
 import wx.glcanvas as wxcanvas
 from OpenGL import GL, GLUT
-import gettext
 
 
 class MyGLCanvas(wxcanvas.GLCanvas):
@@ -270,12 +269,11 @@ class Gui(wx.Frame):
 
         super().__init__(parent=None, title=title, size=(800, 600))
 
-        translation = gettext.translation(
-            domain="messages", localedir="localisation/es_es", languages=["es"]
-        )
+        self.locale = wx.Locale(wx.LANGUAGE_SPANISH)
+        self.locale.AddCatalogLookupPathPrefix("spanish/es")
+        self.locale.AddCatalog("messages")
 
-        translation.install()
-        _ = translation.gettext
+        self._ = wx.GetTranslation
 
         # Assign variable to the other modules
         self.names = names
@@ -304,25 +302,25 @@ class Gui(wx.Frame):
         helpMenu = wx.Menu()
 
         # Add items to the file and help menus
-        fileMenu.Append(wx.ID_ABOUT, _("&About"))
-        fileMenu.Append(wx.ID_FILE1, _("&Import"))
-        fileMenu.Append(wx.ID_FILE2, _("&Export"))
-        helpMenu.Append(wx.ID_HELP, _("&Tutorial"))
-        fileMenu.Append(wx.ID_EXIT, _("&Exit"))
+        fileMenu.Append(wx.ID_ABOUT, self._("&About"))
+        fileMenu.Append(wx.ID_FILE1, self._("&Import"))
+        fileMenu.Append(wx.ID_FILE2, self._("&Export"))
+        helpMenu.Append(wx.ID_HELP, self._("&Tutorial"))
+        fileMenu.Append(wx.ID_EXIT, self._("&Exit"))
 
         # Default to dark mode
         self.dark_mode_flag = True
 
         """Add the file and help menus to the menu bar and set bar"""
-        menuBar.Append(fileMenu, _("&File"))
-        menuBar.Append(helpMenu, _("&Help"))
+        menuBar.Append(fileMenu, self._("&File"))
+        menuBar.Append(helpMenu, self._("&Help"))
         self.SetMenuBar(menuBar)
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
 
         # TODO Set up help menu text
-        self.HELP_TEXT = _(
+        self.HELP_TEXT = self._(
             """Select the number of Cycles at the top of the control panel on the right,
          and click the button labelled "Run" to simulate the circuit. You can use the button labelled
          "Continue" to continue simulating the circuit for another N cycles (N is the number in the Cycles box).\n \n """
@@ -387,13 +385,13 @@ class Gui(wx.Frame):
     def set_up_widgets(self):
         """Sets up the widgets for the GUI."""
 
-        self.cycles_text = wx.StaticText(self, wx.ID_ANY, _("Cycles"))
+        self.cycles_text = wx.StaticText(self, wx.ID_ANY, self._("Cycles"))
         self.cycles_spin = wx.SpinCtrl(
             self, wx.ID_ANY, "18", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
         )
-        self.run_button = wx.Button(self, wx.ID_ANY, _("Run"))
-        self.continue_button = wx.Button(self, wx.ID_ANY, _("Continue"))
-        self.dark_mode_button = wx.Button(self, wx.ID_ANY, _("Light mode"))
+        self.run_button = wx.Button(self, wx.ID_ANY, self._("Run"))
+        self.continue_button = wx.Button(self, wx.ID_ANY, self._("Continue"))
+        self.dark_mode_button = wx.Button(self, wx.ID_ANY, self._("Light mode"))
         self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
 
     def set_up_devices(self, devices, names):
@@ -438,7 +436,7 @@ class Gui(wx.Frame):
         """Adds a monitor and on/off checkbox for a switch device to the device scroll panel."""
 
         # Add monitor checkbox
-        device_checkbox = wx.CheckBox(self.device_scroll, label=_("Monitor"))
+        device_checkbox = wx.CheckBox(self.device_scroll, label=self._("Monitor"))
 
         # If monitored in file, initialise as on
         if device[0] in self.monitored_list:
@@ -452,7 +450,7 @@ class Gui(wx.Frame):
         device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
         # Add on/off checkbox
-        device_checkbox = wx.CheckBox(self.device_scroll, label=_("On"))
+        device_checkbox = wx.CheckBox(self.device_scroll, label=self._("On"))
 
         # If on in file, initialise as on
         if device[2] == 1:
@@ -469,7 +467,7 @@ class Gui(wx.Frame):
         """Adds a monitor and spin box for a clock device to the device scroll panel."""
 
         # Add monitor checkbox
-        device_checkbox = wx.CheckBox(self.device_scroll, label=_("Monitor"))
+        device_checkbox = wx.CheckBox(self.device_scroll, label=self._("Monitor"))
 
         # If monitored in file, initialise as on
         if device[0] in self.monitored_list:
@@ -493,7 +491,7 @@ class Gui(wx.Frame):
         """Adds a monitor checkbox for a non-switch/clock device to the device scroll panel."""
 
         # Add monitor checkbox
-        device_checkbox = wx.CheckBox(self.device_scroll, label=_("Monitor"))
+        device_checkbox = wx.CheckBox(self.device_scroll, label=self._("Monitor"))
 
         # If monitored in file, initialise as on
         if device[0] in self.monitored_list:
@@ -539,13 +537,13 @@ class Gui(wx.Frame):
 
         # TODO What the fuck is this used for
         if device_number == 2:
-            return _("NAND")
+            return self._("NAND")
         elif device_number == 5:
-            return _("CLOCK")
+            return self._("CLOCK")
         elif device_number == 6:
-            return _("SWITCH")
+            return self._("SWITCH")
         elif device_number == 7:
-            return _("DTYPE")
+            return self._("DTYPE")
         else:
             return str(device_number)
 
@@ -597,10 +595,10 @@ class Gui(wx.Frame):
         # About dialog
         if Id == wx.ID_ABOUT:
             wx.MessageBox(
-                _(
+                self._(
                     "Logic Simulator\nCreated by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n2023\nBased on skeleton code by Mojisola Agboola 2017"
                 ),
-                _("About Logsim"),
+                self._("About Logsim"),
                 wx.ICON_INFORMATION | wx.OK,
             )
 
@@ -608,21 +606,25 @@ class Gui(wx.Frame):
         if Id == wx.ID_HELP:
             wx.MessageBox(
                 self.HELP_TEXT,
-                _("Additional information"),
+                self._("Additional information"),
                 wx.ICON_INFORMATION | wx.OK,
             )
 
         # Import and export files
         if Id == wx.ID_FILE1:
-            dialog = wx.TextEntryDialog(self, _("Enter file name"), _("Import"), "")
+            dialog = wx.TextEntryDialog(
+                self, self._("Enter file name"), self._("Import"), ""
+            )
             if dialog.ShowModal() == wx.ID_OK:
                 file_name = dialog.GetValue()
                 print("File name:", file_name)
         if Id == wx.ID_FILE2:
-            dialog = wx.TextEntryDialog(self, _("Enter file name"), _("Export"), "")
+            dialog = wx.TextEntryDialog(
+                self, self._("Enter file name"), self._("Export"), ""
+            )
             if dialog.ShowModal() == wx.ID_OK:
                 file_name = dialog.GetValue()
-                print(_("File name:"), file_name)
+                print(self._("File name:"), file_name)
 
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the number of cycles value."""
@@ -660,14 +662,14 @@ class Gui(wx.Frame):
             self.dark_mode_flag = False
             self.canvas.set_light_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_WHITE
-            self.dark_mode_button.SetLabel("Dark Mode")
+            self.dark_mode_button.SetLabel(self._("Dark Mode"))
 
         # Turn dark mode on
         else:
             self.dark_mode_flag = True
             self.canvas.set_dark_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_BLACK
-            self.dark_mode_button.SetLabel("Light Mode")
+            self.dark_mode_button.SetLabel(self._("Light Mode"))
 
         # Render the canvas
         self.canvas.render(None)

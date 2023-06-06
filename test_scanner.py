@@ -73,6 +73,32 @@ def file_path_scan_device():
 
 
 @pytest.fixture
+def file_path_scan_connections():
+    """ Returns the absolute path of scan_device.txt. We will use
+   this file as a test to see if the scanner works correctly.
+   scan_device.txt contains a single line of our EBNF outlining
+   a connection.
+   CONNECT: CONNECT SW1 = G1.I1, SW2 = G1.I2;
+   """
+    path = Path.cwd() / "definition_files"/"scanner_test_files" \
+        / "scan_connections.txt"
+    return path
+
+
+@pytest.fixture
+def file_path_sequence():
+    """ Returns the absolute path of scan_device.txt. We will use
+   this file as a test to see if the scanner works correctly.
+   scan_device.txt contains a single line of our EBNF outlining device
+   creation:
+
+   """
+    path = Path.cwd() / "definition_files"/"scanner_test_files" \
+        / "scan_sequence.txt"
+    return path
+
+
+@pytest.fixture
 def device_scanner(file_path_scan_device, new_names):
     """Returns a new Scanner() instance which will
     scan the scan_device.txt file. This is later used in tests
@@ -86,6 +112,11 @@ def sequence_scanner(file_path_sequence, new_names):
     character_sequence.txt file. This will be used to test the
     functionality of Scanner() class methods"""
     return Scanner(file_path_sequence, new_names)
+
+
+@pytest.fixture
+def connections_scanner(file_path_scan_connections, new_names):
+    return Scanner(file_path_scan_connections, new_names)
 
 
 def test_init_raises_exception(new_names, file_path_scan_device):
@@ -192,20 +223,54 @@ def test_get_symbol(device_scanner):
     assert symbol.type == device_scanner.EOF
 
 
-def test_skip_space(device_scanner):
+def test_advance(sequence_scanner):
+    """ Test the advance functionality of the scanner class """
+    # Advance to first symbol in file, which HASH
+    sequence_scanner.advance()
+    assert sequence_scanner.current_character == '#'
+
+
+def test_skip_space(sequence_scanner):
     """Test the skip whitespace functionality of scanner class"""
-    device_scanner.skip_space()
-    print(device_scanner.current_character)
-    assert device_scanner.current_character == 'D'
+    # Begin reading file
+    sequence_scanner.advance()
+    # Advance past first symbol (#)
+    sequence_scanner.advance()
+    # Skip all whitespaces until letter 't'
+    sequence_scanner.skip_space()
+    assert sequence_scanner.current_character == 't'
 
 
-def test_advance(device_scanner):
-    """ Test   """
+def test_get_name_get_num(sequence_scanner):
+    """Test the get name functionality of the scanner class """
+    # Begin reading file
+    sequence_scanner.advance()
+    # Advance past first symbol (#)
+    sequence_scanner.advance()
+    # Skips all the whitespace at beginning of sequence
+    sequence_scanner.skip_space()
+    # Call get_name()
+    assert sequence_scanner.get_name() == 'test5'
+    sequence_scanner.advance()
+    # Call get_number
+    assert sequence_scanner.get_number() == '12'
 
 
-def test_get_number():
-    pass
-
-
-def test_get_name():
-    pass
+def test_connection_recognition(connections_scanner):
+    # Begin reading file
+    connections_scanner.advance()
+    # Check the input device name is read
+    assert connections_scanner.get_name() == 'G1'
+    # Advance to the next non-whitespace character
+    connections_scanner.skip_space()
+    assert connections_scanner.current_character == '='
+    # Advance to the whitespace
+    connections_scanner.advance()
+    # Advance to the next non-whitespace character
+    connections_scanner.skip_space()
+    # Check the output device name is read
+    assert connections_scanner.get_name() == 'G2'
+    # Check the '.I#' is read denoting input port
+    assert connections_scanner.current_character == '.'
+    connections_scanner.advance()
+    assert connections_scanner.get_name() == 'I1'

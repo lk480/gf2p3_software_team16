@@ -78,6 +78,8 @@ def new_monitor(new_names, new_device, new_network):
     (Path.cwd() / "definition_files" /
      "demonstration_files" / "recursive.txt", True),
     (Path.cwd() / "definition_files" /
+     "demonstration_files" / "shift_register.txt", True),
+    (Path.cwd() / "definition_files" /
      "demonstration_files" / "sr_bistable.txt", True)
 ])
 def test_parser(new_names, new_device,
@@ -126,7 +128,7 @@ def test_parser(new_names, new_device,
 
     # TODO: Make the below test cases work
 
-    #(Path.cwd() / "definition_files" / "semantic_error_files" /
+    # (Path.cwd() / "definition_files" / "semantic_error_files" /
     # "monitor_input.txt", error.InputPinNumberError)
 
     # (Path.cwd() / "definition_files" / "semantic_error_files" /

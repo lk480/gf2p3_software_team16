@@ -76,6 +76,7 @@ def main(arg_list):
             # Initialise an instance of the gui.Gui() class
             app = wx.App()
             app.SetCLocale()
+            wx.Locale.AddCatalog("es_es/es.po/LC_messages/messages.po")
             gui = Gui("Logic Simulator", path, names, devices, network, monitors)
             gui.Show(True)
             app.MainLoop()

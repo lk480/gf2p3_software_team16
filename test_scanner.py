@@ -7,58 +7,47 @@ from scanner import Scanner
 
 @pytest.fixture
 def new_names():
-    """Return a names instance."""
+    """Return a new Names instance."""
     return Names()
 
 
 @pytest.fixture
 def new_symbol():
-    """Returns a new symbol instance."""
+    """Returns a new Symbol instance."""
     return Symbol()
 
 
 @pytest.fixture
-def file_path_test_circuit():
-    """Returns the absolute path of test_circuit.txt."""
-    return Path.cwd() / "text files for pytest" / "scanner tests" / "type_nand.txt"
+def file_path():
+    """Returns the absolute path of type_nand.txt."""
+    path = Path.cwd() / "definition_files" / "scanner_test_files" \
+        / "type_nand.txt"
+    return path
 
 
 @pytest.fixture
-def file_path_test_connection():
-    """Returns the absolute path of test_connection.txt."""
-    return Path.cwd() / "text files for pytest" / "scanner tests" / "connection.txt"
-
-
-@pytest.fixture
-def new_scanner(file_path_test_circuit, new_names):
+def new_scanner(file_path, new_names):
     """Returns a new scanner instance."""
-    return Scanner(file_path_test_circuit, new_names)
+    return Scanner(file_path, new_names)
 
 
-#@pytest.fixture
-#def next_symbol(new_scanner):
-#    """Returns the next symbol in the scanner."""
-#    return new_scanner.get_symbol()
-
-
-def test_init_raises_exception(new_names, file_path_test_circuit):
+def test_init_raises_exception(new_names, file_path):
     """Tests if when supplied a non existing file path
     the __init__ function raises an IOError.
     """
     with pytest.raises(FileNotFoundError):
         Scanner(Path('not existing file.bla'), new_names)
 
-    # with pytest.raises(TypeError):
-    #    Scanner(file_path_test_circuit, 'Not a instance of class names')
-
 
 def test_scanner_init(new_scanner, new_names):
-    """Tests if the __init__ of scanner contains correct arguments."""
+    """Tests if the __init__() of Scanner() class instance
+    contains all the correct arguments.
+    """
     assert isinstance(new_scanner, Scanner)
     assert new_scanner.current_character == ' '
     assert new_scanner.keywords_list == ['DEVICE', 'CONNECT', 'MONITOR',
                                          'TYPE', 'STATE', 'INPUTS', 'NONE']
-    
+
     assert new_scanner.symbol_type_list == range(12)
     assert new_scanner.COMMA in new_scanner.symbol_type_list
     assert new_scanner.EQUALS in new_scanner.symbol_type_list
@@ -82,24 +71,27 @@ def test_scanner_init(new_scanner, new_names):
 
 
 def test_get_symbol(new_scanner):
-    """Tests the get_symbol methods in Scanner."""
-
+    """Tests the Scanner().get_symbol() method. The method
+    Translates the next sequence of characters into a symbol, which is an
+    instance of the Symbol() class.
+    """
+    # The first symbol should be "TYPE" from type_nand.txt
     symbol = new_scanner.get_symbol()
-    # The symbol should be "TYPE" from test_circuit.txt
     assert symbol.type == new_scanner.KEYWORD
     assert symbol.id == new_scanner.TYPE_ID
-    # The next symbol shoud be "(" in test_circuit.txt
+
+    # The next symbol shoud be "(" in type_nand.txt
     symbol = new_scanner.get_symbol()
     assert symbol.type == new_scanner.OPENBRACKET
     # "(" shoudln't have id
     assert symbol.id is None
-    # The next symbol should be "NAND" in test_circuit.txt
+
+    # The next symbol should be "NAND" in type_nand.txt
     symbol = new_scanner.get_symbol()
-    print(f'NAND symbol id: {symbol.id}, symbol type {symbol.type}')
-    
+
     # TODO(optional): Figure out what should the bellow assert give
-    # assert symbol.type == 8
-    # assert symbol.id == new_scanner.NAND_ID
+    assert symbol.type == 8
+    assert symbol.id == new_scanner.names.NAND_ID
     # The next symbol should be ")" in test_circuit.txt
     symbol = new_scanner.get_symbol()
     assert symbol.type == new_scanner.CLOSEDBRACKET

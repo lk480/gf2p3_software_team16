@@ -77,20 +77,21 @@ class PortReferenceError(MyException):
     """Error is raised when referenced port does not exist."""
 
 
-class InvalidQualifierError(MyException):
-    """Error is raised when device property/qualifier is incorrectly defined."""
+class InvalidPropertyError(MyException):
+    """Error is raised when device property is incorrectly defined."""
 
 
 class MonitorError(MyException):
-    """Error raised when system input cannot be monitored or no monitor is declared."""
+    """Error raised when system input cannot be monitored or no monitor is
+    declared."""
 
 
 class DevicePresentError(MyException):
     """Error raised when device already exists."""
 
 
-class NoQualifierError(MyException):
-    """Error raised when a qualifier is missing e,g. specifiying a GATE
+class NoPropertyError(MyException):
+    """Error raised when a property is missing e,g. specifiying a GATE
     without providing the number of inputs.
     """
 
@@ -100,8 +101,8 @@ class DeviceDoesNotExist(MyException):
     A device can be a GATE, BISTABLE or AUXILLARY"""
 
 
-class QualifierPresentError(MyException):
-    """Error is raised when a XOR or DTYPE is specified with a qualifier."""
+class PropertyPresentError(MyException):
+    """Error is raised when a XOR or DTYPE is specified with a property."""
 
 
 class MultipleInputError(MyException):
@@ -137,7 +138,7 @@ class ErrorHandler:
             input_file = open(path, "r")
         except IOError:
             raise FileNotFoundError(
-                "Cannot find file or read data in print_all_errors in error.py."
+                "Cannot find file or read data in print_all_errors in error.py"
             )
 
         lines = [line.replace("\n", " ")
@@ -146,7 +147,8 @@ class ErrorHandler:
 
         for i, error in enumerate(self.error_list):
             print(
-                f"Error number {i} in ErrorHandler().error_list is: {error.get_error_name}\n",
+                f"Error number {i} in ErrorHandler().error_list is: \n",
+                f"{error.get_error_name}\n",
                 f"{lines[error.error_row]}\n",
                 f"{' ' * error.error_col}^\n"
             )
@@ -160,13 +162,14 @@ class ErrorHandler:
             input_file = open(path, "r")
         except IOError:
             raise FileNotFoundError(
-                "Cannot find file or read data in print_all_errors in error.py."
+                "Cannot find file or read data in print_all_errors in error.py"
             )
 
         lines = [line.replace("\n", " ")
                  for line in input_file.readlines()] + [""]
 
-        print(f"Error no. {len(self.error_list) - 1} in ErrorHandler().error_list is: {self.error_list[-1].get_error_name}\n",
+        print(f"Error no. {len(self.error_list) - 1}:",
+              f"{self.error_list[-1].get_error_name}\n",
               f"{lines[self.error_list[-1].error_row]}\n",
               f"{' ' * self.error_list[-1].error_col}^\n"
               )

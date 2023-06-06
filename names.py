@@ -63,7 +63,7 @@ class Names:
         name_string (str): The name specified in the definition file.
 
     Raises:
-        TypeError: If the type of name_string is not a string.
+        TypeError: Type of name_string is not a string.
 
     Returns:
         int or None: The name ID for the provided name_string,
@@ -88,7 +88,7 @@ class Names:
             name_string_list (list): list of name_strings
 
         Raises:
-            TypeError: If type of name_string_list is not a list
+            TypeError: Type of name_string_list is not a list
 
         Returns:
             list: list of name_IDs corresponding to each name_string provided 
@@ -119,8 +119,8 @@ class Names:
             name_id (int): name_ID corresponding to a given name_string
 
         Raises:
-            TypeError: If type of name_ID is not int
-            ValueError: If name_id is a non-negative integer
+            TypeError: Type of name_ID is not int
+            ValueError: name_id is a non-negative integer
 
         Returns:
             str or None: The name_string for the provided name ID,

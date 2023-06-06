@@ -137,7 +137,8 @@ class ErrorHandler:
             input_file = open(path, "r")
         except IOError:
             raise FileNotFoundError(
-                "Cannot find file or read data in print_all_errors in error.py."
+                "Cannot find file or read data in \
+                print_all_errors in error.py."
             )
 
         lines = [line.replace("\n", " ")
@@ -146,7 +147,8 @@ class ErrorHandler:
 
         for i, error in enumerate(self.error_list):
             print(
-                f"Error number {i} in ErrorHandler().error_list is: {error.get_error_name}\n",
+                f"Error number {i} in ErrorHandler().error_list is: \
+                {error.get_error_name}\n",
                 f"{lines[error.error_row]}\n",
                 f"{' ' * error.error_col}^\n"
             )
@@ -166,7 +168,9 @@ class ErrorHandler:
         lines = [line.replace("\n", " ")
                  for line in input_file.readlines()] + [""]
 
-        print(f"Error no. {len(self.error_list) - 1} in ErrorHandler().error_list is: {self.error_list[-1].get_error_name}\n",
+        print(f"Error no. {len(self.error_list) - 1} in \
+              ErrorHandler().error_list is: \
+              {self.error_list[-1].get_error_name}\n",
               f"{lines[self.error_list[-1].error_row]}\n",
               f"{' ' * self.error_list[-1].error_col}^\n"
               )

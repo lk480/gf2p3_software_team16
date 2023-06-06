@@ -1,0 +1,131 @@
+# Translations template for PROJECT.
+# Copyright (C) 2023 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2023.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2023-06-06 10:20+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.12.1\n"
+
+#: gui.py:300
+msgid "&About"
+msgstr ""
+
+#: gui.py:301
+msgid "&Import"
+msgstr ""
+
+#: gui.py:302
+msgid "&Export"
+msgstr ""
+
+#: gui.py:303
+msgid "&Tutorial"
+msgstr ""
+
+#: gui.py:304
+msgid "&Exit"
+msgstr ""
+
+#: gui.py:310
+msgid "&File"
+msgstr ""
+
+#: gui.py:311
+msgid "&Help"
+msgstr ""
+
+#: gui.py:318
+msgid ""
+"Select the number of Cycles at the top of the control panel on the right,"
+"\n"
+"         and click the button labelled \"Run\" to simulate the circuit. "
+"You can use the button labelled\n"
+"         \"Continue\" to continue simulating the circuit for another N "
+"cycles (N is the number in the Cycles box).\n"
+" \n"
+" "
+msgstr ""
+
+#: gui.py:382
+msgid "Cycles"
+msgstr ""
+
+#: gui.py:386
+msgid "Run"
+msgstr ""
+
+#: gui.py:387
+msgid "Continue"
+msgstr ""
+
+#: gui.py:388
+msgid "Light mode"
+msgstr ""
+
+#: gui.py:433 gui.py:464 gui.py:488
+msgid "Monitor"
+msgstr ""
+
+#: gui.py:447
+msgid "On"
+msgstr ""
+
+#: gui.py:534
+msgid "NAND"
+msgstr ""
+
+#: gui.py:536
+msgid "CLOCK"
+msgstr ""
+
+#: gui.py:538
+msgid "SWITCH"
+msgstr ""
+
+#: gui.py:540
+msgid "DTYPE"
+msgstr ""
+
+#: gui.py:592
+msgid ""
+"Logic Simulator\n"
+"Created by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n"
+"2023\n"
+"Based on skeleton code by Mojisola Agboola 2017"
+msgstr ""
+
+#: gui.py:593
+msgid "About Logsim"
+msgstr ""
+
+#: gui.py:601
+msgid "Additional information"
+msgstr ""
+
+#: gui.py:607 gui.py:612
+msgid "Enter file name"
+msgstr ""
+
+#: gui.py:607
+msgid "Import"
+msgstr ""
+
+#: gui.py:612
+msgid "Export"
+msgstr ""
+
+#: gui.py:615
+msgid "File name:"
+msgstr ""
+

@@ -80,7 +80,11 @@ def new_monitor(new_names, new_device, new_network):
     (Path.cwd() / "definition_files" /
      "demonstration_files" / "shift_register.txt", True),
     (Path.cwd() / "definition_files" /
-     "demonstration_files" / "sr_bistable.txt", True)
+     "demonstration_files" / "sr_bistable.txt", True),
+    (Path.cwd() / "definition_files" /
+     "demonstration_files" / "mixed_sr_bistable.txt", True),
+    (Path.cwd() / "definition_files" /
+     "demonstration_files" / "mixed_register.txt", True)
 ])
 def test_parser(new_names, new_device,
                 new_network, new_monitor, file_path, parse_bool_value):

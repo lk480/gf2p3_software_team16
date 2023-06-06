@@ -268,11 +268,17 @@ class Gui(wx.Frame):
         """Initialise widgets, layout and variables."""
 
         super().__init__(parent=None, title=title, size=(800, 600))
-
-        self.locale = wx.Locale(wx.LANGUAGE_SPANISH)
-        self.locale.AddCatalogLookupPathPrefix("languages/spanish")
-        print("AAAAAA")
-        print(self.locale.AddCatalog("messages"))
+        self.lang = "serbian"
+        if self.lang == "serbian":
+            self.locale = wx.Locale(wx.LANGUAGE_FRENCH_FRANCE)
+            self.locale.AddCatalogLookupPathPrefix("languages/serbian")
+            print(self.locale.AddCatalog("messages"))
+        elif self.lang == "spanish":
+            self.locale = wx.Locale(wx.LANGUAGE_SPANISH)
+            self.locale.AddCatalogLookupPathPrefix("languages/spanish")
+            print(self.locale.AddCatalog("messages"))
+        else:
+            self.locale = wx.Locale(wx.LANGUAGE_ENGLISH)
 
         self._ = wx.GetTranslation
 
@@ -427,7 +433,6 @@ class Gui(wx.Frame):
 
         elif device[1] == self._("CLOCK"):
             self.add_clock_scroll_widget(device_entry, device)
-
         else:
             self.add_other_scroll_widget(device_entry, device)
 

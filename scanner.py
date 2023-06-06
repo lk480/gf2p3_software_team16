@@ -69,6 +69,8 @@ class Scanner:
             path (str): Path to the circuit definition file
             names (names.Names): Instance of the names.Names() class
 
+        Returns:
+            None
         Raises:
             FileNotFoundError: If the specified file cannot be found or read
 

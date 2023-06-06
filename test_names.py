@@ -6,26 +6,34 @@ from devices import Device
 
 @pytest.fixture
 def new_device():
-    """Returns a new Device instace."""
+    """Returns a new Device instance. This will be used
+    as a shorthand for instanciating Device() when defining
+    other functions.
+    """
     return Device()
 
 
 @pytest.fixture
 def new_names():
-    """Return a new Names() instance."""
+    """Return a new Names() instance. This will be used
+    as a shorthand for instanciating Names()
+    when defining other functions.
+    """
     return Names()
 
 
 @pytest.fixture
 def name_string_list():
-    """Return a list of peoples names."""
+    """Returns a list of peoples names. This will be used for
+    prepopulating Names().names_list with these names.
+    """
     return ["Alice", "Bob", "Charlie"]
 
 
 @pytest.fixture
 def used_names(name_string_list):
-    """Return a Names() instance with three names added to the
-    names list.
+    """Return a Names() instance with three names added to
+    names list. So now used_names.names_list has three names.
     """
     my_name = Names()
     my_name.lookup(name_string_list)
@@ -33,13 +41,17 @@ def used_names(name_string_list):
 
 
 def test_query_raises_exception(used_names):
-    """Test if Names.query() raises expected exceptions inside Names class."""
+    """Test if Names.query() raises expected exceptions inside the
+    Names class. Names.query() can only accept strings.
+    """
     with pytest.raises(TypeError):
         used_names.query(2.5)
     with pytest.raises(TypeError):
         used_names.query(2)
     with pytest.raises(TypeError):
         used_names.query(True)
+    with pytest.raises(TypeError):
+        used_names.query(None)
 
 
 def test_lookup_raises_exception(used_names):
@@ -52,6 +64,8 @@ def test_lookup_raises_exception(used_names):
         used_names.lookup(2)
     with pytest.raises(TypeError):
         used_names.lookup(True)
+    with pytest.raises(TypeError):
+        used_names.lookup(None)
 
 
 def test_get_name_string_raises_exceptions(used_names):
@@ -65,6 +79,8 @@ def test_get_name_string_raises_exceptions(used_names):
         used_names.get_name_string("hello")
     with pytest.raises(ValueError):
         used_names.get_name_string(-1)
+    with pytest.raises(TypeError):
+        used_names.get_name_string(None)
 
 
 @pytest.mark.parametrize("name_string, expected_name_id", [
@@ -100,7 +116,7 @@ def test_lookup(used_names, new_names, expected_name_id, name_string_list):
     # used_names an instance of Names class and it is prepopulated
     # with the names ["Alice", "Bob", "Charlie"]
     assert used_names.lookup(name_string_list) == expected_name_id
-    
+
     # new_names an instance of Names class and it has no stored
     # names in the name_string_list
     assert new_names.lookup(name_string_list) == \
@@ -120,7 +136,7 @@ def test_get_name_string(used_names, new_names, name_id, expected_string):
     # used_names an instance of Names class and it is prepopulated
     # with the names ["Alice", "Bob", "Charlie"]
     assert used_names.get_name_string(name_id) == expected_string
-    
+
     # new_names an instance of Names class and it has no stored
     # names in the name_string_list
     assert new_names.get_name_string(name_id) is None

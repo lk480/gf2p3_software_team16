@@ -7,19 +7,29 @@ from scanner import Scanner
 
 @pytest.fixture
 def new_names():
-    """Return a new Names instance."""
+    """Return a new Names() instance. This will be used
+    as a shorthand for instanciating Names()
+    when defining other functions.
+    """
     return Names()
 
 
 @pytest.fixture
 def new_symbol():
-    """Returns a new Symbol instance."""
+    """Return a new Symbol() instance. This will be used
+    as a shorthand for instanciating Symbol()
+    when defining other functions.
+    """
     return Symbol()
 
 
 @pytest.fixture
 def file_path():
-    """Returns the absolute path of type_nand.txt."""
+    """Returns the absolute path of type_nand.txt. We will use
+    this file as a test to see if the scanner works correctly.
+    type_nand.txt contains a single line saying:
+    TYPE(NAND)
+    """
     path = Path.cwd() / "definition_files" / "scanner_test_files" \
         / "type_nand.txt"
     return path
@@ -27,21 +37,24 @@ def file_path():
 
 @pytest.fixture
 def new_scanner(file_path, new_names):
-    """Returns a new scanner instance."""
+    """Returns a new Scanner() instance which will be able to
+    scan the type_nand.txt file. This is later used in tests
+    to see if the scanner works correctly."""
     return Scanner(file_path, new_names)
 
 
 def test_init_raises_exception(new_names, file_path):
     """Tests if when supplied a non existing file path
-    the __init__ function raises an IOError.
+    the __init__() method in Scanner() raises a "FileNotFoundError".
     """
     with pytest.raises(FileNotFoundError):
         Scanner(Path('not existing file.bla'), new_names)
 
 
 def test_scanner_init(new_scanner, new_names):
-    """Tests if the __init__() of Scanner() class instance
-    contains all the correct arguments.
+    """Tests if the __init__() method in Scanner()
+    initializes all the correct arguments such as keywords,
+    symbols and devices. To see how __init()__ works go to scanner.py.
     """
     assert isinstance(new_scanner, Scanner)
     assert new_scanner.current_character == ' '
@@ -72,8 +85,8 @@ def test_scanner_init(new_scanner, new_names):
 
 def test_get_symbol(new_scanner):
     """Tests the Scanner().get_symbol() method. The method
-    Translates the next sequence of characters into a symbol, which is an
-    instance of the Symbol() class.
+    translates the next sequence of characters into a symbol, 
+    which is an instance of the class Symbol().
     """
     # The first symbol should be "TYPE" from type_nand.txt
     symbol = new_scanner.get_symbol()
@@ -87,14 +100,16 @@ def test_get_symbol(new_scanner):
     assert symbol.id is None
 
     # The next symbol should be "NAND" in type_nand.txt
+    # the symbol type of a NAND is 8 and the id should be 7
     symbol = new_scanner.get_symbol()
-
-    # TODO(optional): Figure out what should the bellow assert give
     assert symbol.type == 8
-    assert symbol.id == new_scanner.names.NAND_ID
+    assert symbol.id == new_scanner.names.lookup(["NAND"])[0]
+
     # The next symbol should be ")" in test_circuit.txt
     symbol = new_scanner.get_symbol()
     assert symbol.type == new_scanner.CLOSEDBRACKET
-    # The next symbol should be nothing, i.e. "", so EOF is reached
+
+    # The next symbol should be nothing, i.e. ""
+    # so check if EOF is reached
     symbol = new_scanner.get_symbol()
     assert symbol.type == new_scanner.EOF

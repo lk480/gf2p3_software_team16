@@ -92,8 +92,10 @@ def test_get_name_string_raises_exceptions(used_names):
 ])
 def test_query(used_names, new_names, expected_name_id, name_string):
     """Test if Names().query() returns the expected ID of a person inside
-    the Names class.
+    the Names class. It takes as argument a name string and should return
+    the id of the name inside of Names().name_string_list
     """
+
     # used_names an instance of Names class and it is prepopulated
     # with the names ["Alice", "Bob", "Charlie"]
     assert used_names.query(name_string) == expected_name_id
@@ -107,18 +109,23 @@ def test_query(used_names, new_names, expected_name_id, name_string):
     ([0, 1, 2, 3], ["Alice", "Bob", "Charlie", "Dave"]),
     ([0, 1, 2, 3, 4], ["Oggie", "Juan", "Lolith", "Daniel", "Ankit"]),
     ([0, 1, 2], ["Zero", "Juan", "Two"]),
-    ([0, 1, 2, 3, 4, 5], ['NEW_DEVICES', 'CONNECT', 'MONITOR', 'TYPE', 'STATE', 'INPUTS'])
+    ([0, 1, 2, 3, 4, 5], ['NEW_DEVICES', 'CONNECT', 'MONITOR',
+                          'TYPE', 'STATE', 'INPUTS']),
+    ([0, 1, 2, 3], ["0", "1", "2", "3"])
 ])
 def test_lookup(used_names, new_names, expected_name_id, name_string_list):
-    """Test if Names().lookup() returns the expected ID if a name inside
-    the Names class.
+    """Test if Names().lookup() returns the expected ID of a name inside
+    the Names class. Names().lookup() gets a list of non-negative indices
+    and retuns a list of name strings.
     """
+
     # used_names an instance of Names class and it is prepopulated
     # with the names ["Alice", "Bob", "Charlie"]
     assert used_names.lookup(name_string_list) == expected_name_id
 
     # new_names an instance of Names class and it has no stored
-    # names in the name_string_list
+    # names in the name_string_list,
+    # so new_names.lookup(name_string_list) should retuns indexies
     assert new_names.lookup(name_string_list) == \
            list(range(len(name_string_list)))
 
@@ -127,12 +134,15 @@ def test_lookup(used_names, new_names, expected_name_id, name_string_list):
     (0, "Alice"),
     (1, "Bob"),
     (2, "Charlie"),
-    (3, None)
+    (3, None),
+    (4, None)
 ])
 def test_get_name_string(used_names, new_names, name_id, expected_string):
     """Test if Names().get_string() returns the expected name of a person
-    inside the Names class.
+    inside the Names class. The name of every person should be stored in the list
+    Names().name_string_list.
     """
+
     # used_names an instance of Names class and it is prepopulated
     # with the names ["Alice", "Bob", "Charlie"]
     assert used_names.get_name_string(name_id) == expected_string

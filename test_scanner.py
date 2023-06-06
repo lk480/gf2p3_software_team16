@@ -49,6 +49,8 @@ def test_init_raises_exception(new_names, file_path):
     """
     with pytest.raises(FileNotFoundError):
         Scanner(Path('not existing file.bla'), new_names)
+    with pytest.raises(FileNotFoundError):
+        Scanner(Path('not existing file.txt'), new_names)
 
 
 def test_scanner_init(new_scanner, new_names):

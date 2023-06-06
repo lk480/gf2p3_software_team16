@@ -54,79 +54,100 @@ def new_monitor(new_names, new_device, new_network):
     return Monitors(new_names, new_device, new_network)
 
 
-
 @pytest.mark.parametrize("file_path, parse_bool_value", [
-    (Path.cwd() / "text files for pytest" /
-     "valid circuits" / "make_a_gate.txt", True),
-    (Path.cwd() / "text files for pytest" /
-     "valid circuits" / "monitor_a_switch.txt", True),
-    (Path.cwd() / "text files for pytest" /
-     "valid circuits" / "comment_make_a_gate.txt", True)
+    (Path.cwd() / "definition_files" /
+     "simple_files" / "clock.txt", True),
+    (Path.cwd() / "definition_files" /
+     "simple_files" / "dtype.txt", True),
+    (Path.cwd() / "definition_files" /
+     "simple_files" / "nand.txt", True),
+    (Path.cwd() / "definition_files" /
+     "simple_files" / "nor.txt", True),
+    (Path.cwd() / "definition_files" /
+     "simple_files" / "rc.txt", True),
+    (Path.cwd() / "definition_files" /
+     "simple_files" / "siggen.txt", True),
+    (Path.cwd() / "definition_files" /
+     "simple_files" / "switch.txt", True),
+    (Path.cwd() / "definition_files" /
+     "simple_files" / "xor.txt", True),
+    (Path.cwd() / "definition_files" /
+     "demonstration_files" / "2on_2off.txt", True),
+    (Path.cwd() / "definition_files" /
+     "demonstration_files" / "PWM_clock.txt", True),
+    (Path.cwd() / "definition_files" /
+     "demonstration_files" / "recursive.txt", True),
+    (Path.cwd() / "definition_files" /
+     "demonstration_files" / "sr_bistable.txt", True)
 ])
 def test_parser(new_names, new_device,
                 new_network, new_monitor, file_path, parse_bool_value):
-    """ Test if Parser().parse_network() returns True if a correct definition
-    file is parsed. If the definition file is erronious, it raises an error.
+    """Test if Parser().parse_network() returns True if a correct definition
+    file is parsed. If the definition file is erronious, it raises an error,
+    which is explored in the next test, test_parser_raises_exceptions().
+
     Parser().parse_network() calls an instance of the Scanner() class, which
     scans the .txt file one line at a time and then parses that line and checks
     if it has any errors.
     """
-
     parser = Parser(new_names, new_device, new_network, new_monitor,
                     Scanner(file_path, new_names))
-
     assert parser.parse_network() == parse_bool_value
 
 
 @pytest.mark.parametrize("file_path, exception", [
 
-    # Syntax error checking
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
+    # Paths to definition files which contain a syntax error.
+    # We pass these paths to the Parser()
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
      "missing_colon.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
      "missing_colon2.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
      "missing_colon3.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
      "missing_colon_with_comment.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" / "missing_comma.txt",
-     error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
+     "missing_comma.txt", error.MissingPunctuationError),
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
      "missing_comma2.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
      "missing_attribute.txt", error.InputPinNumberError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
      "missing_semicolon.txt", error.MissingPunctuationError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
      "missing_device_type.txt", error.DeviceTypeError),
-    (Path.cwd() / "text files for pytest" / "syntax errors" /
-     "missing_device.txt", error.KeywordError)
+    (Path.cwd() / "definition_files" / "syntax_error_files" /
+     "missing_device.txt", error.KeywordError),
 
 
-    # Sematic error checking
+    # Paths to definition files which contain a semantic error.
+    # We pass these paths to the Parser()
 
-    # (Path.cwd() / "text files for pytest" / "semantic errors" /
-    # "monitor_input.txt", error.InputPinNumberError), # Monitor Error
-    
-    
+    # TODO: Make the below test cases work
 
+    #(Path.cwd() / "definition_files" / "semantic_error_files" /
+    # "monitor_input.txt", error.InputPinNumberError)
 
-    # below tests MAY NOT work.
-
-    # (Path.cwd() / "text files for pytest" / "semantic errors" /
+    # (Path.cwd() / "definition_files" / "semantic_error_files" /
     # "keyword_name_error.txt", error.DeviceNameError)
 
 
-    #(Path.cwd() / "text files for pytest" / "semantic errors" /
+    # (Path.cwd() / "definition_files" / "semantic_error_files" /
     # "connect_error.txt", error.ConnectError)
 
-    #(Path.cwd() / "text files for pytest" / "semantic errors" /
+    # (Path.cwd() / "definition_files" / "semantic_error_files" /
     # "port_reference_error.txt", error.PortReferenceError)
 
 ])
 def test_parser_raises_exceptions(new_names, new_device,
                                   new_network, new_monitor,
                                   file_path, exception):
+    """Test if Parser().parse_network() raises the correct error when the
+    definition file contains an error. We tests for syntax and semantic errors.
+    We created our own error classes which we raise.
+    You can find them in error.py.
+    """
 
     parser = Parser(new_names, new_device, new_network, new_monitor,
                     Scanner(file_path, new_names))

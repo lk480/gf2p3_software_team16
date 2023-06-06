@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-06-06 14:55+0100\n"
+"POT-Creation-Date: 2023-06-06 15:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,35 +17,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.12.1\n"
 
-#: gui.py:305
+#: gui.py:306
 msgid "&About"
 msgstr ""
 
-#: gui.py:306
+#: gui.py:307
 msgid "&Import"
 msgstr ""
 
-#: gui.py:307
+#: gui.py:308
 msgid "&Export"
 msgstr ""
 
-#: gui.py:308
+#: gui.py:309
 msgid "&Tutorial"
 msgstr ""
 
-#: gui.py:309
+#: gui.py:310
 msgid "&Exit"
 msgstr ""
 
-#: gui.py:315
+#: gui.py:316
 msgid "&File"
 msgstr ""
 
-#: gui.py:316
+#: gui.py:317
 msgid "&Help"
 msgstr ""
 
-#: gui.py:323
+#: gui.py:324
 msgid ""
 "Select the number of Cycles at the top of the control panel on the right,"
 "\n"
@@ -57,47 +57,47 @@ msgid ""
 " "
 msgstr ""
 
-#: gui.py:388
+#: gui.py:389
 msgid "Cycles"
-msgstr "THIS IS JUST A TEST BRO"
+msgstr "BALLS"
 
-#: gui.py:392
+#: gui.py:393
 msgid "Run"
 msgstr ""
 
-#: gui.py:393
+#: gui.py:394
 msgid "Continue"
 msgstr ""
 
-#: gui.py:394
+#: gui.py:395
 msgid "Light mode"
 msgstr ""
 
-#: gui.py:439 gui.py:470 gui.py:494
+#: gui.py:440 gui.py:471 gui.py:495
 msgid "Monitor"
 msgstr ""
 
-#: gui.py:453
+#: gui.py:454
 msgid "On"
 msgstr ""
 
-#: gui.py:540
+#: gui.py:541
 msgid "NAND"
 msgstr ""
 
-#: gui.py:542
+#: gui.py:543
 msgid "CLOCK"
 msgstr ""
 
-#: gui.py:544
+#: gui.py:545
 msgid "SWITCH"
 msgstr ""
 
-#: gui.py:546
+#: gui.py:547
 msgid "DTYPE"
 msgstr ""
 
-#: gui.py:598
+#: gui.py:599
 msgid ""
 "Logic Simulator\n"
 "Created by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n"
@@ -105,35 +105,35 @@ msgid ""
 "Based on skeleton code by Mojisola Agboola 2017"
 msgstr ""
 
-#: gui.py:601
+#: gui.py:602
 msgid "About Logsim"
 msgstr ""
 
-#: gui.py:609
+#: gui.py:610
 msgid "Additional information"
 msgstr ""
 
-#: gui.py:616 gui.py:623
+#: gui.py:617 gui.py:624
 msgid "Enter file name"
 msgstr ""
 
-#: gui.py:616
+#: gui.py:617
 msgid "Import"
 msgstr ""
 
-#: gui.py:623
+#: gui.py:624
 msgid "Export"
 msgstr ""
 
-#: gui.py:627
+#: gui.py:628
 msgid "File name:"
 msgstr ""
 
-#: gui.py:665
+#: gui.py:666
 msgid "Dark Mode"
 msgstr ""
 
-#: gui.py:672
+#: gui.py:673
 msgid "Light Mode"
 msgstr ""
 

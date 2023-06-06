@@ -270,8 +270,9 @@ class Gui(wx.Frame):
         super().__init__(parent=None, title=title, size=(800, 600))
 
         self.locale = wx.Locale(wx.LANGUAGE_SPANISH)
-        self.locale.AddCatalogLookupPathPrefix("spanish/es")
-        self.locale.AddCatalog("messages")
+        self.locale.AddCatalogLookupPathPrefix("spanish")
+        print("AAAAAA")
+        print(self.locale.AddCatalog("messages"))
 
         self._ = wx.GetTranslation
 

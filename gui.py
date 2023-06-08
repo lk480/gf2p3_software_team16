@@ -264,20 +264,25 @@ class Gui(wx.Frame):
     on_text_box(self, event): Event handler for when the user enters text.
     """
 
-    def __init__(self, title, path, names, devices, network, monitors):
+    def __init__(self, title, path, names, devices, network, monitors, language):
         """Initialise widgets, layout and variables."""
 
         super().__init__(parent=None, title=title, size=(800, 600))
-        self.lang = "a"
-        print(wx.Locale.FindLanguageInfo("en_GB").GetLocaleName())
-        if self.lang == "serbian":
-            self.locale = wx.Locale(wx.LANGUAGE_FRENCH)
-            self.locale.AddCatalogLookupPathPrefix("languages/serbian")
-            print(self.locale.AddCatalog("messages"))
-        elif self.lang == "spanish":
-            self.locale = wx.Locale(wx.LANGUAGE_SPANISH)
-            self.locale.AddCatalogLookupPathPrefix("languages/spanish")
-            print(self.locale.AddCatalog("messages"))
+        self.lang_map = {
+            'fr': (wx.LANGUAGE_FRENCH, 'languages/serbian'),
+            'es': (wx.LANGUAGE_SPANISH, 'languages/spanish'),
+            # Add more mappings as needed
+        }
+        userlang = self.lang_map.get(language)
+        if userlang:
+            if userlang[1] == "languages/serbian":
+                self.locale = wx.Locale(wx.LANGUAGE_FRENCH)
+                self.locale.AddCatalogLookupPathPrefix("languages/serbian")
+                print(self.locale.AddCatalog("messages"))
+            elif userlang[1] == "languages/spanish":
+                self.locale = wx.Locale(wx.LANGUAGE_SPANISH)
+                self.locale.AddCatalogLookupPathPrefix("languages/spanish")
+                print(self.locale.AddCatalog("messages"))
 
         else:
             self.locale = wx.Locale(wx.LANGUAGE_ENGLISH)
@@ -300,7 +305,7 @@ class Gui(wx.Frame):
         self.running = False
 
         # Default number of cycles
-        self.cycle_count = 16
+        self.cycle_count = 28
 
         # Set up list of devices and signals
         self.devices_list = self.set_up_devices(devices, names)
@@ -389,15 +394,15 @@ class Gui(wx.Frame):
         # TODO test and potentially cut this warning from final vers
         # WARNING THESE MIGHT BREAK LINUX
         # Render canvas and set running flag to true
-        self.canvas.render(self.signals_list)
-        self.running = True
+        #self.canvas.render(self.signals_list)
+        #self.running = True
 
     def set_up_widgets(self):
         """Sets up the widgets for the GUI."""
 
         self.cycles_text = wx.StaticText(self, wx.ID_ANY, self._("Cycles"))
         self.cycles_spin = wx.SpinCtrl(
-            self, wx.ID_ANY, "18", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
+            self, wx.ID_ANY, str(self.cycle_count), style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
         )
         self.run_button = wx.Button(self, wx.ID_ANY, self._("Run"))
         self.continue_button = wx.Button(self, wx.ID_ANY, self._("Continue"))

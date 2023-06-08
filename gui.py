@@ -87,6 +87,10 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.BG_BLACK = (0.20, 0.20, 0.20)
         self.BG_COLOUR = self.BG_BLACK
 
+        self.TEXT_WHITE = (1.0, 1.0, 1.0)
+        self.TEXT_BLACK = (0.0, 0.0, 0.0)
+        self.TEXT_COLOUR = self.TEXT_WHITE
+
     def init_gl(self):
         """Configure and initialise the OpenGL context."""
 
@@ -138,8 +142,12 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         for i in range(len(signal) + 1):
             GL.glBegin(GL.GL_LINE_STRIP)
             x = (i * 50) + 30
-            y = 930 - 5 - 90 * position
-            y_next = 930 - 15 - 90 * position
+            if i % 5 == 0:
+                y = 930 - 5 - 90 * position
+                y_next = 930 - 30 - 90 * position
+            else:
+                y = 930 - 5 - 90 * position
+                y_next = 930 - 15 - 90 * position
             GL.glVertex2f(x, y)
             GL.glVertex2f(x, y_next)
             GL.glEnd()
@@ -226,8 +234,7 @@ class MyGLCanvas(wxcanvas.GLCanvas):
     def render_text(self, text, x_pos, y_pos):
         """Handle text drawing operations."""
 
-        # TODO CHANGE COLOUR READABILITY
-        GL.glColor3f(0.0, 0.0, 0.0)
+        GL.glColor3f(self.TEXT_COLOUR[0], self.TEXT_COLOUR[1], self.TEXT_COLOUR[2])
         GL.glRasterPos2f(x_pos, y_pos)
 
         # Choose a font and size
@@ -334,7 +341,6 @@ class Gui(wx.Frame):
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
 
-        # TODO Set up help menu text
         self.HELP_TEXT = self._(
             """Select the number of Cycles at the top of the control panel on the right,
          and click the button labelled "Run" to simulate the circuit. You can use the button labelled
@@ -386,16 +392,10 @@ class Gui(wx.Frame):
         main_sizer.Add(side_sizer, 10, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.dark_mode_button, 1, wx.BOTTOM | wx.EXPAND, 5)
 
-        # Set the sizer and configure the window
-        # TODO cut this for final version: self.SetSizeHints(600, 600)
+
         self.Maximize(True)
         self.SetSizer(main_sizer)
 
-        # TODO test and potentially cut this warning from final vers
-        # WARNING THESE MIGHT BREAK LINUX
-        # Render canvas and set running flag to true
-        #self.canvas.render(self.signals_list)
-        #self.running = True
 
     def set_up_widgets(self):
         """Sets up the widgets for the GUI."""
@@ -414,6 +414,23 @@ class Gui(wx.Frame):
 
         devices_list = []
         for device in devices.devices_list:
+            if self.device_number_to_string(device.device_kind) == self._("DTYPE"):
+                single_device_list = []
+                id = device.device_id
+
+                single_device_list.append(names.get_name_string(id)+".Q")
+                single_device_list.append(self.device_number_to_string(device.device_kind))
+                single_device_list.append(devices.return_property(id))
+                devices_list.append(single_device_list)
+                single_device_list = []
+
+                single_device_list.append(names.get_name_string(id)+".QBAR")
+                single_device_list.append(self.device_number_to_string(device.device_kind))
+                single_device_list.append(devices.return_property(id))
+                devices_list.append(single_device_list)
+                
+                pass
+            
             single_device_list = []
             id = device.device_id
             single_device_list.append(names.get_name_string(id))
@@ -422,7 +439,6 @@ class Gui(wx.Frame):
 
             devices_list.append(single_device_list)
         print(devices_list)
-
         return devices_list
 
     def add_scroll_widgets(self, device_sizer, device):
@@ -501,7 +517,6 @@ class Gui(wx.Frame):
         device_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_clock)
         self.clocks[device_spin] = device[0]
         device_spin.SetRange(1, 100)
-        # Bind an event handler to the checkbox TODO
         return
 
     def add_other_scroll_widget(self, device_entry, device):
@@ -526,7 +541,13 @@ class Gui(wx.Frame):
 
         monitored_list = []
         for item in self.monitors.monitors_dictionary.items():
-            monitored_list.append(names.get_name_string(item[0][0]))
+            if item[0][1]:
+                if item[0][1] == 14:
+                    monitored_list.append(names.get_name_string(item[0][0]) + ".Q")
+                elif item[0][1] == 15:
+                    monitored_list.append(names.get_name_string(item[0][0]) + ".QBAR")
+            else:
+                monitored_list.append(names.get_name_string(item[0][0]))
         return monitored_list
 
     def gather_signal_data(self, names, cycle_count):
@@ -552,7 +573,7 @@ class Gui(wx.Frame):
     def device_number_to_string(self, device_number):
         """Returns a string containing the name of the device with the given number."""
 
-        # TODO What the fuck is this used for
+
         id_to_name_list = [
             self._("AND"),
             self._("OR"),
@@ -699,6 +720,7 @@ class Gui(wx.Frame):
             self.dark_mode_flag = False
             self.canvas.set_light_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_WHITE
+            self.canvas.TEXT_COLOUR = self.canvas.TEXT_BLACK
             self.dark_mode_button.SetLabel(self._("Dark Mode"))
 
         # Turn dark mode on
@@ -706,6 +728,7 @@ class Gui(wx.Frame):
             self.dark_mode_flag = True
             self.canvas.set_dark_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_BLACK
+            self.canvas.TEXT_COLOUR = self.canvas.TEXT_WHITE
             self.dark_mode_button.SetLabel(self._("Light Mode"))
 
         # Render the canvas

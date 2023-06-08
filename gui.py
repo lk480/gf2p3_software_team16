@@ -434,7 +434,7 @@ class Gui(wx.Frame):
         if device[1] == self._("SWITCH"):
             self.add_switch_scroll_widget(device_entry, device)
 
-        elif device[1] == self._("CLOCK"):
+        elif device[1] == self._("CLOCK") or device[1] == self._("RC"):
             self.add_clock_scroll_widget(device_entry, device)
         else:
             self.add_other_scroll_widget(device_entry, device)
@@ -655,7 +655,10 @@ class Gui(wx.Frame):
         value = spinner.GetValue()
         name_id = self.names.query(self.clocks[spinner])
         device = self.devices.get_device(name_id)
-        device.clock_half_period = value
+        if self.device_number_to_string(device.device_kind) == self._("CLOCK"):
+            device.clock_half_period = value
+        elif self.device_number_to_string(device.device_kind) == self._("RC"):
+            device.rc_period = value
         if not self.running:
             return
         self.signals_list = self.on_run_button("")

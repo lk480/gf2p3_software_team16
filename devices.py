@@ -435,4 +435,8 @@ class Devices:
             return device.switch_state
         elif device.dtype_memory is not None:
             return device.dtype_memory
+        elif device.sequence_2_repeat is not None:
+            return device.sequence_2_repeat
+        elif device.rc_period is not None:
+            return device.rc_period
         return None

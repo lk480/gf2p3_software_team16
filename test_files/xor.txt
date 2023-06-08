@@ -1,0 +1,6 @@
+#Sample Comment#
+DEVICE: X1, XOR;
+DEVICE: C1, CLOCK, 2;
+DEVICE: C2, CLOCK, 3;
+CONNECT: C2 = X1.I1, C1 = X1.I2;
+MONITOR: C1, C2, X1;

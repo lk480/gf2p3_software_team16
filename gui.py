@@ -556,16 +556,20 @@ class Gui(wx.Frame):
         self.run(cycle_count)
         for item in self.monitors.monitors_dictionary.items():
             single_signal = []
-            if item[0][0] == 23:
-                if item[0][1] == 14:
-                    single_signal.append(names.get_name_string(item[0][0])+".Q")
-                elif item[0][1] == 15:
-                    single_signal.append(names.get_name_string(item[0][0])+".QBAR")
+
+            if item[0][1] == 14:
+                single_signal.append(names.get_name_string(item[0][0])+".Q")
+                single_signal.append(item[1])
+                signals_list.append(single_signal)
+            elif item[0][1] == 15:
+                single_signal.append(names.get_name_string(item[0][0])+".QBAR")
+                single_signal.append(item[1])
+                signals_list.append(single_signal)
 
             else:
                 single_signal.append(names.get_name_string(item[0][0]))
-            single_signal.append(item[1])
-            signals_list.append(single_signal)
+                single_signal.append(item[1])
+                signals_list.append(single_signal)
 
         return signals_list
 

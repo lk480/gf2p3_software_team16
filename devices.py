@@ -41,6 +41,8 @@ class Device:
         self.clock_counter = None
         self.switch_state = None
         self.dtype_memory = None
+        self.sequence_2_repeat = None
+        self.rc_period = None
 
 
 class Devices:
@@ -101,28 +103,57 @@ class Devices:
         """Initialise devices list and constants."""
 
         self.names = names
+        self.run_once = False
 
         self.devices_list = []
 
         gate_strings = ["AND", "OR", "NAND", "NOR", "XOR"]
-        device_strings = ["CLOCK", "SWITCH", "DTYPE"]
+
+        device_strings = ["CLOCK", "SWITCH", "DTYPE", "RC", "SIGGEN"]
         dtype_inputs = ["CLK", "SET", "CLEAR", "DATA"]
         dtype_outputs = ["Q", "QBAR"]
 
-        [self.NO_ERROR, self.INVALID_QUALIFIER, self.NO_QUALIFIER,
-         self.BAD_DEVICE, self.QUALIFIER_PRESENT,
-         self.DEVICE_PRESENT] = self.names.unique_error_codes(6)
+        [
+            self.NO_ERROR,
+            self.INVALID_QUALIFIER,
+            self.NO_QUALIFIER,
+            self.BAD_DEVICE,
+            self.QUALIFIER_PRESENT,
+            self.DEVICE_PRESENT,
+        ] = self.names.unique_error_codes(6)
 
-        self.signal_types = [self.LOW, self.HIGH, self.RISING,
-                             self.FALLING, self.BLANK] = range(5)
-        self.gate_types = [self.AND, self.OR, self.NAND, self.NOR,
-                           self.XOR] = self.names.lookup(gate_strings)
-        self.device_types = [self.CLOCK, self.SWITCH,
-                             self.D_TYPE] = self.names.lookup(device_strings)
-        self.dtype_input_ids = [self.CLK_ID, self.SET_ID, self.CLEAR_ID,
-                                self.DATA_ID] = self.names.lookup(dtype_inputs)
-        self.dtype_output_ids = [
-            self.Q_ID, self.QBAR_ID] = self.names.lookup(dtype_outputs)
+        self.signal_types = [
+            self.LOW,
+            self.HIGH,
+            self.RISING,
+            self.FALLING,
+            self.BLANK,
+        ] = range(5)
+        self.gate_types = [
+            self.AND,
+            self.OR,
+            self.NAND,
+            self.NOR,
+            self.XOR,
+        ] = self.names.lookup(gate_strings)
+
+        self.device_types = [
+            self.CLOCK,
+            self.SWITCH,
+            self.D_TYPE,
+            self.RC,
+            self.SIGGEN,
+        ] = self.names.lookup(device_strings)
+
+        self.dtype_input_ids = [
+            self.CLK_ID,
+            self.SET_ID,
+            self.CLEAR_ID,
+            self.DATA_ID,
+        ] = self.names.lookup(dtype_inputs)
+        self.dtype_output_ids = [self.Q_ID, self.QBAR_ID] = self.names.lookup(
+            dtype_outputs
+        )
 
         self.max_gate_inputs = 16
 
@@ -241,6 +272,22 @@ class Devices:
         device.clock_half_period = clock_half_period
         self.cold_startup()  # clock initialised to a random point in its cycle
 
+    def make_siggen(self, device_id, sequence_2_repeat):
+        """Make a siggen device with the specified sequence of 0's and 1's
+        to be repeated periodicaly.
+
+        sequence_2_repeat is a string containing only digits 0 and 1.
+        """
+        self.add_device(device_id, self.SIGGEN)
+        device = self.get_device(device_id)
+        device.sequence_2_repeat = sequence_2_repeat
+        self.cold_startup()  # siggen initialised to a random point in its cycle
+
+    def make_rc(self, device_id, rc_period):
+        self.add_device(device_id, self.RC)
+        device = self.get_device(device_id)
+        device.rc_period = rc_period
+
     def make_gate(self, device_id, device_kind, no_of_inputs):
         """Make logic gates with the specified number of inputs."""
         self.add_device(device_id, device_kind)
@@ -261,7 +308,7 @@ class Devices:
         self.cold_startup()  # D-type initialised to a random state
 
     def cold_startup(self):
-        """Simulate cold start-up of D-types and clocks.
+        """Simulate cold start-up of D-types, RCs and clocks.
 
         Set the memory of the D-types to a random state and make the clocks
         begin from a random point in their cycles.
@@ -272,11 +319,26 @@ class Devices:
 
             elif device.device_kind == self.CLOCK:
                 clock_signal = random.choice([self.LOW, self.HIGH])
-                self.add_output(device.device_id, output_id=None,
-                                signal=clock_signal)
+                self.add_output(device.device_id,
+                                output_id=None, signal=clock_signal)
                 # Initialise it to a random point in its cycle.
-                device.clock_counter = \
-                    random.randrange(device.clock_half_period)
+                device.clock_counter = random.randrange(
+                    device.clock_half_period)
+
+            elif device.device_kind == self.SIGGEN:
+                if device.sequence_2_repeat[0] == "0":
+                    initial_signal = self.LOW
+                elif device.sequence_2_repeat[0] == "1":
+                    initial_signal = self.HIGH
+                self.add_output(device.device_id, output_id=None,
+                                signal=initial_signal)
+                device.clock_counter = 0
+
+            elif device.device_kind == self.RC:
+                self.add_output(device.device_id,
+                                output_id=None, signal=self.HIGH)
+                device.clock_counter = 0
+        self.run_once = False
 
     def make_device(self, device_id, device_kind, device_property=None):
         """Create the specified device.
@@ -307,6 +369,23 @@ class Devices:
                 self.make_clock(device_id, device_property)
                 error_type = self.NO_ERROR
 
+        elif device_kind == self.SIGGEN:
+            # Device property is the periodic sequence
+            if device_property is None:
+                error_type = self.NO_QUALIFIER
+            elif not all(x in ["0", "1"] for x in device_property):
+                error_type = self.INVALID_QUALIFIER
+            else:
+                self.make_siggen(device_id, device_property)
+                device = self.get_device(device_id)
+                if device.sequence_2_repeat[0] == "0":
+                    self.add_output(device_id, output_id=None, signal=self.LOW)
+                elif device.sequence_2_repeat[0] == "1":
+                    self.add_output(device_id, output_id=None,
+                                    signal=self.HIGH)
+                device.clock_counter = 0
+                error_type = self.NO_ERROR
+
         elif device_kind in self.gate_types:
             # Device property is the number of inputs
             if device_kind == self.XOR:
@@ -331,7 +410,36 @@ class Devices:
                 self.make_d_type(device_id)
                 error_type = self.NO_ERROR
 
+        elif device_kind == self.RC:
+            # Device property is rc
+            if device_property is None:
+                error_type = self.NO_QUALIFIER
+            elif device_property <= 0:
+                error_type = self.INVALID_QUALIFIER
+            else:
+                self.make_rc(device_id, device_property)
+                self.add_output(device_id, output_id=None, signal=self.HIGH)
+                # Initialise it to a random point in its cycle.
+                device = self.get_device(device_id)
+                device.clock_counter = 0
+                error_type = self.NO_ERROR
+
         else:
             error_type = self.BAD_DEVICE
 
         return error_type
+
+    def return_property(self, device_id):
+        """Return the property of the specified device."""
+        device = self.get_device(device_id)
+        if device.clock_half_period is not None:
+            return device.clock_half_period
+        elif device.switch_state is not None:
+            return device.switch_state
+        elif device.dtype_memory is not None:
+            return device.dtype_memory
+        elif device.sequence_2_repeat is not None:
+            return device.sequence_2_repeat
+        elif device.rc_period is not None:
+            return device.rc_period
+        return None

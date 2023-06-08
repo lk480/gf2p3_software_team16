@@ -1,0 +1,143 @@
+#: gui.py:306
+msgid "&About"
+msgstr "&Acerca de"
+
+#: gui.py:307
+msgid "&Import"
+msgstr "&Importar"
+
+#: gui.py:308
+msgid "&Export"
+msgstr "&Exportar"
+
+#: gui.py:309
+msgid "&Tutorial"
+msgstr "&Tutorial"
+
+#: gui.py:310
+msgid "&Exit"
+msgstr "&Cerrar"
+
+#: gui.py:316
+msgid "&File"
+msgstr "&Archivo"
+
+#: gui.py:317
+msgid "&Help"
+msgstr "&Ayuda"
+
+#: gui.py:324
+msgid ""
+"Select the number of Cycles at the top of the control panel on the right,"
+"\n"
+"         and click the button labelled \"Run\" to simulate the circuit. "
+"You can use the button labelled\n"
+"         \"Continue\" to continue simulating the circuit for another N "
+"cycles (N is the number in the Cycles box).\n"
+" \n"
+" "
+msgstr "Selecciona el numero de ciclos, y pulsa el boton \"Simular\" para simular el circuito. Puedes usar el boton \"Continuar\" para continuar simulando el circuito durante N ciclos mas (N es el numero en la de ciclos seleccionado)."
+
+#: gui.py:389
+msgid "Cycles"
+msgstr "Ciclos"
+
+#: gui.py:393
+msgid "Run"
+msgstr "Simular"
+
+#: gui.py:394
+msgid "Continue"
+msgstr "Continuar"
+
+#: gui.py:395
+msgid "Light mode"
+msgstr "Tema claro"
+
+#: gui.py:441 gui.py:472 gui.py:496
+msgid "Monitor"
+msgstr "Monitorear"
+
+#: gui.py:455
+msgid "On"
+msgstr "Encendido"
+
+#: gui.py:542
+msgid "AND"
+msgstr "AND"
+
+#: gui.py:543
+msgid "OR"
+msgstr "OR"
+
+#: gui.py:544
+msgid "NAND"
+msgstr "NAND"
+
+#: gui.py:545
+msgid "NOR"
+msgstr "NOR"
+
+#: gui.py:546
+msgid "XOR"
+msgstr "XOR"
+
+#: gui.py:547
+msgid "CLOCK"
+msgstr "RELOJ"
+
+#: gui.py:548
+msgid "SWITCH"
+msgstr "INTERRUPTOR"
+
+#: gui.py:549
+msgid "DTYPE"
+msgstr "DTYPE"
+
+#: gui.py:550
+msgid "RC"
+msgstr "RC"
+
+#: gui.py:551
+msgid "SIGGEN"
+msgstr "SIGGEN"
+
+#: gui.py:606
+msgid ""
+"Logic Simulator\n"
+"Created by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n"
+"2023\n"
+"Based on skeleton code by Mojisola Agboola 2017"
+msgstr "Simulador Logico\nCreado por Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n2023\nBasado en el codigo de Mojisola Agboola 2017"
+
+#: gui.py:609
+msgid "About Logsim"
+msgstr "Sobre Logsim"
+
+#: gui.py:617
+msgid "Additional information"
+msgstr "Mas informacion"
+
+#: gui.py:624 gui.py:631
+msgid "Enter file name"
+msgstr "Nombre de archivo:"
+
+#: gui.py:624
+msgid "Import"
+msgstr "Importar"
+
+#: gui.py:631
+msgid "Export"
+msgstr "Exportar"
+
+#: gui.py:635
+msgid "File name:"
+msgstr "Nombre de archivo:"
+
+#: gui.py:673
+msgid "Dark Mode"
+msgstr "Tema oscuro"
+
+#: gui.py:680
+msgid "Light Mode"
+msgstr "Tema claro"

@@ -11,6 +11,7 @@ Gui - configures the main window and all the widgets.
 import wx
 import wx.glcanvas as wxcanvas
 from OpenGL import GL, GLUT
+import gettext
 
 
 class MyGLCanvas(wxcanvas.GLCanvas):
@@ -87,10 +88,6 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.BG_BLACK = (0.20, 0.20, 0.20)
         self.BG_COLOUR = self.BG_BLACK
 
-        self.TEXT_WHITE = (1.0, 1.0, 1.0)
-        self.TEXT_BLACK = (0.0, 0.0, 0.0)
-        self.TEXT_COLOUR = self.TEXT_WHITE
-
     def init_gl(self):
         """Configure and initialise the OpenGL context."""
 
@@ -142,12 +139,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         for i in range(len(signal) + 1):
             GL.glBegin(GL.GL_LINE_STRIP)
             x = (i * 50) + 30
-            if i % 5 == 0:
-                y = 930 - 5 - 90 * position
-                y_next = 930 - 30 - 90 * position
-            else:
-                y = 930 - 5 - 90 * position
-                y_next = 930 - 15 - 90 * position
+            y = 930 - 5 - 90 * position
+            y_next = 930 - 15 - 90 * position
             GL.glVertex2f(x, y)
             GL.glVertex2f(x, y_next)
             GL.glEnd()
@@ -234,7 +227,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
     def render_text(self, text, x_pos, y_pos):
         """Handle text drawing operations."""
 
-        GL.glColor3f(self.TEXT_COLOUR[0], self.TEXT_COLOUR[1], self.TEXT_COLOUR[2])
+        # TODO CHANGE COLOUR READABILITY
+        GL.glColor3f(0.0, 0.0, 0.0)
         GL.glRasterPos2f(x_pos, y_pos)
 
         # Choose a font and size
@@ -271,30 +265,10 @@ class Gui(wx.Frame):
     on_text_box(self, event): Event handler for when the user enters text.
     """
 
-    def __init__(self, title, path, names, devices, network, monitors, language):
+    def __init__(self, title, path, names, devices, network, monitors):
         """Initialise widgets, layout and variables."""
 
         super().__init__(parent=None, title=title, size=(800, 600))
-        self.lang_map = {
-            'sr': (wx.LANGUAGE_FRENCH, 'languages/serbian'),
-            'es': (wx.LANGUAGE_SPANISH, 'languages/spanish'),
-            # Add more mappings as needed
-        }
-        userlang = self.lang_map.get(language)
-        if userlang:
-            if userlang[1] == "languages/serbian":
-                self.locale = wx.Locale(wx.LANGUAGE_SERBIAN_CYRILLIC)
-                self.locale.AddCatalogLookupPathPrefix("languages/serbian")
-                print(self.locale.AddCatalog("messages"))
-            elif userlang[1] == "languages/spanish":
-                self.locale = wx.Locale(wx.LANGUAGE_SPANISH)
-                self.locale.AddCatalogLookupPathPrefix("languages/spanish")
-                print(self.locale.AddCatalog("messages"))
-
-        else:
-            self.locale = wx.Locale(wx.LANGUAGE_ENGLISH)
-
-        self._ = wx.GetTranslation
 
         # Assign variable to the other modules
         self.names = names
@@ -305,14 +279,13 @@ class Gui(wx.Frame):
         # Initialise dictionaries and lists for the checks for switches and monitoring
         self.on_checks = {}
         self.monitor_checks = {}
-        self.clocks = {}
         self.monitored_list = self.generate_monitored_list(devices, names)
 
         # Used to use the continue button to run on first click
         self.running = False
 
         # Default number of cycles
-        self.cycle_count = 28
+        self.cycle_count = 16
 
         # Set up list of devices and signals
         self.devices_list = self.set_up_devices(devices, names)
@@ -324,24 +297,25 @@ class Gui(wx.Frame):
         helpMenu = wx.Menu()
 
         # Add items to the file and help menus
-        fileMenu.Append(wx.ID_ABOUT, self._("&About"))
-        fileMenu.Append(wx.ID_FILE1, self._("&Import"))
-        fileMenu.Append(wx.ID_FILE2, self._("&Export"))
-        helpMenu.Append(wx.ID_HELP, self._("&Tutorial"))
-        fileMenu.Append(wx.ID_EXIT, self._("&Exit"))
+        fileMenu.Append(wx.ID_ABOUT, _("&About"))
+        fileMenu.Append(wx.ID_FILE1, _("&Import"))
+        fileMenu.Append(wx.ID_FILE2, _("&Export"))
+        helpMenu.Append(wx.ID_HELP, _("&Tutorial"))
+        fileMenu.Append(wx.ID_EXIT, _("&Exit"))
 
         # Default to dark mode
         self.dark_mode_flag = True
 
         """Add the file and help menus to the menu bar and set bar"""
-        menuBar.Append(fileMenu, self._("&File"))
-        menuBar.Append(helpMenu, self._("&Help"))
+        menuBar.Append(fileMenu, _("&File"))
+        menuBar.Append(helpMenu, _("&Help"))
         self.SetMenuBar(menuBar)
 
         # Canvas for drawing signals
         self.canvas = MyGLCanvas(self, devices, monitors)
 
-        self.HELP_TEXT = self._(
+        # TODO Set up help menu text
+        self.HELP_TEXT = _(
             """Select the number of Cycles at the top of the control panel on the right,
          and click the button labelled "Run" to simulate the circuit. You can use the button labelled
          "Continue" to continue simulating the circuit for another N cycles (N is the number in the Cycles box).\n \n """
@@ -392,21 +366,27 @@ class Gui(wx.Frame):
         main_sizer.Add(side_sizer, 10, wx.ALL | wx.EXPAND, 5)
         side_sizer.Add(self.dark_mode_button, 1, wx.BOTTOM | wx.EXPAND, 5)
 
-
+        # Set the sizer and configure the window
+        # TODO cut this for final version: self.SetSizeHints(600, 600)
         self.Maximize(True)
         self.SetSizer(main_sizer)
 
+        # TODO test and potentially cut this warning from final vers
+        # WARNING THESE MIGHT BREAK LINUX
+        # Render canvas and set running flag to true
+        self.canvas.render(self.signals_list)
+        self.running = True
 
     def set_up_widgets(self):
         """Sets up the widgets for the GUI."""
 
-        self.cycles_text = wx.StaticText(self, wx.ID_ANY, self._("Cycles"))
+        self.cycles_text = wx.StaticText(self, wx.ID_ANY, _("Cycles"))
         self.cycles_spin = wx.SpinCtrl(
-            self, wx.ID_ANY, str(self.cycle_count), style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
+            self, wx.ID_ANY, "18", style=wx.ALIGN_CENTER_HORIZONTAL | wx.TE_CENTER
         )
-        self.run_button = wx.Button(self, wx.ID_ANY, self._("Run"))
-        self.continue_button = wx.Button(self, wx.ID_ANY, self._("Continue"))
-        self.dark_mode_button = wx.Button(self, wx.ID_ANY, self._("Light mode"))
+        self.run_button = wx.Button(self, wx.ID_ANY, _("Run"))
+        self.continue_button = wx.Button(self, wx.ID_ANY, _("Continue"))
+        self.dark_mode_button = wx.Button(self, wx.ID_ANY, _("Light mode"))
         self.device_scroll = wx.ScrolledWindow(self, wx.ID_ANY, style=wx.VSCROLL)
 
     def set_up_devices(self, devices, names):
@@ -414,30 +394,14 @@ class Gui(wx.Frame):
 
         devices_list = []
         for device in devices.devices_list:
-            if self.device_number_to_string(device.device_kind) == self._("DTYPE"):
-                single_device_list = []
-                id = device.device_id
-                if(device.device_id, 14) in self.monitors.monitors_dictionary:
-                    single_device_list.append(names.get_name_string(id)+".Q")
-                    single_device_list.append(self.device_number_to_string(device.device_kind))
-                    single_device_list.append(devices.return_property(id))
-                    devices_list.append(single_device_list)
-                    single_device_list = []
+            single_device_list = []
+            id = device.device_id
+            single_device_list.append(names.get_name_string(id))
+            single_device_list.append(self.device_number_to_string(device.device_kind))
+            single_device_list.append(devices.return_property(id))
 
-                if(device.device_id, 15) in self.monitors.monitors_dictionary:
-                    single_device_list.append(names.get_name_string(id)+".QBAR")
-                    single_device_list.append(self.device_number_to_string(device.device_kind))
-                    single_device_list.append(devices.return_property(id))
-                    devices_list.append(single_device_list)
-                
-            else:
-                single_device_list = []
-                id = device.device_id
-                single_device_list.append(names.get_name_string(id))
-                single_device_list.append(self.device_number_to_string(device.device_kind))
-                single_device_list.append(devices.return_property(id))
+            devices_list.append(single_device_list)
 
-                devices_list.append(single_device_list)
         return devices_list
 
     def add_scroll_widgets(self, device_sizer, device):
@@ -451,11 +415,12 @@ class Gui(wx.Frame):
         device_entry.Add(device_text, 1, wx.ALL, 5)
 
         # Based on device type, add the appropriate widgets
-        if device[1] == self._("SWITCH"):
+        if device[1] == "SWITCH":
             self.add_switch_scroll_widget(device_entry, device)
 
-        elif device[1] == self._("CLOCK") or device[1] == self._("RC"):
+        elif device[1] == "CLOCK":
             self.add_clock_scroll_widget(device_entry, device)
+
         else:
             self.add_other_scroll_widget(device_entry, device)
 
@@ -466,7 +431,7 @@ class Gui(wx.Frame):
         """Adds a monitor and on/off checkbox for a switch device to the device scroll panel."""
 
         # Add monitor checkbox
-        device_checkbox = wx.CheckBox(self.device_scroll, label=self._("Monitor"))
+        device_checkbox = wx.CheckBox(self.device_scroll, label=_("Monitor"))
 
         # If monitored in file, initialise as on
         if device[0] in self.monitored_list:
@@ -480,7 +445,7 @@ class Gui(wx.Frame):
         device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
         # Add on/off checkbox
-        device_checkbox = wx.CheckBox(self.device_scroll, label=self._("On"))
+        device_checkbox = wx.CheckBox(self.device_scroll, label=_("On"))
 
         # If on in file, initialise as on
         if device[2] == 1:
@@ -497,7 +462,7 @@ class Gui(wx.Frame):
         """Adds a monitor and spin box for a clock device to the device scroll panel."""
 
         # Add monitor checkbox
-        device_checkbox = wx.CheckBox(self.device_scroll, label=self._("Monitor"))
+        device_checkbox = wx.CheckBox(self.device_scroll, label=_("Monitor"))
 
         # If monitored in file, initialise as on
         if device[0] in self.monitored_list:
@@ -513,16 +478,15 @@ class Gui(wx.Frame):
         # Add spin box with initial value as set in file
         device_spin = wx.SpinCtrl(self.device_scroll, wx.ID_ANY, str(device[2]))
         device_entry.Add(device_spin, 1, wx.ALL, 5)
-        device_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_clock)
-        self.clocks[device_spin] = device[0]
-        device_spin.SetRange(1, 100)
+
+        # Bind an event handler to the checkbox TODO
         return
 
     def add_other_scroll_widget(self, device_entry, device):
         """Adds a monitor checkbox for a non-switch/clock device to the device scroll panel."""
 
         # Add monitor checkbox
-        device_checkbox = wx.CheckBox(self.device_scroll, label=self._("Monitor"))
+        device_checkbox = wx.CheckBox(self.device_scroll, label=_("Monitor"))
 
         # If monitored in file, initialise as on
         if device[0] in self.monitored_list:
@@ -540,13 +504,7 @@ class Gui(wx.Frame):
 
         monitored_list = []
         for item in self.monitors.monitors_dictionary.items():
-            if item[0][1]:
-                if item[0][1] == 14:
-                    monitored_list.append(names.get_name_string(item[0][0]) + ".Q")
-                elif item[0][1] == 15:
-                    monitored_list.append(names.get_name_string(item[0][0]) + ".QBAR")
-            else:
-                monitored_list.append(names.get_name_string(item[0][0]))
+            monitored_list.append(names.get_name_string(item[0][0]))
         return monitored_list
 
     def gather_signal_data(self, names, cycle_count):
@@ -556,20 +514,9 @@ class Gui(wx.Frame):
         self.run(cycle_count)
         for item in self.monitors.monitors_dictionary.items():
             single_signal = []
-
-            if item[0][1] == 14:
-                single_signal.append(names.get_name_string(item[0][0])+".Q")
-                single_signal.append(item[1])
-                signals_list.append(single_signal)
-            elif item[0][1] == 15:
-                single_signal.append(names.get_name_string(item[0][0])+".QBAR")
-                single_signal.append(item[1])
-                signals_list.append(single_signal)
-
-            else:
-                single_signal.append(names.get_name_string(item[0][0]))
-                single_signal.append(item[1])
-                signals_list.append(single_signal)
+            single_signal.append(names.get_name_string(item[0][0]))
+            single_signal.append(item[1])
+            signals_list.append(single_signal)
 
         return signals_list
 
@@ -583,21 +530,15 @@ class Gui(wx.Frame):
     def device_number_to_string(self, device_number):
         """Returns a string containing the name of the device with the given number."""
 
-
-        id_to_name_list = [
-            self._("AND"),
-            self._("OR"),
-            self._("NAND"),
-            self._("NOR"),
-            self._("XOR"),
-            self._("CLOCK"),
-            self._("SWITCH"),
-            self._("DTYPE"),
-            self._("RC"),
-            self._("SIGGEN"),
-        ]
-        if device_number in range(10):
-            return id_to_name_list[device_number]
+        # TODO What the fuck is this used for
+        if device_number == 2:
+            return _("NAND")
+        elif device_number == 5:
+            return _("CLOCK")
+        elif device_number == 6:
+            return _("SWITCH")
+        elif device_number == 7:
+            return _("DTYPE")
         else:
             return str(device_number)
 
@@ -649,10 +590,10 @@ class Gui(wx.Frame):
         # About dialog
         if Id == wx.ID_ABOUT:
             wx.MessageBox(
-                self._(
+                _(
                     "Logic Simulator\nCreated by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n2023\nBased on skeleton code by Mojisola Agboola 2017"
                 ),
-                self._("About Logsim"),
+                _("About Logsim"),
                 wx.ICON_INFORMATION | wx.OK,
             )
 
@@ -660,44 +601,26 @@ class Gui(wx.Frame):
         if Id == wx.ID_HELP:
             wx.MessageBox(
                 self.HELP_TEXT,
-                self._("Additional information"),
+                _("Additional information"),
                 wx.ICON_INFORMATION | wx.OK,
             )
 
         # Import and export files
         if Id == wx.ID_FILE1:
-            dialog = wx.TextEntryDialog(
-                self, self._("Enter file name"), self._("Import"), ""
-            )
+            dialog = wx.TextEntryDialog(self, _("Enter file name"), _("Import"), "")
             if dialog.ShowModal() == wx.ID_OK:
                 file_name = dialog.GetValue()
                 print("File name:", file_name)
         if Id == wx.ID_FILE2:
-            dialog = wx.TextEntryDialog(
-                self, self._("Enter file name"), self._("Export"), ""
-            )
+            dialog = wx.TextEntryDialog(self, _("Enter file name"), _("Export"), "")
             if dialog.ShowModal() == wx.ID_OK:
                 file_name = dialog.GetValue()
-                print(self._("File name:"), file_name)
+                print(_("File name:"), file_name)
 
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the number of cycles value."""
 
         self.cycle_count = self.cycles_spin.GetValue()
-        self.canvas.render(self.signals_list)
-
-    def on_spin_clock(self, event):
-        spinner = event.GetEventObject()
-        value = spinner.GetValue()
-        name_id = self.names.query(self.clocks[spinner])
-        device = self.devices.get_device(name_id)
-        if self.device_number_to_string(device.device_kind) == self._("CLOCK"):
-            device.clock_half_period = value
-        elif self.device_number_to_string(device.device_kind) == self._("RC"):
-            device.rc_period = value
-        if not self.running:
-            return
-        self.signals_list = self.on_run_button("")
         self.canvas.render(self.signals_list)
 
     def on_run_button(self, event):
@@ -730,16 +653,14 @@ class Gui(wx.Frame):
             self.dark_mode_flag = False
             self.canvas.set_light_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_WHITE
-            self.canvas.TEXT_COLOUR = self.canvas.TEXT_BLACK
-            self.dark_mode_button.SetLabel(self._("Dark Mode"))
+            self.dark_mode_button.SetLabel("Dark Mode")
 
         # Turn dark mode on
         else:
             self.dark_mode_flag = True
             self.canvas.set_dark_mode()
             self.canvas.BG_COLOUR = self.canvas.BG_BLACK
-            self.canvas.TEXT_COLOUR = self.canvas.TEXT_WHITE
-            self.dark_mode_button.SetLabel(self._("Light Mode"))
+            self.dark_mode_button.SetLabel("Light Mode")
 
         # Render the canvas
         self.canvas.render(None)

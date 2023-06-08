@@ -113,15 +113,13 @@ class Devices:
         dtype_inputs = ["CLK", "SET", "CLEAR", "DATA"]
         dtype_outputs = ["Q", "QBAR"]
 
-        # following are for semantic errors
         [
             self.NO_ERROR,
-            self.INVALID_QUALIFIER,  # the qualifier of a device is invalid
-            self.NO_QUALIFIER,  # no qualifier specified for a device
-            # device does not exists (it must be e.g. AND,OR,DTYPE...)
+            self.INVALID_QUALIFIER,
+            self.NO_QUALIFIER,
             self.BAD_DEVICE,
-            self.QUALIFIER_PRESENT,  # XOR and DTYPE have a qualifier, but they shouldn't
-            self.DEVICE_PRESENT,  # device is already created, can't redefine it again
+            self.QUALIFIER_PRESENT,
+            self.DEVICE_PRESENT,
         ] = self.names.unique_error_codes(6)
 
         self.signal_types = [
@@ -321,20 +319,24 @@ class Devices:
 
             elif device.device_kind == self.CLOCK:
                 clock_signal = random.choice([self.LOW, self.HIGH])
-                self.add_output(device.device_id, output_id=None, signal=clock_signal)
+                self.add_output(device.device_id,
+                                output_id=None, signal=clock_signal)
                 # Initialise it to a random point in its cycle.
-                device.clock_counter = random.randrange(device.clock_half_period)
+                device.clock_counter = random.randrange(
+                    device.clock_half_period)
 
             elif device.device_kind == self.SIGGEN:
                 if device.sequence_2_repeat[0] == "0":
                     initial_signal = self.LOW
                 elif device.sequence_2_repeat[0] == "1":
                     initial_signal = self.HIGH
-                self.add_output(device.device_id, output_id=None, signal=initial_signal)
+                self.add_output(device.device_id, output_id=None,
+                                signal=initial_signal)
                 device.clock_counter = 0
 
             elif device.device_kind == self.RC:
-                self.add_output(device.device_id, output_id=None, signal=self.HIGH)
+                self.add_output(device.device_id,
+                                output_id=None, signal=self.HIGH)
                 device.clock_counter = 0
         self.run_once = False
 
@@ -379,7 +381,8 @@ class Devices:
                 if device.sequence_2_repeat[0] == "0":
                     self.add_output(device_id, output_id=None, signal=self.LOW)
                 elif device.sequence_2_repeat[0] == "1":
-                    self.add_output(device_id, output_id=None, signal=self.HIGH)
+                    self.add_output(device_id, output_id=None,
+                                    signal=self.HIGH)
                 device.clock_counter = 0
                 error_type = self.NO_ERROR
 

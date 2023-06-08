@@ -58,41 +58,46 @@ class Parser:
         self.error_handler = error.ErrorHandler()
 
     def log_error(self, err: error.MyException):
-        """Log an error and continue parsing."""
+        """Logs errors encoutered in the defintion file and continues parsing
 
-        # TODO: Set the positions of an error
-        # calls the __call__ funciton in class ErrorHandler in error.py
+        Args:
+            err (error.MyException): custom exceptions defined in error.py
+        """
+
         self.error_handler(err)
 
-        # Delete the following in the final code
-        # print all errors
         err.set_error_position(self.scanner)
+        # Display the row and colum of encountered error
         print(f"Error row: {err.error_row}, column: {err.error_col}.")
 
+        # Print the message for the encountered error
         self.error_handler.print_error(self.scanner)
-        print("Done with printing log_error.")
 
-        # Edit the below comment
-        # Current symbol is skipped but do keep reading until
-        # we reach a "stopping symbol"
+        # Advance to the next symbol
         self.get_next_symbol()
 
-        # TODO: add self.scanner.COMMA in the following list
-        # after implementing the cursor position
-        while self.symbol.type not in [self.scanner.SEMICOLON, self.scanner.EOF]:
+        # Check whether symbol type is one the stopping symbols
+        while self.symbol.type not in [self.scanner.SEMICOLON,
+                                       self.scanner.EOF]:
+            # Continue parsing until a stopping symbol is encountered
             self.get_next_symbol()
 
     def semantic_error_reporting(self, error_type: int):
-        """Function converts the error_type(either 0, 1, 2, 3, 4 or 5) to a
-        custom built exception.
+        """Function converts the error_type to a
+        custom exception defined in error.py
 
-        error_type                  custom exception class
-        0 (NO_ERROR)            ->  pass
-        1 (INVALID_QUALIFIER)   ->  InvalidQualifierError()
-        2 (NO_QUALIFIER)        ->  NoQualifierError()
-        3 (BAD_DEVICE)          ->  NoDeviceFoundError()
-        4 (QUALIFIER_PRESENT)   ->  QualifierPresentError()
-        5 (DEVICE_PRESENT)      ->  DevicePresentError()
+        Args:
+            error_type (int): each error code corresponds to a semantic error
+            that is assigned by the methods in Devices class
+
+        Raises:
+            error.UnknownUniqueErrorCode: Error code is outside of range
+            error.InvalidPropertyError: Device property is invalid
+            error.NoPropertyError: Device property has not been provided
+            error.NoDeviceFoundError: Device has not been defined
+            error.PropertyPresentError: Device property specified
+                                            but not required for chosen device
+            error.DevicePresentError: Device already exists
         """
 
         if error_type not in range(6):
@@ -100,26 +105,34 @@ class Parser:
         if error_type == 0:
             pass
         if error_type == 1:
-            raise error.InvalidQualifierError("Device qualifier is incorrectly defined")
+            raise error.InvalidPropertyError(
+                "Device property is incorrectly defined")
         if error_type == 2:
-            raise error.NoQualifierError("Qualifier is missing")
+            raise error.NoPropertyError("Property is missing")
         if error_type == 3:
             raise error.NoDeviceFoundError("Device does not exist")
         if error_type == 4:
-            raise error.QualifierPresentError(
-                "DTYPE and XOR devices do not require a qualifier"
+            raise error.PropertyPresentError(
+                "DTYPE and XOR devices do not require a property"
             )
         if error_type == 5:
             raise error.DevicePresentError("Device already exists")
 
     def get_next_symbol(self):
-        """Get next symbol and assign it to self.symbol"""
+        """Get next symbol and assign it to self.symbol
+        """
         self.symbol = self.scanner.get_symbol()
 
-    def parse_network(self, break_parse=False):
+    def parse_network(self):
         """Parse the circuit definition file.
-        Return True if there are no errors in the defintion file,
-        false otherwise."""
+
+        Returns True if there are no errors in the defintion file.
+
+        Returns:
+            bool or None: True if there are no errors in definiton file, if
+                          errors are encountered returns None.
+
+        """
         self.get_next_symbol()
         # Check if file is empty
         if self.symbol.type == self.scanner.EOF:
@@ -136,7 +149,7 @@ class Parser:
             self.monitor_list()
 
         if self.error_handler.found_no_errors():
-            print("Defintion File Parsed")
+            print("DEFINITION FILE PARSED")
             return True
         else:
             # this should raise the first error
@@ -144,35 +157,43 @@ class Parser:
             self.error_handler.raise_error()
 
     def connection_list(self):
+        """Parses the connections specified in the definition file and
+        determines whether a single or multiple connections have been defined.
+
+        Raises:
+            error.MissingPunctuationError: SEMICOLON not specified at end of
+                                            line in definition file
+            error.KeywordError: CONNECT keyword must be used when
+                specifying connections in definition file
+        """
+
         try:
-            print("Successfully called connection_list in parser")
+            # Check if symbol type is KEYWORD and id corresponds to CONNECT
             if (
                 self.symbol.type == self.scanner.KEYWORD
                 and self.symbol.id == self.scanner.CONNECT_ID
             ):
-                self.get_next_symbol()  # This symbol should be COLON
                 self.get_next_symbol()
+                self.get_next_symbol()
+                # Check if symbol type is KEYWORD and id corresponds to NONE
                 if (
                     self.symbol.type == self.scanner.KEYWORD
                     and self.symbol.id == self.scanner.NONE_ID
                 ):
-                    print("No connection specified")
+                    print("NO CONNECTION SPECIFIED")
                     self.get_next_symbol()
                 else:
-                    print("Making a connection.\n")
+                    print("MAKING CONNECTION \n")
                     self.connection()
-                # self.get_next_symbol()  # check this
                 # Checking for mutiple connections
                 while self.symbol.type == self.scanner.COMMA:
                     self.symbol = self.scanner.get_symbol()
-                    print("Making a connection.\n")
+                    print("MAKING CONNECTION \n")
                     self.connection()
-                # self.get_next_symbol()  # check this
                 if self.symbol.type is not self.scanner.SEMICOLON:
                     raise error.MissingPunctuationError(
                         "Missing SEMICOLON at end of line."
                     )
-                # TODO: Check if self.get_next_symbol() is missing here
 
             else:
                 print(self.symbol)
@@ -180,46 +201,72 @@ class Parser:
                     "List of connections must begin with CONNECT keyword"
                 )
         except error.MyException as err:
-            print("Im in the except inside of connection_list() in parse.py")
+            print("ERROR RAISED")
             self.log_error(err)
 
     def connection(self):
+        """Parses the individual connections i.e. 'input' = 'output' and checks
+        whether the device property e.g. number of inputs for a GATE, have
+        been correctly specified in the definition file.
+
+        Raises:
+            error.InvalidPropertyError: Device property incorrectly specified
+            error.MultipleInputError:
+            error.MissingPunctuationError: _description_
+        """
+
         try:
-            """first find output device id and port_id
-            (note port_id will be None for all devices except DTYPE )"""
             op_device_id, op_port_id = self.output_device()
-            print(f"Current Symbol Type {self.symbol.type}, ID: {self.symbol.id}")
+            print(
+                f"Current Symbol Type {self.symbol.type}, ID: {self.symbol.id}"
+            )
             if self.symbol.type == self.scanner.EQUALS:
                 self.get_next_symbol()
                 ip_device_id, ip_port_id = self.input_device()
                 input_device = self.devices.get_device(ip_device_id)
                 if input_device is None:
-                    raise error.InvalidQualifierError("Incorrect Device Qualifier.")
+                    raise error.InvalidPropertyError(
+                        "Incorrect Device Property.")
                 if input_device.inputs[ip_port_id] is not None:
-                    raise error.MultipleInputError("This input is already connected")
+                    raise error.MultipleInputError(
+                        "This input is already connected")
 
             else:
                 raise error.MissingPunctuationError(
                     "Connections must be specified with an EQUAL (=)"
                 )
         except error.MyException as err:
-            print("Successfuly entered exception condition of connection()")
+            print("ERROR RAISED")
             # print error log
             self.log_error(err)
-        # if there are no errors, call make connection
+        # if there are no errors, call make_connection() located in Network
         else:
             error_type = self.devices.NO_ERROR
             print("Now calling make_connection")
             self.network.make_connection(
                 op_device_id, op_port_id, ip_device_id, ip_port_id
             )
+            # Report semantic error and raise custom exception
             if error_type != self.devices.NO_ERROR:
                 self.semantic_error_reporting(error_type)
 
     def input_device(self):
         """Function that returns the input device id and input port id
         (in case of DTYPE Latch) - these parameters are needed when calling
-        the make_connection() method from the network module"""
+        the make_connection() method from the network module
+
+        Raises:
+            error.DefinitionError: Device not found/defined
+            error.PortReferenceError: Input port not found/defined
+            error.MissingPunctuationError: Input must be defined using
+                                            the notation .I#
+
+        Returns:
+            int: input device ID
+            int or None: the input port id if device is D-TYPE,
+                         or None for all other devices.
+        """
+
         # Retrieve device id
         ip_device_id = self.get_device_id()
         # Check if input device_id is obtained
@@ -261,7 +308,18 @@ class Parser:
     def output_device(self):
         """Function that returns the output device id and output port id
         (in case of DTYPE Latch) - these paramters are needed when calling
-        the make_connection() method from the network module"""
+        the make_connection() method from the network module
+
+        Raises:
+            error.DefinitionError: Device not found/defined
+            error.MonitorError: Cannot monitor a device input
+            error.PortReferenceError: Output port not found/defined
+
+        Returns:
+            int: output device ID
+            int or None: the output port id if device is D-TYPE,
+                         or None for all other devices.
+        """
         # Retrieve device id
         op_device_id = self.get_device_id()
 
@@ -290,22 +348,39 @@ class Parser:
                 raise error.MonitorError("Cannot monitor a device input")
 
             else:
-                raise error.PortReferenceError("DTYPE input port does not exist")
+                raise error.PortReferenceError(
+                    "DTYPE input port does not exist")
         else:
             print("Device is not a DTYPE Latch")
             # Output device is not a DTYPE Latch so op_port_id must be None
             return op_device_id, None
 
     def get_device_id(self):
+        """Function that gets the ID of the device
+
+        Raises:
+            error.DeviceNameError: Device name must be alphanumeric but
+                                   not a KEYWORD
+
+        Returns:
+            int: Symbol ID
+        """
         if self.symbol.type == self.scanner.NAME:
             return self.symbol.id
         elif self.symbol.type == self.scanner.KEYWORD:
             raise error.DeviceNameError("Cannot use KEYWORD as device name")
         else:
-            raise error.DeviceNameError("Device Name must be an alphanumeric string.")
+            raise error.DeviceNameError(
+                "Device Name must be an alphanumeric string.")
 
-    # Continue checking for devices until keyword "CONNECT" is detected
     def device_list(self):
+        """Identifies devices specified in the definiton file and checks
+        whether mutliple devices have been defined
+
+        Raises:
+            error.KeywordError: Definition file must contain at least
+                                one device
+        """
         if (
             self.symbol.type == self.scanner.KEYWORD
             and self.symbol.id == self.scanner.DEVICE_ID
@@ -317,8 +392,7 @@ class Parser:
 
         count = 0
         while defining_devices is True:
-            # Create new device
-            # Its for debuging inf loops only.
+            # Debugging Infinte Loops
             if count >= 500:
                 break
 
@@ -328,6 +402,7 @@ class Parser:
             self.get_next_symbol()
             # Check if next symbol is CONNECT
 
+            # Only calls device_creation, if the DEVICE KEYWORD is specified
             if (
                 self.symbol.type == self.scanner.KEYWORD
                 and self.symbol.id == self.scanner.CONNECT_ID
@@ -344,7 +419,13 @@ class Parser:
                 break
 
     def device_creation(self):
-        print("Successfully called device_creation in parser module")
+        """Checks whether each device has been defined using the correct
+            syntax and raises errors accordingly.
+
+        Raises:
+            error.MissingPunctuationError: Missing COLON after DEVICE KEYWORD
+            error.DeviceNameError: Device name has not been specified
+        """
         try:  # check device type has been declared
             if (
                 self.symbol.type == self.scanner.KEYWORD
@@ -370,8 +451,29 @@ class Parser:
             self.log_error(err)
 
     def device(self):
+        """Parses and processes device definitions.
+        This function is responsible for parsing and processing device
+        definitions in a larger code context.
+        It verifies the device name, type, and properties,
+        and initializes the parameters of the device accordingly.
+
+        Returns:
+            None
+
+        Raises:
+            DeviceNameError: If the device name is a keyword or gate type.
+            InputPinNumberError: If the number of device inputs is
+                                 not specified or invalid.
+            MissingPunctuationError: If there are missing commas or semicolons
+                                     in the device definition.
+            PropertyPresentError: If a property is specified for device types
+                                  that should have None as the property.
+            DeviceTypeError: If the device type is missing or unknown.
+
+    """
         try:
-            print(f"Current symbol {self.names.get_name_string(self.symbol.id)}")
+            print(
+                f"Current symbol {self.names.get_name_string(self.symbol.id)}")
             # Check device name must not be KEYWORD or GATE TYPE
             if self.symbol.type is self.scanner.KEYWORD or self.symbol.id in [
                 self.devices.AND,
@@ -379,7 +481,8 @@ class Parser:
                 self.devices.OR,
                 self.devices.NOR,
             ]:
-                raise error.DeviceNameError("Device name cannot be KEYWORD or GATE")
+                raise error.DeviceNameError(
+                    "Device name cannot be KEYWORD or GATE")
             # Initalise parameters of the device
             device_id = self.get_device_id()
             device_kind = None
@@ -392,7 +495,8 @@ class Parser:
                 self.get_next_symbol()
 
                 # If DEVICE-TYPE is AND,NAND,OR,NOR
-                if self.symbol.type is self.scanner.NAME and self.symbol.id in [
+                if (self.symbol.type is self.scanner.NAME
+                        and self.symbol.id) in [
                     self.devices.AND,
                     self.devices.NAND,
                     self.devices.OR,
@@ -432,7 +536,8 @@ class Parser:
                         )
 
                 # If DEVICE TYPE is D_TYPE or XOR
-                elif self.symbol.type is self.scanner.NAME and self.symbol.id in (
+                elif (self.symbol.type is self.scanner.NAME
+                        and self.symbol.id) in (
                     self.devices.D_TYPE,
                     self.devices.XOR,
                 ):
@@ -447,8 +552,8 @@ class Parser:
                         pass
 
                     elif self.symbol.type == self.scanner.COMMA:
-                        raise error.QualifierPresentError(
-                            "For DTYPE or XOR, qualifier should be None."
+                        raise error.PropertyPresentError(
+                            "For DTYPE or XOR, property should be None."
                         )
 
                     else:
@@ -457,7 +562,8 @@ class Parser:
                         )
 
                 # If DEVICE TYPE is CLOCK
-                elif self.symbol.type is self.scanner.NAME and self.symbol.id in (
+                elif (self.symbol.type is self.scanner.NAME
+                        and self.symbol.id) in (
                     self.devices.CLOCK,
                     self.devices.SIGGEN,
                 ):
@@ -524,7 +630,8 @@ class Parser:
                             )
 
                 else:
-                    raise error.DeviceTypeError("Device type is missing or unknown.")
+                    raise error.DeviceTypeError(
+                        "Device type is missing or unknown.")
             else:
                 raise error.MissingPunctuationError(
                     "Missing a COMMA in DEVICE: definition."
@@ -542,8 +649,6 @@ class Parser:
                     int_device_property = list(device_property.id)
                 else:
                     int_device_property = int(device_property.id)
-                # TODO: Write tests to assert unique error
-                # codes for error type
                 error_type = self.devices.make_device(
                     device_id, device_kind, int_device_property
                 )
@@ -553,19 +658,18 @@ class Parser:
                 error_type = self.devices.make_device(
                     device_id, device_kind, int_device_property
                 )
-
-            # TODO: For each semantic error text file
-            # print the error types that gets raised.
-            # Cross reference that with what is in
-            # make_devices() in devices.py
-            # That gives you a staring point
-            # to run assert checks for each error type.
-            # Ankit asssert "Oh the error type has to be a certain thing."
             if error_type != self.devices.NO_ERROR:
                 self.semantic_error_reporting(error_type)
 
     def monitor_list(self):
-        print("i'm inside monitor_list")
+        """Parses the list of monitor points specified in the
+           definiton file and checks whether multiple monitor points
+           have been defined.
+
+        Raises:
+            error.MissingPunctuationError: Missing punctuation
+            error.MonitorError: MONITOR KEYWORD missing
+        """
         if self.symbol.type == self.scanner.SEMICOLON:
             self.get_next_symbol()
         try:
@@ -600,6 +704,8 @@ class Parser:
             self.log_error(err)
 
     def monitor(self):
+        """Creates monitor point by calling make_monitor from monitor.py module
+        """
         try:
             op_device_id, op_port_id = self.output_device()
         except error.MyException as err:
@@ -608,7 +714,8 @@ class Parser:
             self.monitors.make_monitor(op_device_id, op_port_id)
 
     def comment(self):
-        """Do not parse symbols between two hash symbols"""
+        """Do not parse symbols between two hash symbols
+        """
         if self.symbol.type == self.scanner.HASH:
             self.get_next_symbol()
             while self.symbol.type != self.scanner.HASH:
@@ -618,4 +725,4 @@ class Parser:
             self.get_next_symbol()
 
     def error(self):
-        raise Exception("You have an error!")
+        raise Exception("ERROR!")

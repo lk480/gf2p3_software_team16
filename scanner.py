@@ -47,20 +47,46 @@ class Scanner:
 
     Public methods:
         get_symbol(self): Translates the next sequence of characters into a
-        symbol and returns the symbol.
+                          symbol and returns the symbol.
+
+        skip_space(self): Skip whitespace characters and move to the
+                            next non-whitespace character.
+
+        advance(self): Move the marker to next symbol in the definition file
+
+        get_number(self): Assumes the current character is a number, returns
+                          the integer number and places the next non-digit
+                          character in current_character.
+
+        get_name(self): Assumes current character is a letter, returns the name
+                        string and sets current_character as the next
+                        non-alphanumeric character.
     """
 
     def __init__(self, path, names):
-        """Open specified file and initialize reserved words and IDs."""
-        # if isinstance(names, Names)
+        """Open specified file and initialize reserved words and IDs.
+        Parameters:
+            path (str): Path to the circuit definition file
+            names (names.Names): Instance of the names.Names() class
+
+        Returns:
+            None
+        Raises:
+            FileNotFoundError: If the specified file cannot be found or read
+
+        """
+
         self.names = names
         self.path = path
+        # Try to open and read file, otherwise raise an error
         try:
             self.input_file = open(path, "r")
         except IOError:
             raise FileNotFoundError("Cannot find file or read data")
 
+        # Set first character as whitespace
         self.current_character = " "
+        # List of keywords present in the defintion file
         self.keywords_list = [
             "DEVICE",
             "CONNECT",
@@ -71,14 +97,14 @@ class Scanner:
             "NONE",
         ]
 
-        # This will tell us where the marker is currently in the file
+        # This stores the current position of the marker in the file
         self.marker_row = 0
         self.marker_col = -1
 
         self.start_of_symbol_row = None
         self.start_of_symbol_col = None
 
-        # self.NAME refers to name of a gate
+        # Assign a unique number to each symbol type
         self.symbol_type_list = [
             self.COMMA,
             self.SEMICOLON,
@@ -94,7 +120,6 @@ class Scanner:
             self.HASH,
         ] = range(12)
 
-        # Index starts at 14
         [
             self.DEVICE_ID,
             self.CONNECT_ID,
@@ -106,13 +131,23 @@ class Scanner:
         ] = self.names.lookup(self.keywords_list)
 
     def get_symbol(self):
-        """Translate the next sequence of characters into a symbol."""
+        """Translate the next sequence of characters into a symbol.
+
+           Returns:
+                Symbol: The translated symbol.
+
+           Raises:
+                None
+        """
+        # Instantiate Symbol Object
         symbol = Symbol()
 
+        # Initalise marker
         self.start_of_symbol_row = self.marker_row
         self.start_of_symbol_col = self.marker_col
 
-        self.skip_space()  # current character now not a whitespace
+        # Call skip_space which returns next non-whitespace character
+        self.skip_space()
 
         if self.current_character.isalpha():
             name_string = self.get_name()
@@ -160,23 +195,28 @@ class Scanner:
         elif self.current_character == "#":
             symbol.type = self.HASH
             self.advance()
-        else:  # not a valid character
+        else:
             self.advance()
 
-        print(f"Symbol id: {symbol.id}, symbol type: {symbol.type}")
+        # Verbose outuput for debugging only:
+        # print(f"Symbol id: {symbol.id}, symbol type: {symbol.type}")
         return symbol
 
-    def skip_space(self):
-        """Return next non-whitespace character."""
-        while self.current_character.isspace():
-            self.current_character = self.advance()
-
     def advance(self):
-        # Move the marker by 1
+        """Reads the next character from the definition file and
+           places it in current character.
+
+        Returns:
+            str: current character in file
+
+        Raise: None
+        """
+        # Advance marker column by 1
         self.marker_col += 1
 
+        # Check if current character encounters a newline
         if self.current_character == "\n":
-            # We are in a new line in the file
+            # Reset marker column to zero, advance marker row
             self.marker_col = 0
             self.marker_row += 1
 
@@ -185,20 +225,58 @@ class Scanner:
 
         return self.current_character
 
+    def skip_space(self):
+        """Sets current character to next non-whitespace character
+           by repeatedly calling advance() as necessary.
+
+           Returns:
+                None
+           Raises:
+                None
+        """
+        # Check if current character is whitespace
+        while self.current_character.isspace():
+            # Call advance until a non-whitespace character is read
+            self.current_character = self.advance()
+
     def get_number(self):
+        """Assumes current character is a number and returns 
+           the integer number and places sets current character
+           to the next non-digit character.
+
+        Returns:
+            int: integer number
+        Raises:
+            None
+        """
+        # Assumes current character is the first digit of a number
         number = self.current_character
         while True:
             self.current_character = self.advance()
+            # Check current character is digit
             if self.current_character.isdigit():
+                # Concatenate digit with string stored in number
                 number = number + self.current_character
             else:
                 return number
 
     def get_name(self):
+        """Assumes current character is a letter and returns the
+           name string and sets current character to the next
+           non-alphanumeric character.
+
+        Returns:
+            str: name string
+        Raises:
+            None
+        """
+        # Assumes current character is the first letter of a name
         name = self.current_character
         while True:
             self.current_character = self.advance()
+            # Check current character is alphanumeric
             if self.current_character.isalnum():
+                # Concatenate character with string stored in name
                 name = name + self.current_character
             else:
                 return name

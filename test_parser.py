@@ -54,105 +54,126 @@ def new_monitor(new_names, new_device, new_network):
     return Monitors(new_names, new_device, new_network)
 
 
-@pytest.mark.parametrize("file_path, parse_bool_value", [
-    (Path.cwd() / "definition_files" /
-     "simple_files" / "clock.txt", True),
-    (Path.cwd() / "definition_files" /
-     "simple_files" / "dtype.txt", True),
-    (Path.cwd() / "definition_files" /
-     "simple_files" / "nand.txt", True),
-    (Path.cwd() / "definition_files" /
-     "simple_files" / "nor.txt", True),
-    (Path.cwd() / "definition_files" /
-     "simple_files" / "rc.txt", True),
-    (Path.cwd() / "definition_files" /
-     "simple_files" / "siggen.txt", True),
-    (Path.cwd() / "definition_files" /
-     "simple_files" / "switch.txt", True),
-    (Path.cwd() / "definition_files" /
-     "simple_files" / "xor.txt", True),
-    (Path.cwd() / "definition_files" /
-     "demonstration_files" / "2on_2off.txt", True),
-    (Path.cwd() / "definition_files" /
-     "demonstration_files" / "PWM_clock.txt", True),
-    (Path.cwd() / "definition_files" /
-     "demonstration_files" / "recursive.txt", True),
-    (Path.cwd() / "definition_files" /
-     "demonstration_files" / "shift_register.txt", True),
-    (Path.cwd() / "definition_files" /
-     "demonstration_files" / "sr_bistable.txt", True)
-])
-def test_parser(new_names, new_device,
-                new_network, new_monitor, file_path, parse_bool_value):
-    """Test if Parser().parse_network() returns True if a correct definition
-    file is parsed. If the definition file is erronious, it raises an error,
-    which is explored in the next test, test_parser_raises_exceptions().
+@pytest.fixture(scope="function")
+def parser(path):
+    """Create a new parser object
+    Note that the scope is *not* module, as a new Parser is required
+    for each different file path"""
 
-    Parser().parse_network() calls an instance of the Scanner() class, which
-    scans the .txt file one line at a time and then parses that line and checks
-    if it has any errors.
-    """
-    parser = Parser(new_names, new_device, new_network, new_monitor,
-                    Scanner(file_path, new_names))
-    assert parser.parse_network() == parse_bool_value
+    names = Names()
+    devices = Devices(names)
+    network = Network(names, devices)
+    monitors = Monitors(names, devices, network)
+    scanner = Scanner(path, names)
+    return Parser(names, devices, network, monitors, scanner)
+
+
+"""
+SyntaxError - Missing Colon
+DEVICE: GATE1, NAND, 2;
+DEVICE Gate2, OR, 2;
+"""
 
 
 @pytest.mark.parametrize("file_path, exception", [
-
-    # Paths to definition files which contain a syntax error.
-    # We pass these paths to the Parser()
     (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_colon.txt", error.MissingPunctuationError),
+     "missing_colon.txt", error.MissingPunctuationError)])
+def test_parse_missing_punctuation(new_names, new_device,
+                                   new_network, new_monitor,
+                                   file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
+    with pytest.raises(exception):
+        parser.parse_network()
+
+
+"""
+SyntaxError - Missing Attribute
+DEVICE: GATE1, NAND, ;
+CONNECT: NONE;
+MONITOR: GATE1;
+"""
+
+
+@pytest.mark.parametrize("file_path, exception", [
     (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_colon2.txt", error.MissingPunctuationError),
+     "missing_attribute.txt", error.InputPinNumberError)])
+def test_parse_missing_attribute(new_names, new_device,
+                                 new_network, new_monitor,
+                                 file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
+    with pytest.raises(exception):
+        parser.parse_network()
+
+
+"""
+SyntaxError - Missing Comma
+DEVICE: GATE1, NAND 2;
+"""
+
+
+@pytest.mark.parametrize("file_path, exception", [
     (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_colon3.txt", error.MissingPunctuationError),
+     "missing_comma.txt", error.MissingPunctuationError)])
+def test_parse_missing_comma(new_names, new_device,
+                             new_network, new_monitor,
+                             file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
+    with pytest.raises(exception):
+        parser.parse_network()
+
+
+"""
+SyntaxError - Missing Device
+    : GATE1, AND, 4;
+"""
+
+
+@pytest.mark.parametrize("file_path, exception", [
     (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_colon_with_comment.txt", error.MissingPunctuationError),
+     "missing_device.txt", error.KeywordError)])
+def test_parse_missing_device(new_names, new_device,
+                              new_network, new_monitor,
+                              file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
+    with pytest.raises(exception):
+        parser.parse_network()
+
+
+"""
+SyntaxError - Missing Device Type
+    DEVICE: GATE1, , 2;
+"""
+
+
+@pytest.mark.parametrize("file_path, exception", [
     (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_comma.txt", error.MissingPunctuationError),
+     "missing_device_type.txt", TypeError)])
+def test_parse_missing_device_type(new_names, new_device,
+                                   new_network, new_monitor,
+                                   file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
+    with pytest.raises(exception):
+        parser.parse_network()
+
+
+"""
+DEVICE: GATE1, NAND, 2
+CONNECT: NONE;
+"""
+
+
+@pytest.mark.parametrize("file_path, exception", [
     (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_comma2.txt", error.MissingPunctuationError),
-    (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_attribute.txt", error.InputPinNumberError),
-    (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_semicolon.txt", error.MissingPunctuationError),
-    (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_device_type.txt", error.DeviceTypeError),
-    (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_device.txt", error.KeywordError),
-
-
-    # Paths to definition files which contain a semantic error.
-    # We pass these paths to the Parser()
-
-    # TODO: Make the below test cases work
-
-    # (Path.cwd() / "definition_files" / "semantic_error_files" /
-    # "monitor_input.txt", error.InputPinNumberError)
-
-    # (Path.cwd() / "definition_files" / "semantic_error_files" /
-    # "keyword_name_error.txt", error.DeviceNameError)
-
-
-    # (Path.cwd() / "definition_files" / "semantic_error_files" /
-    # "connect_error.txt", error.ConnectError)
-
-    # (Path.cwd() / "definition_files" / "semantic_error_files" /
-    # "port_reference_error.txt", error.PortReferenceError)
-
-])
-def test_parser_raises_exceptions(new_names, new_device,
-                                  new_network, new_monitor,
-                                  file_path, exception):
-    """Test if Parser().parse_network() raises the correct error when the
-    definition file contains an error. We tests for syntax and semantic errors.
-    We created our own error classes which we raise.
-    You can find them in error.py.
-    """
-
-    parser = Parser(new_names, new_device, new_network, new_monitor,
-                    Scanner(file_path, new_names))
-
+     "missing_semicolon.txt", error.MissingPunctuationError)])
+def test_parse_missing_semicolon(new_names, new_device,
+                                 new_network, new_monitor,
+                                 file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
     with pytest.raises(exception):
         parser.parse_network()

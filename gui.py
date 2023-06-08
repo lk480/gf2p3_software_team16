@@ -429,16 +429,14 @@ class Gui(wx.Frame):
                 single_device_list.append(devices.return_property(id))
                 devices_list.append(single_device_list)
                 
-                pass
-            
-            single_device_list = []
-            id = device.device_id
-            single_device_list.append(names.get_name_string(id))
-            single_device_list.append(self.device_number_to_string(device.device_kind))
-            single_device_list.append(devices.return_property(id))
+            else:
+                single_device_list = []
+                id = device.device_id
+                single_device_list.append(names.get_name_string(id))
+                single_device_list.append(self.device_number_to_string(device.device_kind))
+                single_device_list.append(devices.return_property(id))
 
-            devices_list.append(single_device_list)
-        print(devices_list)
+                devices_list.append(single_device_list)
         return devices_list
 
     def add_scroll_widgets(self, device_sizer, device):
@@ -557,7 +555,14 @@ class Gui(wx.Frame):
         self.run(cycle_count)
         for item in self.monitors.monitors_dictionary.items():
             single_signal = []
-            single_signal.append(names.get_name_string(item[0][0]))
+            if item[0][0] == 23:
+                if item[0][1] == 14:
+                    single_signal.append(names.get_name_string(item[0][0])+".Q")
+                elif item[0][1] == 15:
+                    single_signal.append(names.get_name_string(item[0][0])+".QBAR")
+
+            else:
+                single_signal.append(names.get_name_string(item[0][0]))
             single_signal.append(item[1])
             signals_list.append(single_signal)
 

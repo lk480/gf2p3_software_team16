@@ -417,17 +417,18 @@ class Gui(wx.Frame):
             if self.device_number_to_string(device.device_kind) == self._("DTYPE"):
                 single_device_list = []
                 id = device.device_id
+                if(device.device_id, 14) in self.monitors.monitors_dictionary:
+                    single_device_list.append(names.get_name_string(id)+".Q")
+                    single_device_list.append(self.device_number_to_string(device.device_kind))
+                    single_device_list.append(devices.return_property(id))
+                    devices_list.append(single_device_list)
+                    single_device_list = []
 
-                single_device_list.append(names.get_name_string(id)+".Q")
-                single_device_list.append(self.device_number_to_string(device.device_kind))
-                single_device_list.append(devices.return_property(id))
-                devices_list.append(single_device_list)
-                single_device_list = []
-
-                single_device_list.append(names.get_name_string(id)+".QBAR")
-                single_device_list.append(self.device_number_to_string(device.device_kind))
-                single_device_list.append(devices.return_property(id))
-                devices_list.append(single_device_list)
+                if(device.device_id, 15) in self.monitors.monitors_dictionary:
+                    single_device_list.append(names.get_name_string(id)+".QBAR")
+                    single_device_list.append(self.device_number_to_string(device.device_kind))
+                    single_device_list.append(devices.return_property(id))
+                    devices_list.append(single_device_list)
                 
             else:
                 single_device_list = []

@@ -268,15 +268,17 @@ class Gui(wx.Frame):
         """Initialise widgets, layout and variables."""
 
         super().__init__(parent=None, title=title, size=(800, 600))
-        self.lang = "serbian"
+        self.lang = "a"
+        print(wx.Locale.FindLanguageInfo("en_GB").GetLocaleName())
         if self.lang == "serbian":
-            self.locale = wx.Locale(wx.LANGUAGE_SERBIAN_CYRILLIC_SERBIA)
+            self.locale = wx.Locale(wx.LANGUAGE_FRENCH)
             self.locale.AddCatalogLookupPathPrefix("languages/serbian")
             print(self.locale.AddCatalog("messages"))
         elif self.lang == "spanish":
             self.locale = wx.Locale(wx.LANGUAGE_SPANISH)
             self.locale.AddCatalogLookupPathPrefix("languages/spanish")
             print(self.locale.AddCatalog("messages"))
+
         else:
             self.locale = wx.Locale(wx.LANGUAGE_ENGLISH)
 
@@ -291,6 +293,7 @@ class Gui(wx.Frame):
         # Initialise dictionaries and lists for the checks for switches and monitoring
         self.on_checks = {}
         self.monitor_checks = {}
+        self.clocks = {}
         self.monitored_list = self.generate_monitored_list(devices, names)
 
         # Used to use the continue button to run on first click
@@ -490,7 +493,9 @@ class Gui(wx.Frame):
         # Add spin box with initial value as set in file
         device_spin = wx.SpinCtrl(self.device_scroll, wx.ID_ANY, str(device[2]))
         device_entry.Add(device_spin, 1, wx.ALL, 5)
-
+        device_spin.Bind(wx.EVT_SPINCTRL, self.on_spin_clock)
+        self.clocks[device_spin] = device[0]
+        device_spin.SetRange(1, 100)
         # Bind an event handler to the checkbox TODO
         return
 
@@ -643,6 +648,17 @@ class Gui(wx.Frame):
         """Handle the event when the user changes the number of cycles value."""
 
         self.cycle_count = self.cycles_spin.GetValue()
+        self.canvas.render(self.signals_list)
+
+    def on_spin_clock(self, event):
+        spinner = event.GetEventObject()
+        value = spinner.GetValue()
+        name_id = self.names.query(self.clocks[spinner])
+        device = self.devices.get_device(name_id)
+        device.clock_half_period = value
+        if not self.running:
+            return
+        self.signals_list = self.on_run_button("")
         self.canvas.render(self.signals_list)
 
     def on_run_button(self, event):

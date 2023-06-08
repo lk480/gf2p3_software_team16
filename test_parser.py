@@ -68,6 +68,8 @@ def parser(path):
     return Parser(names, devices, network, monitors, scanner)
 
 
+# ---- SYNTAX ERRORS ----#
+
 """
 SyntaxError - Missing Colon
 DEVICE: GATE1, NAND, 2;
@@ -177,3 +179,7 @@ def test_parse_missing_semicolon(new_names, new_device,
                     new_monitor, Scanner(file_path, new_names))
     with pytest.raises(exception):
         parser.parse_network()
+
+
+# ---- SEMANTIC ERRORS ---- #
+

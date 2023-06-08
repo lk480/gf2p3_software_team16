@@ -439,15 +439,18 @@ class Gui(wx.Frame):
         )
 
     def set_up_devices(self, devices, names):
-        """NOT SURE WHAT THIS DOES TODO."""
+        """Sets up the devices for the GUI into a list of lists, containing id, name and value."""
 
         devices_list = []
         for device in devices.devices_list:
+            # Different handling for DTYPE devices, as they have 2 outputs
             if self.device_number_to_string(device.device_kind) == self._(
                 "DTYPE"
             ):
                 single_device_list = []
                 id = device.device_id
+
+                # If it is D.Q
                 if (device.device_id, 14) in self.monitors.monitors_dictionary:
                     single_device_list.append(names.get_name_string(id) + ".Q")
                     single_device_list.append(
@@ -457,6 +460,7 @@ class Gui(wx.Frame):
                     devices_list.append(single_device_list)
                     single_device_list = []
 
+                # If it is D.QBAR
                 if (device.device_id, 15) in self.monitors.monitors_dictionary:
                     single_device_list.append(
                         names.get_name_string(id) + ".QBAR"
@@ -467,6 +471,7 @@ class Gui(wx.Frame):
                     single_device_list.append(devices.return_property(id))
                     devices_list.append(single_device_list)
 
+            # For all other devices
             else:
                 single_device_list = []
                 id = device.device_id
@@ -669,7 +674,6 @@ class Gui(wx.Frame):
 
             # If it's monitor
             if checkbox in self.monitor_checks:
-                # BREAK FOR DTYPE TODO TODO
                 name_id = self.names.query(self.monitor_checks[checkbox])
                 self.monitors.make_monitor(name_id, None, self.cycle_count)
 
@@ -680,7 +684,6 @@ class Gui(wx.Frame):
                 self.devices.set_switch(name_id, 0)
             # If it's monitor
             if checkbox in self.monitor_checks:
-                # BREAK FOR DTYPE TODO TODO
                 name_id = self.names.query(self.monitor_checks[checkbox])
                 self.monitors.remove_monitor(name_id, None)
 

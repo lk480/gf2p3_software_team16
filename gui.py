@@ -269,14 +269,14 @@ class Gui(wx.Frame):
 
         super().__init__(parent=None, title=title, size=(800, 600))
         self.lang_map = {
-            'fr': (wx.LANGUAGE_FRENCH, 'languages/serbian'),
+            'sr': (wx.LANGUAGE_FRENCH, 'languages/serbian'),
             'es': (wx.LANGUAGE_SPANISH, 'languages/spanish'),
             # Add more mappings as needed
         }
         userlang = self.lang_map.get(language)
         if userlang:
             if userlang[1] == "languages/serbian":
-                self.locale = wx.Locale(wx.LANGUAGE_FRENCH)
+                self.locale = wx.Locale(wx.LANGUAGE_SERBIAN_CYRILLIC)
                 self.locale.AddCatalogLookupPathPrefix("languages/serbian")
                 print(self.locale.AddCatalog("messages"))
             elif userlang[1] == "languages/spanish":

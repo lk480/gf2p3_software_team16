@@ -99,7 +99,7 @@ MONITOR: GATE1;
 
 @pytest.mark.parametrize("file_path, exception", [
     (Path.cwd() / "definition_files" / "syntax_error_files" /
-     "missing_attribute.txt", error.InputPinNumberError)])
+     "missing_attribute.txt", error.DefinitionError)])
 def test_parse_missing_attribute(new_names, new_device,
                                  new_network, new_monitor,
                                  file_path, exception):
@@ -183,3 +183,7 @@ def test_parse_missing_semicolon(new_names, new_device,
 
 # ---- SEMANTIC ERRORS ---- #
 
+"""
+
+
+"""

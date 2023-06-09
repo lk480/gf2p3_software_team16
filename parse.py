@@ -516,8 +516,8 @@ class Parser:
                         # I dont think the line below is needed.
                         # self.get_next_symbol()
                         if device_property.id is None:
-                            raise error.InputPinNumberError(
-                                "Number of device inputs to specified"
+                            raise error.DefinitionError(
+                                "Number of device inputs needs to be specified"
                             )
                         elif int(device_property.id) not in range(1, 17):
                             raise error.InputPinNumberError(

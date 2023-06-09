@@ -11,11 +11,11 @@ pip install -r requirements.txt
 Simply replace {directory} with the desired directory and {Iso language code} with the desired code, such as en_GB or es_ES.
 The babel.cfg file can be found in the languages folder.
 
-'''
+```
 pybabel extract -F {path to babel.cfg}babel.cfg -o messages.pot gui.py  
 pybabel init -i messages.pot -d {directory} -l {Iso langauge code}  
 pybabel compile -f -d {directory}  
-'''
+```
 
 ## EBNF SYNTAX
 

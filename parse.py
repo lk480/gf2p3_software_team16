@@ -337,7 +337,6 @@ class Parser:
             if (
                 self.symbol.type == self.scanner.NAME
                 and self.symbol.id in self.devices.dtype_output_ids
-                and 
             ):
                 # Device is a DTYPE Latch
                 print("Device is a DTYPE Latch")

@@ -752,7 +752,6 @@ class Gui(wx.Frame):
     def on_spin_cycles(self, event):
         """Handle the event when the user changes the number of
         cycles value."""
-
         self.cycle_count = self.cycles_spin.GetValue()
         self.canvas.render(self.signals_list)
 

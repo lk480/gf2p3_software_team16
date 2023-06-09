@@ -240,7 +240,7 @@ class Scanner:
             self.current_character = self.advance()
 
     def get_number(self):
-        """Assumes current character is a number and returns 
+        """Assumes current character is a number and returns
            the integer number and places sets current character
            to the next non-digit character.
 

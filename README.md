@@ -4,7 +4,9 @@ This is a repo for Team 16 GF2 Software Project. This project contains software 
 
 ## Install requirements
 
+```
 pip install -r requirements.txt
+```
 
 ## Commands to generate new .pot, .po and .mo files
 

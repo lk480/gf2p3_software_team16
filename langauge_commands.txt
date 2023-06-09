@@ -1,3 +1,0 @@
-pybabel extract -F babel.cfg -o messages.pot gui.py
-pybabel init -i messages.pot -d dir -l es_ES
-pybabel compile -f -d dir/

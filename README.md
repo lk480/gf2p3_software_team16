@@ -2,15 +2,22 @@
 
 This is a repo for Team 16 GF2 Software Project
 
-pip install -r requirements.txt  
+## Install requirements
 
-pybabel extract -F babel.cfg -o messages.pot gui.py
+pip install -r requirements.txt
+
+## Commands to generate new .pot, .po and .mo files
+
+Simply replace {directory} with the desired directory and {Iso language code} with the desired code, such as en_GB or es_ES.
+The babel.cfg file can be found in the languages folder.
+
+pybabel extract -F {path to babel.cfg}babel.cfg -o messages.pot gui.py
 pybabel init -i messages.pot -d {directory} -l {Iso langauge code}
 pybabel compile -f -d {directory}
 
-overall_circuit = new_devices, connections, [monitors];
+## EBNF SYNTAX
 
-## # Here we define what is new_devices
+### # Here we define what is new_devices
 
 new_device = "DEVICE", ":", device_name, ",", device_type, ",", device_property, ";",;
 
@@ -26,7 +33,7 @@ switch_state = "0" | "1";
 define_clock_period = "PERIOD(", {positive_non_zero_integer, ","},
                       positive_non_zero_integer, ")";
 
-## # Here we define connections
+### # Here we define connections
 
 connectionlist = "CONNECT", ":", connection, {",",connection},";";
 
@@ -34,11 +41,11 @@ connection = ip_device, '=', op_device
 output = device_name, "." ["Q" | "QBAR"];
 input = device_name, "." ("I", positive_non_zero_integer);
 
-## # Definition of monitors
+### # Definition of monitors
 
 monitors = "MONITOR", ":" , {output, ","}, output;
 
-## # Additional definitions
+### # Additional definitions
 
 non_zero_digit = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 digit = "0" | digit_excluding_zero;
@@ -57,7 +64,7 @@ sign = "+” | ”-”;
 integer = ([sign], non_zero_digit, {digit}) | "0";
 positive_non_zero_integer = non_zero_digit, {digit};
 
-## # Examples of EBNF Grammar
+### # Examples of EBNF Grammar
 
 DEVICE: G1, NAND, 2;
 DEVICE: G2, NAND, 2;

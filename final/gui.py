@@ -110,7 +110,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         GL.glScaled(self.zoom, self.zoom, self.zoom)
 
     def set_dark_mode(self):
-        """Set the background colour to black and first signal colour to white."""
+        """Set the background colour to black and first signal colour to
+            white."""
 
         GL.glClearColor(
             self.BG_BLACK[0], self.BG_BLACK[1], self.BG_BLACK[2], 1.0
@@ -118,7 +119,8 @@ class MyGLCanvas(wxcanvas.GLCanvas):
         self.colours[0] = self.WHITE
 
     def set_light_mode(self):
-        """Set the background colour to white and first signal colour to black."""
+        """Set the background colour to white and first signal
+            colour to black."""
 
         GL.glClearColor(
             self.BG_WHITE[0], self.BG_WHITE[1], self.BG_WHITE[2], 1.0
@@ -321,7 +323,8 @@ class Gui(wx.Frame):
         self.monitors = monitors
         self.network = network
 
-        # Initialise dictionaries and lists for the checks for switches and monitoring
+        """Initialise dictionaries, lists for the checks for switches
+            and monitoring"""
         self.on_checks = {}
         self.monitor_checks = {}
         self.clocks = {}
@@ -361,9 +364,12 @@ class Gui(wx.Frame):
         self.canvas = MyGLCanvas(self, devices, monitors)
 
         self.HELP_TEXT = self._(
-            """Select the number of Cycles at the top of the control panel on the right,
-         and click the button labelled "Run" to simulate the circuit. You can use the button labelled
-         "Continue" to continue simulating the circuit for another N cycles (N is the number in the Cycles box).\n \n """
+            """Select the number of Cycles at the top of the control panel on
+            the right, and click the button labelled
+            "Run" to simulate the circuit.
+         You can use the button labelled "Continue"
+         to continue simulating the circuit
+         for another N cycles (N is the number in the Cycles box).\n \n """
         )
 
         # Configure the widgets
@@ -439,7 +445,8 @@ class Gui(wx.Frame):
         )
 
     def set_up_devices(self, devices, names):
-        """Sets up the devices for the GUI into a list of lists, containing id, name and value."""
+        """Sets up the devices for the GUI into a list of lists, containing id,
+            name and value."""
 
         devices_list = []
         for device in devices.devices_list:
@@ -507,7 +514,8 @@ class Gui(wx.Frame):
         device_sizer.Add(device_entry, 0, wx.EXPAND)
 
     def add_switch_scroll_widget(self, device_entry, device):
-        """Adds a monitor and on/off checkbox for a switch device to the device scroll panel."""
+        """Adds a monitor and on/off checkbox for a switch device to the
+            device scroll panel."""
 
         # Add monitor checkbox
         device_checkbox = wx.CheckBox(
@@ -540,7 +548,8 @@ class Gui(wx.Frame):
         device_checkbox.Bind(wx.EVT_CHECKBOX, self.on_checkbox_changed)
 
     def add_clock_scroll_widget(self, device_entry, device):
-        """Adds a monitor and spin box for a clock device to the device scroll panel."""
+        """Adds a monitor and spin box for a clock device to the
+            device scroll panel."""
 
         # Add monitor checkbox
         device_checkbox = wx.CheckBox(
@@ -569,7 +578,8 @@ class Gui(wx.Frame):
         return
 
     def add_other_scroll_widget(self, device_entry, device):
-        """Adds a monitor checkbox for a non-switch/clock device to the device scroll panel."""
+        """Adds a monitor checkbox for a non-switch/clock device to
+            the device scroll panel."""
 
         # Add monitor checkbox
         device_checkbox = wx.CheckBox(
@@ -606,7 +616,8 @@ class Gui(wx.Frame):
         return monitored_list
 
     def gather_signal_data(self, names, cycle_count):
-        """Run the circuit, then record and return signals for monitored devices."""
+        """Run the circuit, then record and return signals for
+            monitored devices."""
 
         signals_list = []
         self.run(cycle_count)
@@ -639,7 +650,8 @@ class Gui(wx.Frame):
                 self.monitors.record_signals()
 
     def device_number_to_string(self, device_number):
-        """Returns a string containing the name of the device with the given number."""
+        """Returns a string containing the name of the device with the
+            given number."""
 
         id_to_name_list = [
             self._("AND"),
@@ -705,7 +717,7 @@ class Gui(wx.Frame):
         if Id == wx.ID_ABOUT:
             wx.MessageBox(
                 self._(
-                    "Logic Simulator\nCreated by Lohith Konathala, Ognjen Stefanovic, Juan Pedro Montes Moreno\n2023\nBased on skeleton code by Mojisola Agboola 2017"
+                    "Logic Simulator\nCreated by Lohith K, Ognjen Stefanovic, Juan Pedro Montes Moreno\n2023\nBased on skeleton code by Mojisola Agboola 2017"
                 ),
                 self._("About Logsim"),
                 wx.ICON_INFORMATION | wx.OK,
@@ -736,7 +748,8 @@ class Gui(wx.Frame):
                 print(self._("File name:"), file_name)
 
     def on_spin_cycles(self, event):
-        """Handle the event when the user changes the number of cycles value."""
+        """Handle the event when the user changes the number of
+            cycles value."""
 
         self.cycle_count = self.cycles_spin.GetValue()
         self.canvas.render(self.signals_list)

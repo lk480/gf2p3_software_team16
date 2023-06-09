@@ -91,7 +91,7 @@ class Names:
             TypeError: Type of name_string_list is not a list
 
         Returns:
-            list: list of name_IDs corresponding to each name_string provided 
+            list: list of name_IDs corresponding to each name_string provided
                   in name_string_list.
         """
         # Check type of name_string_list

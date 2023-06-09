@@ -438,7 +438,9 @@ class Network:
                 ):
                     return False
             for device_id in or_devices:  # execute OR gate devices
-                if not self.execute_gate(device_id, self.devices.LOW, self.devices.LOW):
+                if not self.execute_gate(
+                        device_id, self.devices.LOW, self.devices.LOW
+                ):
                     return False
             for device_id in nand_devices:  # execute NAND gate devices
                 if not self.execute_gate(

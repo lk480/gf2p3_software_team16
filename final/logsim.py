@@ -83,7 +83,8 @@ def main(arg_list):
             locale.AddCatalogLookupPathPrefix("es_es")
             locale.AddCatalog("messages")
 
-            gui = Gui("Logic Simulator", path, names, devices, network, monitors, lang_code)
+            gui = Gui("Logic Simulator", path, names, devices, network,
+                      monitors, lang_code)
             gui.Show(True)
             app.MainLoop()
 

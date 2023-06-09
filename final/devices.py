@@ -281,7 +281,7 @@ class Devices:
         self.add_device(device_id, self.SIGGEN)
         device = self.get_device(device_id)
         device.sequence_2_repeat = sequence_2_repeat
-        self.cold_startup()  # siggen initialised to a random point in its cycle
+        self.cold_startup()
 
     def make_rc(self, device_id, rc_period):
         self.add_device(device_id, self.RC)

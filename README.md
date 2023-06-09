@@ -1,6 +1,6 @@
 # gf2p3_software_team16
 
-This is a repo for Team 16 GF2 Software Project
+This is a repo for Team 16 GF2 Software Project. This project contains software used to simulate logic circuits. See the EBNF Syntax below for definition file syntax, and use python logsim.py {path to definition .txt file} to get started. See separate user guide.
 
 ## Install requirements
 

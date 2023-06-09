@@ -46,15 +46,15 @@ class DefinitionError(MyException):
     """Error is raised when a device is incorrectly defined."""
 
 
-class DeviceNameError(MyException):
-    """Error is raised when a device name is defined incorrectly."""
-
-
 class DeviceTypeError(MyException):
     """Error is raised when an unknown device type is specified."""
 
 
 # Semantic Errors
+
+
+class DeviceNameError(MyException):
+    """Error is raised when a device name is defined incorrectly."""
 
 
 class ConnectError(MyException):

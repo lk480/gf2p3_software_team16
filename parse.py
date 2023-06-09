@@ -211,8 +211,10 @@ class Parser:
 
         Raises:
             error.InvalidPropertyError: Device property incorrectly specified
-            error.MultipleInputError:
-            error.MissingPunctuationError: _description_
+            error.MultipleInputError: Multiple outputs connect to a single
+                                      input port
+            error.MissingPunctuationError: Missing Punctuation
+                                           e.g. COMMA, SEMICOLON
         """
 
         try:
@@ -227,7 +229,7 @@ class Parser:
                 if input_device is None:
                     raise error.InvalidPropertyError(
                         "Incorrect Device Property.")
-                if input_device.inputs[ip_port_id] is not None:
+                if input_device.inputs.get(ip_port_id) is not None:
                     raise error.MultipleInputError(
                         "This input is already connected")
 

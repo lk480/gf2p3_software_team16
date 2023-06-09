@@ -71,7 +71,7 @@ def parser(path):
 # ---- SYNTAX ERRORS ----#
 
 """
-SyntaxError - Missing Colon
+Syntax Error - Missing Colon
 DEVICE: GATE1, NAND, 2;
 DEVICE Gate2, OR, 2;
 """
@@ -90,7 +90,7 @@ def test_parse_missing_punctuation(new_names, new_device,
 
 
 """
-SyntaxError - Missing Attribute
+Syntax Error - Missing Attribute
 DEVICE: GATE1, NAND, ;
 CONNECT: NONE;
 MONITOR: GATE1;
@@ -110,7 +110,7 @@ def test_parse_missing_attribute(new_names, new_device,
 
 
 """
-SyntaxError - Missing Comma
+Syntax Error - Missing Comma
 DEVICE: GATE1, NAND 2;
 """
 
@@ -128,7 +128,7 @@ def test_parse_missing_comma(new_names, new_device,
 
 
 """
-SyntaxError - Missing Device
+Syntax Error - Missing Device
     : GATE1, AND, 4;
 """
 
@@ -146,7 +146,7 @@ def test_parse_missing_device(new_names, new_device,
 
 
 """
-SyntaxError - Missing Device Type
+Syntax Error - Missing Device Type
     DEVICE: GATE1, , 2;
 """
 
@@ -164,6 +164,7 @@ def test_parse_missing_device_type(new_names, new_device,
 
 
 """
+Syntax Error - Missing Semicolon
 DEVICE: GATE1, NAND, 2
 CONNECT: NONE;
 """
@@ -184,6 +185,61 @@ def test_parse_missing_semicolon(new_names, new_device,
 # ---- SEMANTIC ERRORS ---- #
 
 """
+Semantic Error - Multiple outputs connect to a single input port
+DEVICE: G1, NAND, 1:
+DEVICE: SW1, SWITCH, 0;
+DEVICE: SW2, SWITCH, 1;
+CONNECT: SW1 = G1.I1, SW2 = G1.I1;
+"""
+
+
+@pytest.mark.parametrize("file_path, exception", [
+    (Path.cwd() / "definition_files" / "semantic_error_files" /
+     "multiple_inputs.txt", error.MultipleInputError)])
+def test_parse_multiple_inputs(new_names, new_device,
+                               new_network, new_monitor,
+                               file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
+    with pytest.raises(exception):
+        parser.parse_network()
 
 
 """
+Semantic Error - Device name is keyword
+DEVICE: NAND, NAND, 2;
+"""
+
+
+@pytest.mark.parametrize("file_path, exception", [
+    (Path.cwd() / "definition_files" / "semantic_error_files" /
+     "keyword_name_error.txt", error.DeviceNameError)])
+def test_parse_keyword_name_error(new_names, new_device,
+                                  new_network, new_monitor,
+                                  file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
+    with pytest.raises(exception):
+        parser.parse_network()
+
+
+"""
+Semantic Error - Monitoring a device input
+DEVICE: GATE1, NAND, 2;
+DEVICE: SWITCH1, SWITCH, 0;
+DEVICE: SWITCH2, SWITCH, 0;
+CONNECT: SWITCH1 = GATE1.I1, SWITCH2 = GATE1.I2;
+MONITOR: GATE1.I1;
+"""
+
+
+@pytest.mark.parametrize("file_path, exception", [
+    (Path.cwd() / "definition_files" / "semantic_error_files" /
+     "monitor_input.txt", error.MonitorError)])
+def test_parse_monitor_input(new_names, new_device,
+                             new_network, new_monitor,
+                             file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
+    with pytest.raises(exception):
+        parser.parse_network()

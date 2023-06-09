@@ -28,38 +28,39 @@ DEVICE: G2, NAND, 2;
 CONNECT: G2.I1 = SW1, G1.I2 = G2, G2.I1 = G1, G2.I2 = SW2;  
 MONITOR: G1, G2;  
 
-### # Here we define what is new_devices
+### # Top level grammar  
+
+overall_circuit = new_device, {new_device}, connectionlist, monitors;  
+
+### # Here we define what is new_devices  
 
 new_device = "DEVICE", ":", device_name, ",", device_type, ",", device_property, ";";  
 
-device_name = letter, {letter | positive_non_zero_integer};  
-device_type = "CLOCK" | "SWITCH" | "NAND" | "DTYPE" | "XOR" | "AND" |
-              "OR" | "NOR" | "NOT";  
-device_property = [define_inputs | define_switch_state | define_clock_period];  
+device_name = alphanumeric, {alphanumeric};  
+device_type = "CLOCK" | "SWITCH" | "NAND" | "DTYPE" | "XOR" | "AND" | "OR" | "NOR" | "NOT" | "RC" | "SIGGEN";  
+device_property = [define_inputs | switch_state | binary_sequence | define_clock_period];  
 
-define_inputs = "INPUTS(",{positive_non_zero_integer, ","},
-                positive_non_zero_integer, ")";  
-define_switch_state = "STATE(", {switch_state, ","}, switch_state, ")";  
+define_inputs = positive_non_zero_integer;  
 switch_state = "0" | "1";  
-define_clock_period = "PERIOD(", {positive_non_zero_integer, ","},
-                      positive_non_zero_integer, ")";  
+binary_sequence = switch_state, {switch_state};  
+define_clock_period = positive_non_zero_integer;  
 
-### # Here we define connections
+### # Here we define connections  
 
-connectionlist = "CONNECT", ":", connection, {",",connection},";";  
+connectionlist = "CONNECT", ":", {connection, ","}, connection, ";";  
 
 connection = ip_device, '=', op_device;  
-output = device_name, "." ["Q" | "QBAR"];  
-input = device_name, "." ("I", positive_non_zero_integer);  
+output = device_name, [".", ("Q" | "QBAR")];  
+input = device_name, ".I", positive_non_zero_integer;  
 
-### # Definition of monitors
+### # Definition of monitors  
 
-monitors = "MONITOR", ":" , {output, ","}, output;  
+monitors = "MONITOR", ":" , {output, ","}, output, ";";  
 
-### # Additional definitions
+### # Additional definitions  
 
 non_zero_digit = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";  
-digit = "0" | digit_excluding_zero;  
+digit = "0" | non_zero_digit;  
 
 lowercase_letter = "a"| "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j"| "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z";  
 
@@ -74,3 +75,4 @@ comment = "#", {alphanumeric | space_tab} , '#';
 sign = "+” | ”-”;  
 integer = ([sign], non_zero_digit, {digit}) | "0";  
 positive_non_zero_integer = non_zero_digit, {digit};  
+positive_integer = positive_non_zero_integer| "0";  

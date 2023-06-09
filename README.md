@@ -11,11 +11,20 @@ pip install -r requirements.txt
 Simply replace {directory} with the desired directory and {Iso language code} with the desired code, such as en_GB or es_ES.
 The babel.cfg file can be found in the languages folder.
 
+'''
 pybabel extract -F {path to babel.cfg}babel.cfg -o messages.pot gui.py  
 pybabel init -i messages.pot -d {directory} -l {Iso langauge code}  
 pybabel compile -f -d {directory}  
+'''
 
 ## EBNF SYNTAX
+
+### # Examples of EBNF Grammar
+
+DEVICE: G1, NAND, 2;
+DEVICE: G2, NAND, 2;
+CONNECT: G2.I1 = SW1, G1.I2 = G2, G2.I1 = G1, G2.I2 = SW2;
+MONITOR: G1, G2;
 
 ### # Here we define what is new_devices
 
@@ -58,15 +67,8 @@ space_tab = " " | "\t";
 
 letter = lowercase_letter | uppercase_letter;
 alphanumeric = digit | lowercase_letter | uppercase_letter;
-comment = "#", {alphanumeric | space_tab} , '#'
+comment = "#", {alphanumeric | space_tab} , '#';
 
 sign = "+” | ”-”;
 integer = ([sign], non_zero_digit, {digit}) | "0";
 positive_non_zero_integer = non_zero_digit, {digit};
-
-### # Examples of EBNF Grammar
-
-DEVICE: G1, NAND, 2;
-DEVICE: G2, NAND, 2;
-CONNECT: G2.I1 = SW1, G1.I2 = G2, G2.I1 = G1, G2.I2 = SW2;
-MONITOR: G1, G2;

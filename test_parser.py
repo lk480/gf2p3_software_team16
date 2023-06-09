@@ -186,10 +186,11 @@ def test_parse_missing_semicolon(new_names, new_device,
 
 """
 Semantic Error - Multiple outputs connect to a single input port
-DEVICE: G1, NAND, 1:
+DEVICE: G1, NAND, 1;
 DEVICE: SW1, SWITCH, 0;
-DEVICE: SW2, SWITCH, 1;
+DEVICE: SW2, SWITCH, 0;
 CONNECT: SW1 = G1.I1, SW2 = G1.I1;
+MONITOR: G1;
 """
 
 
@@ -239,6 +240,26 @@ MONITOR: GATE1.I1;
 def test_parse_monitor_input(new_names, new_device,
                              new_network, new_monitor,
                              file_path, exception):
+    parser = Parser(new_names, new_device, new_network,
+                    new_monitor, Scanner(file_path, new_names))
+    with pytest.raises(exception):
+        parser.parse_network()
+
+
+"""
+Semantic Error - Referenced port does not exist
+DEVICE: G1, NOR, 2;
+CONNECT: NONE;
+MONITOR: G1.QBAR;
+"""
+
+
+@pytest.mark.parametrize("file_path, exception", [
+    (Path.cwd() / "definition_files" / "semantic_error_files" /
+     "port_reference_error.txt", error.PortReferenceError)])
+def test_parse_port_reference(new_names, new_device,
+                              new_network, new_monitor,
+                              file_path, exception):
     parser = Parser(new_names, new_device, new_network,
                     new_monitor, Scanner(file_path, new_names))
     with pytest.raises(exception):

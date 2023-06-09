@@ -337,6 +337,7 @@ class Parser:
             if (
                 self.symbol.type == self.scanner.NAME
                 and self.symbol.id in self.devices.dtype_output_ids
+                and 
             ):
                 # Device is a DTYPE Latch
                 print("Device is a DTYPE Latch")
@@ -351,7 +352,7 @@ class Parser:
 
             else:
                 raise error.PortReferenceError(
-                    "DTYPE input port does not exist")
+                    "DTYPE outport does not exist")
         else:
             print("Device is not a DTYPE Latch")
             # Output device is not a DTYPE Latch so op_port_id must be None
